@@ -74,6 +74,9 @@ if build template/journal.typ jrnl; then
   check "title"        "$(baseline "$out/jrnl.pdf" 1 'Bare Demo')"   77
   check "author line"  "$(baseline "$out/jrnl.pdf" 1 'Michael')"    128
   check "abstract"     "$(baseline "$out/jrnl.pdf" 1 'Abstract')"   184
+  # The drop cap's baseline sits on the second body line, one line below the
+  # first. Catches the offset conversion in parstart.typ silently breaking.
+  check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 260
 fi
 
 echo "geometry invariants"

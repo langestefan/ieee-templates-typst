@@ -1,4 +1,5 @@
 #import "/src/journal.typ": ieee-journal
+#import "/src/common/parstart.typ": parstart
 
 #show: ieee-journal.with(
   title: [Bare Demo of IEEEtran.cls \ for IEEE Journals],
@@ -13,8 +14,7 @@
 )
 
 = Introduction
-This demo file is intended to serve as a "starter file" for IEEE journal papers
-produced under LaTeX using IEEEtran.cls version 1.8b and later.
+#parstart[This demo file is intended to serve as a "starter file" for IEEE journal papers produced under LaTeX using IEEEtran.cls version 1.8b and later.]
 
 == Subsection Heading Here
 Subsection text here.
