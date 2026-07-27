@@ -4,11 +4,54 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository status
 
-This repo is greenfield: the git repository has **no commits yet**, and there is no Typst code, no build
-script, and no test suite. Everything under `reference/` is third-party material.
+Conference and journal layouts both render and are verified against the reference PDFs. Build either
+template with:
 
-The goal is to build **new** Typst templates for IEEE papers. The LaTeX material is the
-**specification to port from**, not code to modify or wrap.
+```bash
+typst compile --root . template/main.typ out.pdf              # bare conference demo
+typst compile --root . template/conference-062824.typ out.pdf # IEEE's official wrapper, 6 authors
+typst compile --root . template/journal.typ out.pdf           # journal
+```
+
+Everything under `reference/` is third-party material and is the **specification to port from**, not code
+to modify or wrap.
+
+### Verification
+
+`scripts/baselines.sh <pdf> [page] [max-x]` prints true text baselines using Ghostscript's `txtwrite`
+device. Use it, not `pdftotext`: `pdftotext` only exposes ink bounding boxes, which shift by up to 2pt
+depending on whether a line contains descenders. That is the same magnitude as the spacing being
+verified, and early measurements taken that way were wrong.
+
+`scripts/verify-geometry.sh` compares text-block extent and line counts between two PDFs.
+
+Current agreement with the references, in points:
+
+| landmark | conference | 062824 | journal |
+|---|---|---|---|
+| title | exact | exact | exact |
+| authors | exact | row 1 exact, row 2 +1 | +1 |
+| abstract | exact | exact | exact |
+| first section | exact | — | −5 |
+
+### Known gaps
+
+- `\IEEEPARstart` drop caps are not implemented. Typst cannot indent only the first two lines of a
+  paragraph, so the usual approaches do not work.
+- Author biographies and appendices are not implemented; the journal reference shows a `PLACE PHOTO HERE`
+  box that this port omits.
+- The gap between the References heading and the first entry is 11pt against the reference's 15pt, from
+  LaTeX list `\topsep`.
+- Bibliography entry-to-entry spacing is unverified, as `template/refs.bib` holds a single entry.
+- `compsoc`, `comsoc`, `transmag`, `technote` and `peerreview` are untouched.
+
+### Calibrated constants
+
+Several spacing constants are calibrated against the reference renders rather than derived from the
+class, and are marked as such in the source. They are the title-internal gaps, which depend on TeX's
+`\topskip` rule for the first line of a box, and the `title-slack` used for quantising. In both modes the
+class's stated `\@IEEENORMtitlevspace` lands the columns a slot high. Treat these as load-bearing: if a
+layout drifts after a change, check them first.
 
 ## Critical context: upstream is frozen
 
