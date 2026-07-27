@@ -116,6 +116,17 @@ if build template/journal-onecolumn.typ jrnl1; then
   check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')" 1
 fi
 
+echo "transactions on magnetics"
+if build template/transmag.typ tmag; then
+  ref=reference/pdf/IEEE_LaTeX_Template_for_Transactions_on_Magnetics.pdf
+  check "tmag title"       "$(baseline "$out/tmag.pdf" 1 'Bare Demo')"      "$(baseline "$ref" 1 'BareDemo')"
+  check "tmag authors"     "$(baseline "$out/tmag.pdf" 1 'Michael')"        "$(baseline "$ref" 1 'MichaelShell,')"
+  check "tmag affil 1"     "$(baseline "$out/tmag.pdf" 1 'School of')"      "$(baseline "$ref" 1 'Schoolof')"
+  check "tmag abstract"    "$(baseline "$out/tmag.pdf" 1 'abstract goes')"  "$(baseline "$ref" 1 'Theabstractgoes')"
+  check "tmag index terms" "$(baseline "$out/tmag.pdf" 1 'Index Terms')"    "$(baseline "$ref" 1 'IndexTerms')"
+  check "tmag section 1"   "$(baseline "$out/tmag.pdf" 1 'Introduction')"   "$(baseline "$ref" 1 'INTRODUCTION')"
+fi
+
 echo "A4"
 # Verified against real IEEE A4 renders. a4paper changes only the sheet
 # dimensions for conference and journal mode: \if@IEEEusingAfourpaper is

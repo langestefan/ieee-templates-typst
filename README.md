@@ -198,8 +198,13 @@ Equations number as `(1)` flush right, and `@eq` references render as a bare `(1
 | Drop cap, appendices, biographies | — | ✅ |
 | Single column (`columns: 1`) | — | ✅ |
 
-Not implemented: `IEEEeqnarray` multi-line equation layout, the `compsoc` / `comsoc` / `transmag` /
-`technote` / `peerreview` modes, point sizes other than 10pt, and automatic last-page column balancing
+`ieee-transmag` covers IEEE Transactions on Magnetics, which differs from a plain journal in its title
+area: a smaller bold title, numeric affiliation marks with one affiliation per line, and the abstract and
+index terms carried full width inside the title block with no `Abstract—` label. Verified against
+`bare_jrnl_transmag.tex`.
+
+Not implemented: `IEEEeqnarray` multi-line equation layout, the `compsoc` / `comsoc` / `technote` /
+`peerreview` modes, point sizes other than 10pt, and automatic last-page column balancing
 (`#colbreak()` is the manual remedy).
 
 `compsoc` is a larger job than the name suggests. It is a different design rather than a variant: Palatino
@@ -215,7 +220,7 @@ The point of this port is that it is checked, not eyeballed.
 scripts/check.sh
 ```
 
-Compiles every template and asserts 37 landmark baselines against IEEE's compiled reference PDFs in
+Compiles every template and asserts 44 landmark baselines against IEEE's compiled reference PDFs in
 `reference/pdf/`. Conference, journal and A4 all match their references exactly on title, authors,
 abstract, index terms and first section; the largest remaining discrepancy anywhere is 1pt.
 

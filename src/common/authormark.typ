@@ -13,7 +13,14 @@
     // \romannumeral is lowercase.
     lower(numbering("I", n - marks.len()))
   }
+  // The class raises a \footnotesize mark. Typst's super() shrinks whatever it
+  // is given, so size is pinned to 1em of the footnote size; leaving it to
+  // shrink gives a 4.8pt mark where the reference has 8pt.
+  //
   // \raisebox{0pt}[0pt][0pt] makes the mark contribute no height or depth, so a
   // marked name does not sit differently from an unmarked one on the same line.
-  box(height: 0pt, super(text(size: sizes.footnote.at(0), glyph)))
+  box(height: 0pt, text(
+    size: sizes.footnote.at(0),
+    super(typographic: false, size: 1em, baseline: -0.4em, glyph),
+  ))
 }
