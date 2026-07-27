@@ -8,6 +8,7 @@
   leading-for, line-advance, margin-side, page-setup, sizes, text-width,
   vertical, with-size,
 )
+#import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings
 #import "common/headings.typ": appendices, heading-below-extra
 #import "common/floats.typ" as floats

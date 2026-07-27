@@ -38,3 +38,4 @@ Appendix two text goes here.
 #biography-no-photo(name: [John Doe])[Biography text here.]
 
 #biography-no-photo(name: [Jane Doe])[Biography text here.]
+

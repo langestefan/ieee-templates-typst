@@ -4,6 +4,7 @@
   column-gutter, em-box, leading-for, line-advance, page-setup, par-indent,
   sizes, text-width, tpc, tpt, vertical, with-size,
 )
+#import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings
 #import "common/headings.typ": appendices, heading-below-extra
 #import "common/floats.typ" as floats

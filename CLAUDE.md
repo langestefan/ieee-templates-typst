@@ -36,22 +36,31 @@ Current agreement with the references, in points:
 
 ### Known gaps
 
-- `\IEEEPARstart` drop caps are not implemented. Typst cannot indent only the first two lines of a
-  paragraph, so the usual approaches do not work.
-- Author biographies and appendices are not implemented; the journal reference shows a `PLACE PHOTO HERE`
-  box that this port omits.
-- The gap between the References heading and the first entry is 11pt against the reference's 15pt, from
-  LaTeX list `\topsep`.
-- Bibliography entry-to-entry spacing is unverified, as `template/refs.bib` holds a single entry.
-- `compsoc`, `comsoc`, `transmag`, `technote` and `peerreview` are untouched.
+- **Last-page column balancing.** Typst fills page-level columns sequentially and offers no balancing,
+  so a final page leaves column one full and column two short. `#colbreak()` at the right point is the
+  manual remedy and works fine.
+- **The journal's first section heading sits 5pt high**, 233 against 238. Unresolved. Possibly the same
+  unmodelled cause as the quantisation slack described below.
+- `IEEEeqnarray` multi-line equation layout has no Typst analogue and is not attempted.
+- `compsoc`, `comsoc`, `transmag`, `technote` and `peerreview` modes are untouched, as are point sizes
+  other than 10pt. Four of those modes already have reference renders in `reference/pdf/`.
+- `author-row-gap` in `conference.typ` rests on a single document: 062824 is the only reference render
+  with more than one author row.
 
 ### Calibrated constants
 
-Several spacing constants are calibrated against the reference renders rather than derived from the
-class, and are marked as such in the source. They are the title-internal gaps, which depend on TeX's
-`\topskip` rule for the first line of a box, and the `title-slack` used for quantising. In both modes the
-class's stated `\@IEEENORMtitlevspace` lands the columns a slot high. Treat these as load-bearing: if a
-layout drifts after a change, check them first.
+A few spacing constants are calibrated against the reference renders rather than derived from the class,
+and are marked as such in the source: the title-internal gaps, which depend on TeX's `\topskip` rule for
+the first line of a box, and the per-mode `slack` in `geometry.typ`'s `vertical` table.
+
+The slack is documented there with the measured bounds for all three references. The short version: the
+class's `\@IEEENORMtitlevspace` sits below every valid range, short by roughly one line advance in each
+case, which matches the `[-\topskip]` offset `\IEEEquantizevspace` applies. Adding exactly one advance
+fixes journal but leaves the bare conference demo 0.66pt short, so the cause is narrowed rather than
+settled. The three ranges do intersect, but in a window under a point wide, so per-mode values are kept.
+
+Treat these as load-bearing: if a layout drifts after a change, check them first, and run
+`scripts/check.sh`.
 
 ## Critical context: upstream is frozen
 
