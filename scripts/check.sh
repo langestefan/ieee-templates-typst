@@ -92,6 +92,31 @@ if build template/journal.typ jrnl; then
   fi
 fi
 
+echo "A4"
+# No A4 reference render exists, so this is a smoke test only: the sheet must be
+# A4 and the text block centred on it at the same width as US Letter.
+cat > "$out/a4.typ" <<'A4EOF'
+#import "/src/conference.typ": ieee-conference
+#show: ieee-conference.with(
+  paper: "a4",
+  title: [A4],
+  authors: ((name: "A", affiliation: ("X",)),),
+  abstract: [A4.],
+)
+= Introduction
+#for i in range(120) [Filler sentence number #i here. ]
+A4EOF
+if typst compile --root . "$out/a4.typ" "$out/a4.pdf" 2>/dev/null; then
+  size=$(pdfinfo "$out/a4.pdf" | awk '/^Page size/{print $3}')
+  left=$(./scripts/baselines.sh "$out/a4.pdf" 1 9999 >/dev/null 2>&1; \
+         pdftotext -bbox -f 1 -l 1 "$out/a4.pdf" - 2>/dev/null \
+         | grep -oE 'xMin="[0-9.]+"' | sed -E 's/[^0-9.]//g' | sort -n | head -1)
+  check "A4 sheet width" "$size" 595.276
+  check "A4 left edge"   "$left" 40.6
+else
+  printf '  FAIL  %-34s did not compile\n' "a4"; fail=$((fail + 1))
+fi
+
 echo "geometry invariants"
 cols=$(./scripts/baselines.sh "$out/conf.pdf" 1 300 | wc -l)
 printf '  info  %-34s %s baselines in left column\n' "conference column" "$cols"

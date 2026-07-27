@@ -72,6 +72,7 @@
 })
 
 #let ieee-journal(
+  paper: "us-letter",
   title: [],
   authors: [],
   header-left: [],
@@ -82,7 +83,7 @@
   bibliography: none,
   body,
 ) = {
-  show: page-setup.with(mode: "journal")
+  show: page-setup.with(mode: "journal", paper: paper)
   show: headings.rules
   show: floats.rules
   show: elements.rules

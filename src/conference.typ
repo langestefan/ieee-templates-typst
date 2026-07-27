@@ -130,6 +130,7 @@
 })
 
 #let ieee-conference(
+  paper: "us-letter",
   title: [],
   authors: (),
   thanks: none,
@@ -138,7 +139,7 @@
   bibliography: none,
   body,
 ) = {
-  show: page-setup.with(mode: "conference")
+  show: page-setup.with(mode: "conference", paper: paper)
   show: headings.rules
   show: floats.rules
   show: elements.rules

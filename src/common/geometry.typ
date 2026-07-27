@@ -22,12 +22,25 @@
 
 #let line-advance = sizes.normal.at(1)
 
-// Column widths are shared by both modes. IEEEtran.cls:1734-1735.
-// 43pc = 2 x 21pc + 1pc.
+// Column widths are shared by both modes and by both paper sizes.
+// IEEEtran.cls:1734-1735. 43pc = 2 x 21pc + 1pc.
 #let text-width = 43 * tpc
 #let column-width = 21 * tpc
 #let column-gutter = 1 * tpc
-#let margin-side = (612pt - text-width) / 2
+
+// The class keeps the text block the same size on A4 and centres it
+// horizontally (\IEEEsetsidemargin{c}), while the fixed top margin means the
+// extra height is absorbed at the bottom. Only the compsoc branch varies its
+// vertical metrics by paper size, and compsoc is not ported.
+#let papers = (
+  "us-letter": (width: 612pt, height: 792pt),
+  "a4": (width: 595.28pt, height: 841.89pt),
+)
+
+#let side-margin-for(paper) = (papers.at(paper).width - text-width) / 2
+
+// Retained for callers that predate paper selection; US Letter is the default.
+#let margin-side = side-margin-for("us-letter")
 
 // Vertical geometry is mode-specific. All arithmetic below is in TeX points,
 // converted only at the end.
@@ -70,15 +83,17 @@
 // IEEEtran indents every paragraph, including the first after a heading.
 #let par-indent = 1 * tpc
 
-#let page-setup(mode: "conference", body) = {
+#let page-setup(mode: "conference", paper: "us-letter", body) = {
   let v = vertical.at(mode)
+  let sheet = papers.at(paper)
+  let side = side-margin-for(paper)
   set page(
-    paper: "us-letter",
+    paper: paper,
     margin: (
       top: v.top,
-      bottom: 792pt - v.top - v.height,
-      left: margin-side,
-      right: margin-side,
+      bottom: sheet.height - v.top - v.height,
+      left: side,
+      right: side,
     ),
     columns: 2,
   )
