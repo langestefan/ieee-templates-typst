@@ -55,7 +55,7 @@ build() {
 }
 
 echo "conference: bare demo"
-if build template/main.typ conf; then
+if build tests/conference.typ conf; then
   check "title"        "$(baseline "$out/conf.pdf" 1 'Bare Demo')"    71
   check "author names" "$(baseline "$out/conf.pdf" 1 'Michael')"     131
   check "abstract"     "$(baseline "$out/conf.pdf" 1 'Abstract')"    238
@@ -69,7 +69,7 @@ if build template/main.typ conf; then
 fi
 
 echo "conference: IEEE 062824 wrapper, two author rows"
-if build template/conference-062824.typ c62; then
+if build tests/conference-062824.typ c62; then
   check "title"          "$(baseline "$out/c62.pdf" 1 'Conference Paper')" 71
   check "subtitle"       "$(baseline "$out/c62.pdf" 1 'Note: Sub-titles')" 99
   check "author row 1"   "$(baseline "$out/c62.pdf" 1 '1 Given')"         131
@@ -78,7 +78,7 @@ if build template/conference-062824.typ c62; then
 fi
 
 echo "journal"
-if build template/journal.typ jrnl; then
+if build tests/journal.typ jrnl; then
   check "running head" "$(baseline "$out/jrnl.pdf" 1 'JOURNAL OF')"  31
   check "title"        "$(baseline "$out/jrnl.pdf" 1 'Bare Demo')"   77
   check "author line"  "$(baseline "$out/jrnl.pdf" 1 'Michael')"    128
@@ -106,7 +106,7 @@ if build template/journal.typ jrnl; then
 fi
 
 echo "journal, one column"
-if build template/journal-onecolumn.typ jrnl1; then
+if build tests/journal-onecolumn.typ jrnl1; then
   ref=reference/pdf/One_column_IEEE_journal_article.pdf
   check "1col title"      "$(baseline "$out/jrnl1.pdf" 1 'Bare Demo')"   "$(baseline "$ref" 1 'BareDemo')"
   check "1col authors"    "$(baseline "$out/jrnl1.pdf" 1 'Michael')"     "$(baseline "$ref" 1 'Michael')"
@@ -117,7 +117,7 @@ if build template/journal-onecolumn.typ jrnl1; then
 fi
 
 echo "transactions on magnetics"
-if build template/transmag.typ tmag; then
+if build tests/transmag.typ tmag; then
   ref=reference/pdf/IEEE_LaTeX_Template_for_Transactions_on_Magnetics.pdf
   check "tmag title"       "$(baseline "$out/tmag.pdf" 1 'Bare Demo')"      "$(baseline "$ref" 1 'BareDemo')"
   check "tmag authors"     "$(baseline "$out/tmag.pdf" 1 'Michael')"        "$(baseline "$ref" 1 'MichaelShell,')"
@@ -129,7 +129,7 @@ fi
 
 echo "computer society journal"
 if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
-  if build template/compsoc.typ cs; then
+  if build tests/compsoc.typ cs; then
     ref=reference/pdf/IEEE_Demo_Template_for_Computer_Science_Journals.pdf
     check "cs title"       "$(baseline "$out/cs.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
     check "cs authors"     "$(baseline "$out/cs.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
@@ -148,7 +148,7 @@ else
 fi
 
 echo "computer society conference"
-if build template/compsoc-conference.typ csc; then
+if build tests/compsoc-conference.typ csc; then
   ref=reference/pdf/IEEE_Demo_Template_for_Computer_Society_Conferences.pdf
   check "csc title"     "$(baseline "$out/csc.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
   check "csc authors"   "$(baseline "$out/csc.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
@@ -157,7 +157,7 @@ if build template/compsoc-conference.typ csc; then
 fi
 
 echo "author row spacing probe"
-if build template/author-rows-probe.typ rows; then
+if build tests/author-rows-probe.typ rows; then
   ref=reference/pdf/Author_Row_Spacing_Probe.pdf
   check "probe row 1" "$(baseline "$out/rows.pdf" 1 'Alpha')"   "$(baseline "$ref" 1 'AlphaOne')"
   check "probe row 2" "$(baseline "$out/rows.pdf" 1 'Foxtrot')" "$(baseline "$ref" 1 'FoxtrotSix')"
@@ -169,11 +169,11 @@ echo "A4"
 # referenced once outside the option declaration and that is inside the compsoc
 # branch (IEEEtran.cls:1773). So every vertical landmark matches US Letter and
 # only the side margins move, from 48.96pt to 40.60pt.
-for pair in "template/main.typ:conf-a4:ieee-conference" \
-            "template/journal.typ:jrnl-a4:ieee-journal"; do
+for pair in "tests/conference.typ:conf-a4:ieee-conference" \
+            "tests/journal.typ:jrnl-a4:ieee-journal"; do
   src=${pair%%:*}; rest=${pair#*:}; tag=${rest%%:*}; fn=${rest##*:}
   sed "s|^#show: $fn.with(|#show: $fn.with(\n  paper: \"a4\",|" "$src" > "$out/$tag.typ"
-  cp template/refs.bib "$out/refs.bib" 2>/dev/null
+  cp tests/refs.bib "$out/refs.bib" 2>/dev/null
   build "$out/$tag.typ" "$tag" || continue
 done
 
@@ -218,14 +218,14 @@ for spec in "conf:71:72" "jrnl:77:78" "tmag:72:73" "cs:74:75" "csc:108:109"; do
 done
 
 echo "technote and peer review"
-if build template/technote.typ tn; then
+if build tests/technote.typ tn; then
   ref=reference/pdf/IEEE_Journal_Technote.pdf
   check "technote head"     "$(baseline "$out/tn.pdf" 1 'JOURNAL OF')" "$(baseline "$ref" 1 'JOURNALOF')"
   check "technote title"    "$(baseline "$out/tn.pdf" 1 'Bare Demo')"  "$(baseline "$ref" 1 'BareDemo')"
   check "technote authors"  "$(baseline "$out/tn.pdf" 1 'Michael')"    "$(baseline "$ref" 1 'MichaelShell')" 1
   check "technote abstract" "$(baseline "$out/tn.pdf" 1 'Abstract')"   "$(baseline "$ref" 1 'Abstract')"
 fi
-if build template/peerreview.typ pr; then
+if build tests/peerreview.typ pr; then
   ref=reference/pdf/IEEE_Journal_Peerreview.pdf
   check "peerreview title"    "$(baseline "$out/pr.pdf" 1 'Bare Demo')" "$(baseline "$ref" 1 'BareDemo')"
   check "peerreview authors"  "$(baseline "$out/pr.pdf" 1 'Michael')"   "$(baseline "$ref" 1 'MichaelShell')"
@@ -263,6 +263,13 @@ if build "$out/pt11.typ" pt11; then
   # here rather than asserting a precision the measurement does not have.
   check "11pt body advance" "$adv" 13.33 1
 fi
+
+echo "starter template"
+# template/ is what `typst init` copies. It imports by package name, which only
+# resolves once published, so it is rewritten to the local source to be checked.
+sed 's|@preview/ieee-templates:0.1.0|/src/lib.typ|' template/main.typ > "$out/starter.typ"
+cp template/refs.bib "$out/refs.bib"
+build "$out/starter.typ" starter
 
 echo "README previews"
 # The images in assets/ are generated, and nothing else here would notice them

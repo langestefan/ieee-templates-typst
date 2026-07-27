@@ -10,4 +10,4 @@ license = "MIT"
 # The MIT licence covers src/, template/ and scripts/ only. reference/ is
 # excluded from the package: IEEEtran itself is LPPL, and IEEE's template
 # wrapper and the compiled reference PDFs are IEEE copyright. See LICENSE.
-exclude = ["reference", "scripts", "tmp"]
+exclude = ["reference", "scripts", "tests", "tmp", "docs", "assets"]

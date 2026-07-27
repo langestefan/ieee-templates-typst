@@ -18,7 +18,9 @@ SIGNATURE_ONLY=0
 RES=110
 
 # Which template each preview is rendered from.
-PREVIEWS="preview-conference:template/main.typ preview-journal:template/journal.typ"
+# Rendered from the reference ports in tests/, which exercise every feature,
+# rather than from the starter, which is deliberately sparse.
+PREVIEWS="preview-conference:tests/conference.typ preview-journal:tests/journal.typ"
 
 mkdir -p tmp/previews assets
 

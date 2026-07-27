@@ -1,54 +1,54 @@
-#import "/src/conference.typ": ieee-conference
+#import "@preview/ieee-templates:0.1.0": ieee-conference
 
 #show: ieee-conference.with(
-  title: [Bare Demo of IEEEtran.cls \ for IEEE Conferences],
+  title: [Paper Title],
   authors: (
     (
-      name: "Michael Shell",
+      name: "First Author",
       affiliation: (
-        "School of Electrical and",
-        "Computer Engineering",
-        "Georgia Institute of Technology",
-        "Atlanta, Georgia 30332–0250",
-        "Email: http://www.michaelshell.org/contact.html",
+        "Department, Organisation",
+        "City, Country",
+        "email@example.org",
       ),
     ),
     (
-      name: "Homer Simpson",
-      affiliation: (
-        "Twentieth Century Fox",
-        "Springfield, USA",
-        "Email: homer@thesimpsons.com",
-      ),
-    ),
-    (
-      name: ("James Kirk", "and Montgomery Scott"),
-      affiliation: (
-        "Starfleet Academy",
-        "San Francisco, California 96678–2391",
-        "Telephone: (800) 555–1212",
-        "Fax: (888) 555–1212",
-      ),
+      name: "Second Author",
+      affiliation: ("Department, Organisation", "City, Country"),
     ),
   ),
-  abstract: [The abstract goes here.],
+  // Funding notes go here; they render as an unmarked footnote on page one.
+  // thanks: [This work was supported by ...],
+  abstract: [
+    The abstract goes here. IEEE sets it bold at 9pt, run in after the label.
+  ],
+  index-terms: [component, formatting, style],
   bibliography: bibliography("refs.bib"),
 )
 
 = Introduction
-This demo file is intended to serve as a "starter file" for IEEE conference
-papers produced under LaTeX using IEEEtran.cls version 1.8b and later.
+Sections number themselves `I.`, `II.` in centred small caps.
 
-== Subsection Heading Here
-Subsection text here.
+== Subsection
+Subsections are italic and lettered `A.`, `B.`
 
-=== Subsubsection Heading Here
-Subsubsection text here.
+=== Subsubsection
+Subsubsections run into the paragraph, as IEEE sets them.
+
+= Method
+Reference figures as @fig and tables as @tbl; equations as @eq.
+
+#figure(caption: [A figure caption.], rect(width: 60pt, height: 30pt)) <fig>
+
+#figure(
+  caption: [A Table Caption],
+  table(
+    columns: 2,
+    [Heading], [Heading],
+    [Cell], [Cell],
+  ),
+) <tbl>
+
+$ E = m c^2 $ <eq>
 
 = Conclusion
-The conclusion goes here. Citations appear here @eason1955, @maxwell1892
-and @kopka1999.
-
-#heading(numbering: none)[Acknowledgment]
-The authors would like to thank\u{2026}
-
+The conclusion goes here @example.

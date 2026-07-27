@@ -272,12 +272,20 @@ Two supporting tools:
 src/
   lib.typ            public API
   conference.typ     conference layout
-  journal.typ        journal layout
+  journal.typ        journal, plus technote and peer review
+  transmag.typ       Transactions on Magnetics
+  compsoc.typ        Computer Society journal and conference
   common/            geometry, headings, floats, elements, drop cap, biography
-template/            runnable examples
-scripts/             check.sh and measurement tools
-reference/           IEEEtran v1.8b and IEEE's compiled PDFs (not part of the package)
+template/            the starter `typst init` copies
+tests/               ports of IEEE's reference documents, one per mode
+scripts/             check.sh and the measurement tools
+docs/                known gaps and porting notes
+reference/           IEEEtran v1.8b and IEEE's compiled PDFs, not part of the package
 ```
+
+`tests/` holds a Typst port of each `bare_*.tex`, which is what `scripts/check.sh`
+measures against `reference/pdf/`. They are verification fixtures rather than
+things to start a paper from; `template/main.typ` is that.
 
 `reference/` is third-party and excluded from the published package: IEEEtran itself is LPPL, while
 IEEE's template wrapper and the compiled PDFs are IEEE copyright. See [LICENSE](LICENSE).

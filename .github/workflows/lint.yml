@@ -20,14 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Typst formatting for the package and the example documents.
+      # Typst formatting for the package, the starter and the test ports.
       # reference/ is third-party and deliberately left alone.
       - name: Install typstyle
         uses: cargo-bins/cargo-binstall@main
       - name: typstyle
         run: |
           cargo binstall -y typstyle
-          typstyle --check src template
+          typstyle --check src template tests
 
       # The measurement and check scripts are the only executable code here
       # outside Typst, and they parse PDF output, so quoting mistakes matter.

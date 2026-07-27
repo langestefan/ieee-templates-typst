@@ -1,4 +1,4 @@
-# preview-conference <- template/main.typ
+# preview-conference <- tests/conference.typ
 71.00 23.91pt Bare
 99.00 23.91pt for
 131.00 10.96pt Michael
@@ -32,7 +32,7 @@
 485.00 7.97pt Oxford:
 494.00 7.97pt [3]H.
 503.00 7.97pt Addison-Wesley,
-# preview-journal <- template/journal.typ
+# preview-journal <- tests/journal.typ
 31.00 6.97pt JOURNAL
 77.00 23.91pt Bare
 104.00 23.91pt for
