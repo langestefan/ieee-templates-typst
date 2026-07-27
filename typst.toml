@@ -1,0 +1,11 @@
+[package]
+name = "ieee-templates"
+version = "0.1.0"
+entrypoint = "src/lib.typ"
+authors = ["Stefan de Lange"]
+description = "IEEE paper templates ported from IEEEtran.cls v1.8b."
+
+# Universe publishing additionally needs `license` and `repository`, and the
+# reference/ directory must be excluded: IEEEtran itself is LPPL, but IEEE's
+# template wrapper and the compiled reference PDFs are IEEE copyright.
+exclude = ["reference", "scripts", "tmp"]
