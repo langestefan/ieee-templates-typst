@@ -8,3 +8,4 @@
 #import "common/headings.typ": appendices
 #import "common/biography.typ": biography, biography-no-photo
 #import "common/authormark.typ": author-mark
+#import "common/elements.typ": subequations

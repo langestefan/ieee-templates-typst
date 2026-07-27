@@ -107,9 +107,35 @@
   with-size(sizes.sublarge, authors)
 })
 
+// IEEEtran.cls:4922-4926. Under peerreview the title block becomes a cover
+// page of its own and \IEEEpeerreviewmaketitle then repeats the title, without
+// the authors, at the head of the body. The point is double-blind review: the
+// cover carries the identifying material and can be removed.
+//
+// IEEEtran.cls:4941 sets the repeated title in \Huge, like a journal title.
+#let peerreview-title(title) = {
+  set align(center)
+  v(title-top-space)
+  with-size(sizes.huge, title)
+  v(title-author-gap)
+}
+
+// IEEEtran.cls:4804-4806. A technote puts its title in the first column rather
+// than spanning both, and sets it \large bold rather than \Huge, with the
+// author line following at body size after 1.3em.
+#let technote-title(title, authors) = {
+  set align(center)
+  with-size(sizes.large, text(weight: "bold", title))
+  v(1.3em)
+  with-size(sizes.normal, authors)
+  v(vspace(1 * line-advance))
+}
+
 #let ieee-journal(
   paper: "us-letter",
   columns: 2,
+  peerreview: false,
+  technote: false,
   title: [],
   authors: [],
   header-left: [],
@@ -129,9 +155,17 @@
 
   set std.bibliography(title: [References], style: "ieee")
 
-  // With one column there is nothing to span, so the title flows normally and
-  // the quantisation that puts two columns on the baseline grid is unnecessary.
-  if columns == 1 {
+  // A technote keeps its title inside the first column, so like the one-column
+  // case it needs neither the float nor the quantisation.
+  if technote {
+    technote-title(title, authors)
+  } else if peerreview {
+    // The cover page carries the full title block; the body starts overleaf
+    // under a repeated title.
+    block(width: 100%, title-block(title, authors))
+    pagebreak(weak: false)
+    block(width: 100%, peerreview-title(title))
+  } else if columns == 1 {
     block(width: 100%, {
       set align(center)
       v(title-top-space-onecolumn)

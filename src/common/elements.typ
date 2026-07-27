@@ -23,12 +23,29 @@
   show ref: it => {
     let el = it.element
     if el != none and el.func() == math.equation {
+      // Use the element's own numbering, not the module default, so an
+      // equation inside a subequations group references as (2a) rather than (2).
       link(el.location(), numbering(
-        equation-numbering,
+        el.numbering,
         ..counter(math.equation).at(el.location()),
       ))
     } else { it }
   }
 
   body
+}
+
+// IEEEtran's IEEEeqnarray family exists because LaTeX's own multi-line equation
+// support is poor. Typst's native math already aligns on & and breaks on \\, so
+// there is nothing to port there: write the equation normally.
+//
+// What IEEE also uses and Typst does not provide is sub-numbering, (1a), (1b),
+// for equations that belong together. This groups them: the group takes one
+// equation number and its members are lettered, after which numbering resumes
+// where it would have.
+#let subequations(body) = context {
+  let start = counter(math.equation).get().first()
+  set math.equation(numbering: n => numbering("(1a)", start + 1, n - start))
+  body
+  counter(math.equation).update(start + 1)
 }

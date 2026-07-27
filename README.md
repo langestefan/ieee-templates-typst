@@ -118,6 +118,8 @@ Everything above, plus:
 | Argument | Type | Notes |
 |---|---|---|
 | `columns` | `2` \| `1` | `1` matches the `onecolumn` class option |
+| `peerreview` | bool | Cover page carrying the authors, then the title repeated overleaf for double-blind review |
+| `technote` | bool | Title in the first column rather than spanning, set `\large` bold |
 | `header-left` | content | Journal line. Shown on page 1 and on even pages |
 | `header-right` | content | Author line, e.g. `Shell et al.: Title`. Shown on odd pages after the first |
 
@@ -182,6 +184,20 @@ number.
 
 Equations number as `(1)` flush right, and `@eq` references render as a bare `(1)`.
 
+`IEEEeqnarray` has no port and needs none: Typst's native math already aligns on `&` and breaks on `\`,
+which is what that environment exists to work around in LaTeX. The one thing IEEE uses that Typst lacks is
+sub-numbering, so `subequations` supplies it:
+
+```typst
+#subequations[
+  $ a + b &= c $ <a>
+  $ d     &= e $ <b>
+]
+```
+
+The group takes one equation number and its members are lettered `(2a)`, `(2b)`, with numbering resuming
+at `(3)` afterwards. References follow suit.
+
 ## Status
 
 | | Conference | Journal |
@@ -203,8 +219,10 @@ area: a smaller bold title, numeric affiliation marks with one affiliation per l
 index terms carried full width inside the title block with no `Abstract—` label. Verified against
 `bare_jrnl_transmag.tex`.
 
-Not implemented: `IEEEeqnarray` multi-line equation layout, the `comsoc` / `technote` / `peerreview`
-modes, point sizes other than 10pt, and automatic last-page column balancing
+`comsoc` needs no separate mode: per the class changelog, V1.8b's Communications Society option only
+swaps in the newtxmath math fonts, so it is geometrically identical to a plain journal.
+
+Not implemented: point sizes other than 10pt, and automatic last-page column balancing
 (`#colbreak()` is the manual remedy).
 
 `ieee-compsoc` covers IEEE Computer Society journals. It is a different design rather than a variant:
@@ -230,7 +248,7 @@ The point of this port is that it is checked, not eyeballed.
 scripts/check.sh
 ```
 
-Compiles every template and asserts 56 landmark baselines against IEEE's compiled reference PDFs in
+Compiles every template and asserts 59 landmark baselines against IEEE's compiled reference PDFs in
 `reference/pdf/`. Conference, journal and A4 all match their references exactly on title, authors,
 abstract, index terms and first section; the largest remaining discrepancy anywhere is 1pt.
 
