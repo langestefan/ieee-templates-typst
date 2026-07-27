@@ -1,9 +1,8 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  column-gutter, em-box, leading-for, line-advance, page-setup, par-indent, sizes,
-  text-width, tpc, tpt,
-  with-size,
+  column-gutter, em-box, leading-for, line-advance, page-setup, par-indent,
+  sizes, text-width, tpc, tpt, vertical, with-size,
 )
 #import "common/headings.typ" as headings
 #import "common/headings.typ": appendices, heading-below-extra
@@ -104,20 +103,13 @@
   )
 }
 
-// Slack added below the author blocks before quantising. IEEEtran.cls:4969-4974
-// specifies 1\baselineskip for conference mode, but that lands the columns two
-// lines high against the reference. The shortfall is internal author-block
-// spacing that IEEEtran adds and this port does not yet model, so the value is
-// calibrated rather than derived: 2.5 reproduces the reference exactly.
-#let title-slack = 2.5 * line-advance
-
 // IEEEtran.cls:4772 wraps the title in \IEEEquantizevspace, which rounds the
 // whole block to a whole number of body lines so the columns below start on the
 // baseline grid. Without this the abstract sits off-grid and every following
 // line inherits the error.
 #let quantize(body) = context {
   let natural = measure(block(width: text-width, body)).height
-  let slots = calc.ceil((natural + title-slack) / line-advance)
+  let slots = calc.ceil((natural + vertical.conference.slack) / line-advance)
   block(height: slots * line-advance, body)
 }
 

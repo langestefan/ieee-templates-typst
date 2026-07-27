@@ -56,9 +56,43 @@
 //
 // Journal keeps the defaults at IEEEtran.cls:1722-1734, where 58pc of text
 // already divides evenly into 58 lines.
+// `slack` is the space added below the title block before quantising it to a
+// whole number of body lines.
+//
+// IEEEtran.cls:4772 wraps the title in \IEEEquantizevspace with a nominal
+// spacing of \@IEEENORMtitlevspace: 1 baselineskip for conference, 2.5 for
+// journal (4969-4974). Neither reproduces the reference renders; both land the
+// columns one slot high.
+//
+// Measuring the title block against each reference gives the slack that does
+// reproduce it, as multiples of the line advance:
+//
+//   bare_conf   natural 142.81pt   valid (2.055, 3.055]
+//   062824      natural 205.32pt   valid (1.826, 2.826]
+//   bare_jrnl   natural  74.76pt   valid (2.747, 3.747]
+//
+// The class values sit below every range, short by roughly one advance in each
+// case. That matches the [-\topskip] offset \IEEEquantizevspace applies to
+// account for the first line of the following column, but adding exactly one
+// advance still leaves bare_conf 0.66pt below its threshold, so the cause is
+// not fully pinned down.
+//
+// All three ranges do intersect, at (2.747, 2.826], but that window is under a
+// point wide and a fourth document could easily fall outside it. Per-mode
+// values with margin on both sides are the safer choice.
 #let vertical = (
-  conference: (lines: 56, height: 672 * tpt, top: 52.45125 * tpt),
-  journal: (lines: 58, height: 696 * tpt, top: 58 * tpt),
+  conference: (
+    lines: 56,
+    height: 672 * tpt,
+    top: 52.45125 * tpt,
+    slack: 2.5 * sizes.normal.at(1),
+  ),
+  journal: (
+    lines: 58,
+    height: 696 * tpt,
+    top: 58 * tpt,
+    slack: 3 * sizes.normal.at(1),
+  ),
 )
 
 // Typst derives line height from font metrics, so an exact baseline grid needs

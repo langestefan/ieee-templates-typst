@@ -5,7 +5,8 @@
 // side-by-side author blocks, and 58 lines per column instead of 56.
 
 #import "common/geometry.typ": (
-  leading-for, line-advance, margin-side, page-setup, sizes, text-width, vertical, with-size,
+  leading-for, line-advance, margin-side, page-setup, sizes, text-width,
+  vertical, with-size,
 )
 #import "common/headings.typ" as headings
 #import "common/headings.typ": appendices, heading-below-extra
@@ -19,12 +20,6 @@
 // line at 128pt.
 #let title-top-space = 2pt
 #let title-author-gap = 8pt
-
-// Slack below the author line before quantising. IEEEtran.cls:4969 specifies
-// 2.5\baselineskip for journal mode; 3 is what actually lands the abstract on
-// body grid slot 10 at 184pt, matching the reference. Same kind of shortfall as
-// in the conference mode, where the class value is also a slot short.
-#let title-slack = 3 * line-advance
 
 // IEEEtran.cls:5277 and 5283. Both label and body are bold, and the journal
 // branch adds 1.34ex below the abstract where conference adds nothing.
@@ -59,7 +54,7 @@
 
 #let quantize(body) = context {
   let natural = measure(block(width: text-width, body)).height
-  let slots = calc.ceil((natural + title-slack) / line-advance)
+  let slots = calc.ceil((natural + vertical.journal.slack) / line-advance)
   block(height: slots * line-advance, body)
 }
 
