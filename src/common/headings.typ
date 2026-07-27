@@ -16,6 +16,11 @@
 // Both engines add heading separation on top of the line advance, so the class
 // values carry over directly: a gap of 1.5ex renders as 11.955 + 6.69 = 18.65pt
 // baseline to baseline, which is what the reference measures.
+//
+// The space below is the exception. The class says 0.7ex, which puts the first
+// body line 1pt above the reference in both Times modes; 0.8ex lands both. The
+// checks did not catch this for a long time because they assert where headings
+// sit, not where the text after them starts.
 
 // IEEEtran.cls:5397. Gap between the number and the title.
 #let num-gap = 0.5em
@@ -85,7 +90,7 @@
     // Level 1: centred small caps, 1.5ex above and 0.7ex below.
     if it.level == 1 {
       let extra = heading-below-extra.at(it.location())
-      block(above: above.at(0), below: 0.7 * ex + extra, width: 100%)[
+      block(above: above.at(0), below: 0.8 * ex + extra, width: 100%)[
         #set align(center)
         #set text(size: text-size, weight: "regular")
         #if in-appendix and n != none {

@@ -165,7 +165,7 @@
   // can sit wherever the document puts it. Journals need it before the author
   // biographies, which the old "emit it last" arrangement made impossible.
   show std.bibliography: it => {
-    heading-below-extra.update(0.3 * line-advance)
+    heading-below-extra.update(0.25 * line-advance)
     with-size(sizes.footnote, {
       // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
       // apart like any other line.

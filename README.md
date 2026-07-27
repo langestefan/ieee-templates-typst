@@ -210,8 +210,9 @@ at `(3)` afterwards. References follow suit.
 | `ieee-compsoc` | `bare_jrnl_compsoc.tex` |
 | `ieee-compsoc-conference` | `bare_conf_compsoc.tex` |
 
-All on US Letter and A4. Every landmark matches its reference exactly, with two
-exceptions noted in [docs/known-gaps.md](docs/known-gaps.md).
+All on US Letter and A4, plus `technote` and `peerreview` as arguments to
+`ieee-journal`. Every asserted landmark matches its reference exactly; what the
+port does not do, and why, is in [docs/known-gaps.md](docs/known-gaps.md).
 
 `peerreview` and `technote` are arguments to `ieee-journal`, and are verified the
 same way against `bare_jrnl.tex` compiled with each option.

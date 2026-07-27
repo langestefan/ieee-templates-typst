@@ -17,8 +17,14 @@ Nothing. Every mode now has a reference render to check against, including A4,
 
 ## Measured differences that remain
 
-**The journal drop cap is 1pt above the reference**, 265 against 266. The only
-landmark in any mode that is not exact.
+None. Every landmark asserted by `scripts/check.sh` matches its reference
+exactly.
+
+The journal drop cap was 1pt out for a long time. It turned out not to be the
+cap at all: the space below a level-one heading was 1pt short in both Times
+modes, so the whole first paragraph sat high and the cap with it. The class says
+0.7ex; 0.8ex matches. The checks had asserted where headings sit but not where
+the text after them starts, which is why it survived so long.
 
 Computer Society heading spacing was previously off by 8pt after the first
 section and about 3pt per heading after that. The class's stated skips carried

@@ -60,6 +60,10 @@ if build tests/conference.typ conf; then
   check "author names" "$(baseline "$out/conf.pdf" 1 'Michael')"     131
   check "abstract"     "$(baseline "$out/conf.pdf" 1 'Abstract')"    238
   check "section 1"    "$(baseline "$out/conf.pdf" 1 'Introduction')" 257
+  # The first body line after a heading, not just the heading: a 1pt error in
+  # the space below headings hid here for a long time.
+  check "body after s1" "$(./scripts/baselines.sh "$out/conf.pdf" 1 300 \
+                           | sed -n '/Introduction/,+1p' | tail -1 | awk '{print $1}')" 272
   # IEEEtran.cls:4492 puts 0.3\baselineskip between the References heading and
   # the list, and \IEEEbibitemsep is effectively zero so entries are one line
   # apart. The reference measures 15 then 9.
@@ -85,6 +89,8 @@ if build tests/journal.typ jrnl; then
   check "abstract"     "$(baseline "$out/jrnl.pdf" 1 'Abstract')"   184
   check "index terms"  "$(baseline "$out/jrnl.pdf" 1 'Index Terms')" 199
   check "section 1"    "$(baseline "$out/jrnl.pdf" 1 'Introduction')" 238
+  check "body after s1" "$(./scripts/baselines.sh "$out/jrnl.pdf" 1 300 \
+                           | sed -n '/Introduction/,+1p' | tail -1 | awk '{print $1}')" 253
   # The drop cap's baseline sits on the second body line. The reference puts it
   # at 266 and this port at 265; the 1pt is the only landmark not exact, so the
   # tolerance is local rather than global. Catches the offset conversion in
