@@ -117,8 +117,12 @@ Everything above, plus:
 
 | Argument | Type | Notes |
 |---|---|---|
+| `columns` | `2` \| `1` | `1` matches the `onecolumn` class option |
 | `header-left` | content | Journal line. Shown on page 1 and on even pages |
 | `header-right` | content | Author line, e.g. `Shell et al.: Title`. Shown on odd pages after the first |
+
+With `columns: 1` the abstract and index terms are no longer run in: each gets a centred bold label with
+its text indented beneath, which is what IEEEtran does in single-column mode.
 
 `authors` is a single content value here, not an array of blocks, matching how IEEE sets journal author
 lines: `Michael Shell, _Member, IEEE,_ John Doe, _Fellow, OSA_`.
