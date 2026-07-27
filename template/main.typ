@@ -46,5 +46,9 @@ Subsection text here.
 Subsubsection text here.
 
 = Conclusion
-The conclusion goes here. Citations appear here @eason1955, @maxwell1892 and @kopka1999.
+The conclusion goes here. Citations appear here @eason1955, @maxwell1892
+and @kopka1999.
+
+#heading(numbering: none)[Acknowledgment]
+The authors would like to thank\u{2026}
 

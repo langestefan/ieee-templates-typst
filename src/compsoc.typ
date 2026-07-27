@@ -19,6 +19,11 @@
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
 #import "common/runninghead.typ": running-head
+#import "common/textsplit.typ": plain
+#import "common/headings.typ": appendices, appendix-name, appendix-state
+#import "common/parstart.typ": parstart as base-parstart
+#import "common/biography.typ": biography as base-biography
+#import "common/biography.typ": biography-no-photo as base-biography-no-photo
 
 #let body-font = (
   "Palatino",
@@ -121,6 +126,22 @@
   body
 }
 
+// Typst's smallcaps() uses the font's smcp feature and does not synthesise, so
+// it silently does nothing in Helvetica clones: Nimbus Sans has no small caps.
+// The class asks for \scshape on the sans face, and the reference renders it at
+// 0.8 of the cap size, so it is emulated here rather than dropped.
+#let sc-ratio = 0.8
+
+#let small-caps(body) = {
+  let s = plain(body)
+  if s == "" { return body }
+  for c in s.clusters() {
+    if lower(c) == c and upper(c) != c {
+      text(size: sc-ratio * 1em, upper(c))
+    } else { c }
+  }
+}
+
 // IEEEtran.cls:2548-2551 and 2579-2582. Arabic and hierarchical: 1, 1.1, 1.1.1.
 #let numbering-fn(..nums) = numbering("1.1.1.1", ..nums.pos())
 
@@ -137,8 +158,11 @@
   set heading(numbering: numbering-fn)
 
   show heading: it => {
+    let in-appendix = appendix-state.at(it.location())
     let n = if it.numbering != none {
-      numbering-fn(..counter(heading).at(it.location()))
+      if in-appendix and it.level == 1 {
+        numbering("A", counter(heading).at(it.location()).first())
+      } else { numbering-fn(..counter(heading).at(it.location())) }
     } else { none }
 
     let style = if it.level == 1 {
@@ -159,8 +183,19 @@
         weight: style.weight,
         style: style.style,
       )
-      #let label = [#if n != none [#n#h(0.5em)]#it.body]
-      #if style.caps { smallcaps(label) } else { label }
+      #if in-appendix and n != none {
+        // As in the Times modes: only numbered headings take the label, so a
+        // starred Acknowledgment keeps its normal form (IEEEtran.cls:5745).
+        let head = [#appendix-name~#n]
+        if style.caps { small-caps(head) } else { head }
+        if it.body != [] {
+          linebreak()
+          if style.caps { small-caps(it.body) } else { it.body }
+        }
+      } else {
+        let label = [#if n != none [#n#h(0.5em)]#it.body]
+        if style.caps { small-caps(label) } else { label }
+      }
     ]
   }
 
@@ -351,6 +386,27 @@
 
   if bibliography != none { with-size(conf-sizes.footnote, bibliography) }
 }
+
+// The shared helpers default to the 10pt Times ladder, so Computer Society
+// papers pass their own metrics: 9.5bp body on 11.54bp.
+#let parstart(body) = base-parstart(
+  body,
+  advance: line-advance,
+  body-size: sizes.normal.at(0),
+)
+#let biography(name: [], photo: none, body) = base-biography(
+  name: name,
+  photo: photo,
+  advance: line-advance,
+  text-size: sizes.footnote,
+  body,
+)
+#let biography-no-photo(name: [], body) = base-biography-no-photo(
+  name: name,
+  advance: line-advance,
+  text-size: sizes.footnote,
+  body,
+)
 
 #let ieee-compsoc(
   paper: "us-letter",

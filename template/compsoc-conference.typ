@@ -51,4 +51,9 @@ and later. I wish you the best of success.
 Subsection text here.
 
 = Conclusion
-The conclusion goes here.
+The conclusion goes here @kopka1999.
+
+#heading(numbering: none)[Acknowledgment]
+The authors would like to thank\u{2026}
+
+#bibliography("refs.bib")

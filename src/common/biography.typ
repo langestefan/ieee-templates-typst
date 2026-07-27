@@ -4,13 +4,15 @@
 // leading the first line in bold. Without a photo the text simply runs full
 // width under a bold name.
 
-#import "geometry.typ": line-advance, sizes, with-size
+#import "geometry.typ": (
+  line-advance as default-advance, sizes as default-sizes, with-size,
+)
 #import "textsplit.typ": as-text, split-at-height
 
 // IEEEtran.cls:5982-5983 and 5989.
 #let photo-width = 1.0in
 #let photo-depth = 1.25in
-#let bio-skip = 4 * line-advance
+#let bio-skip-lines = 4
 
 // IEEEtran.cls:6006. The placeholder shown when no photo is supplied.
 #let photo-placeholder = align(
@@ -22,21 +24,29 @@
 // IEEEtran.cls:6005-6011. The placeholder is drawn in a \framebox with
 // \fboxsep set to 0pt, so the rule hugs the box with no padding. A supplied
 // photo goes in a plain \mbox instead and gets no frame.
-#let photo-box(photo) = if photo == none {
+#let photo-box(photo, text-size) = if photo == none {
   rect(
     width: photo-width,
     height: photo-depth,
     inset: 0pt,
     stroke: 0.4pt,
-    with-size(sizes.footnote, align(horizon + center, photo-placeholder)),
+    with-size(text-size, align(horizon + center, photo-placeholder)),
   )
 } else {
   box(width: photo-width, height: photo-depth, photo)
 }
 
-#let biography(name: [], photo: none, body) = context {
-  v(bio-skip)
-  with-size(sizes.footnote, layout(size => {
+// `advance` and `text-size` default to the 10pt Times ladder; Computer Society
+// papers pass their own.
+#let biography(
+  name: [],
+  photo: none,
+  advance: default-advance,
+  text-size: default-sizes.footnote,
+  body,
+) = context {
+  v(bio-skip-lines * advance)
+  with-size(text-size, layout(size => {
     let lead = text(weight: "bold", name)
     let full = as-text(body)
     let indent-width = size.width - photo-width - photo-gap
@@ -56,17 +66,23 @@
     grid(
       columns: (photo-width, 1fr),
       column-gutter: photo-gap,
-      photo-box(photo), par(first-line-indent: 0pt, justify: true)[#lead #head],
+      photo-box(photo, text-size),
+      par(first-line-indent: 0pt, justify: true)[#lead #head],
     )
     if rest != "" { par(first-line-indent: 0pt, justify: true, rest) }
   }))
 }
 
 // IEEEtran.cls:6065. Same thing without the photo area.
-#let biography-no-photo(name: [], body) = {
-  v(bio-skip)
+#let biography-no-photo(
+  name: [],
+  advance: default-advance,
+  text-size: default-sizes.footnote,
+  body,
+) = {
+  v(bio-skip-lines * advance)
   with-size(
-    sizes.footnote,
+    text-size,
     par(
       first-line-indent: 0pt,
       justify: true,

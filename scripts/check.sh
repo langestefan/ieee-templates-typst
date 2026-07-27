@@ -136,7 +136,7 @@ if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
     check "cs abstract"    "$(baseline "$out/cs.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
     check "cs index terms" "$(baseline "$out/cs.pdf" 1 'Index Terms')"  "$(baseline "$ref" 1 'IndexTerms')"
     check "cs diamond"     "$(baseline "$out/cs.pdf" 1 '2726')"         "$(baseline "$ref" 1 '2726')"
-    check "cs section 1"   "$(baseline "$out/cs.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')"
+    check "cs section 1"   "$(baseline "$out/cs.pdf" 1 'INTRODUCTION')" "$(baseline "$ref" 1 'INTRODUCTION')"
   fi
 else
   printf '  skip  %-34s no Palatino clone found\n' "compsoc"

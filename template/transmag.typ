@@ -5,7 +5,9 @@
 // and index terms carried full width inside the title block rather than in the
 // first column. The abstract has no "Abstract—" label.
 
-#import "/src/transmag.typ": ieee-transmag, mark
+#import "/src/transmag.typ": (
+  appendices, biography, biography-no-photo, ieee-transmag, mark, parstart,
+)
 
 #show: ieee-transmag.with(
   title: [Bare Demo of IEEEtran.cls for \ IEEE #smallcaps[Transactions on Magnetics]],
@@ -27,8 +29,23 @@
 )
 
 = Introduction
-This demo file is intended to serve as a starter file for IEEE Transactions on
-Magnetics papers.
+#parstart[This demo file is intended to serve as a starter file for IEEE Transactions on Magnetics papers produced under LaTeX using IEEEtran.cls version 1.8b and later.]
 
 = Conclusion
-The conclusion goes here.
+The conclusion goes here @kopka1999.
+
+#show: appendices
+= Proof of the First Zonklar Equation
+Appendix one text goes here.
+
+=
+Appendix two text goes here.
+
+#heading(numbering: none)[Acknowledgment]
+The authors would like to thank\u{2026}
+
+#bibliography("refs.bib")
+
+#biography(name: [Michael Shell])[Biography text here.]
+
+#biography-no-photo(name: [Homer Simpson])[Biography text here.]
