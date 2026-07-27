@@ -10,15 +10,32 @@
 // Times, metric-compatible fallbacks in descending preference.
 #let body-font = ("Times New Roman", "TeX Gyre Termes", "Nimbus Roman")
 
-// Font ladder for a 10pt document, IEEEtran.cls:650-667.
-// Each entry is (size, baseline-to-baseline advance), converted from TeX points.
-#let sizes = (
-  normal: (10 * tpt, 12 * tpt),
-  small: (9 * tpt, 10 * tpt),
-  footnote: (8 * tpt, 9 * tpt),
-  sublarge: (11 * tpt, 13.4 * tpt),
-  huge: (24 * tpt, 28 * tpt),
+// Font ladders, IEEEtran.cls:625-711. Each entry is (size, baseline-to-baseline
+// advance) in TeX points; convert with tpt at the point of use.
+//
+// Only the 10pt ladder is wired through the layouts. The others are recorded
+// because the line counts below derive from them, and because supporting other
+// point sizes is otherwise just a matter of threading a ladder through the
+// modules. IEEE papers are 10pt in practice and there is no reference render at
+// any other size to verify against.
+#let ladders = (
+  "9pt": (normal: (9, 11.0476), small: (8.5, 10), footnote: (8, 9), sublarge: (10, 12), huge: (20, 24)),
+  "10pt": (normal: (10, 12), small: (9, 10), footnote: (8, 9), sublarge: (11, 13.4), huge: (24, 28)),
+  "11pt": (normal: (11, 13.3846), small: (10, 12), footnote: (9, 10.5), sublarge: (12, 14), huge: (24, 28)),
+  "12pt": (normal: (12, 13.92), small: (10, 12), footnote: (9, 10.5), sublarge: (14, 17), huge: (24, 28)),
 )
+
+#let sizes = {
+  let l = ladders.at("10pt")
+  let scale(e) = (e.at(0) * tpt, e.at(1) * tpt)
+  (
+    normal: scale(l.normal),
+    small: scale(l.small),
+    footnote: scale(l.footnote),
+    sublarge: scale(l.sublarge),
+    huge: scale(l.huge),
+  )
+}
 
 #let line-advance = sizes.normal.at(1)
 
@@ -56,6 +73,30 @@
 //
 // Journal keeps the defaults at IEEEtran.cls:1722-1734, where 58pc of text
 // already divides evenly into 58 lines.
+// What each mode asks the class for, before quantising, in TeX points.
+// Conference at IEEEtran.cls:1741-1748, journal at 1722-1734.
+#let requested = (
+  conference: (height: 9.25 * 72.27, top: 0.75 * 72.27),
+  journal: (height: 58 * 12, top: 58),
+)
+
+// The class quantises the requested height to a whole number of lines and
+// splits the resulting error between top and bottom. Deriving it rather than
+// hardcoding reproduces every line count the class documents in its comments:
+// conference 9pt/61, 10pt/56, 11pt/50, 12pt/48, and journal 9pt/63, 10pt/58,
+// 11pt/52, 12pt/50.
+#let vertical-for(mode, pt) = {
+  let advance = ladders.at(pt).normal.at(1)
+  let want = requested.at(mode)
+  let lines = calc.round(want.height / advance)
+  let height = lines * advance
+  (
+    lines: lines,
+    height: height * tpt,
+    top: (want.top - (height - want.height) / 2) * tpt,
+  )
+}
+
 // `slack` is the space added below the title block before quantising it to a
 // whole number of body lines.
 //
@@ -81,18 +122,8 @@
 // point wide and a fourth document could easily fall outside it. Per-mode
 // values with margin on both sides are the safer choice.
 #let vertical = (
-  conference: (
-    lines: 56,
-    height: 672 * tpt,
-    top: 52.45125 * tpt,
-    slack: 2.5 * sizes.normal.at(1),
-  ),
-  journal: (
-    lines: 58,
-    height: 696 * tpt,
-    top: 58 * tpt,
-    slack: 3 * sizes.normal.at(1),
-  ),
+  conference: vertical-for("conference", "10pt") + (slack: 2.5 * sizes.normal.at(1)),
+  journal: vertical-for("journal", "10pt") + (slack: 3 * sizes.normal.at(1)),
 )
 
 // Typst derives line height from font metrics, so an exact baseline grid needs
