@@ -38,6 +38,11 @@
 #let appendix-name = "Appendix"
 #let appendix-state = state("ieee-appendix-mode", false)
 
+// IEEEtran.cls:4492 puts 0.3\baselineskip between the References heading and
+// the list. The heading is emitted by the bibliography element itself, so the
+// space cannot be inserted around it from outside; callers raise this instead.
+#let heading-below-extra = state("ieee-heading-below-extra", 0pt)
+
 #let appendices(body) = {
   appendix-state.update(true)
   counter(heading).update(0)
@@ -60,7 +65,8 @@
 
     // Level 1: centred small caps, 1.5ex above and 0.7ex below.
     if it.level == 1 {
-      block(above: 1.5 * ex, below: 0.7 * ex, width: 100%)[
+      let extra = heading-below-extra.at(it.location())
+      block(above: 1.5 * ex, below: 0.7 * ex + extra, width: 100%)[
         #set align(center)
         #set text(size: sizes.normal.at(0), weight: "regular")
         #if in-appendix {

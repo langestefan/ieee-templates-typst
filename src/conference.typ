@@ -1,12 +1,12 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  column-gutter, em-box, line-advance, page-setup, par-indent, sizes,
+  column-gutter, em-box, leading-for, line-advance, page-setup, par-indent, sizes,
   text-width, tpc, tpt,
   with-size,
 )
 #import "common/headings.typ" as headings
-#import "common/headings.typ": appendices
+#import "common/headings.typ": appendices, heading-below-extra
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
 
@@ -180,5 +180,18 @@
 
   body
 
-  if bibliography != none { with-size(sizes.footnote, bibliography) }
+  if bibliography != none {
+    // IEEEtran.cls:4492 adds 0.3aselineskip between the References heading
+    // and the list.
+    heading-below-extra.update(0.3 * line-advance)
+    with-size(sizes.footnote, {
+      // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
+      // apart like any other line. Paragraph spacing has to be dropped to the
+      // footnotesize leading or each entry drifts a point from the enclosing
+      // body-size spacing.
+      set par(spacing: leading-for(sizes.footnote))
+      bibliography
+    })
+    heading-below-extra.update(0pt)
+  }
 }

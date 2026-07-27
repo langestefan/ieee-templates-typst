@@ -46,4 +46,4 @@ Subsection text here.
 Subsubsection text here.
 
 = Conclusion
-The conclusion goes here. A citation appears here @kopka1999.
+The conclusion goes here. Citations appear here @eason1955, @maxwell1892 and @kopka1999.

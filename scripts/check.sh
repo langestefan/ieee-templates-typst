@@ -57,6 +57,12 @@ if build template/main.typ conf; then
   check "author names" "$(baseline "$out/conf.pdf" 1 'Michael')"     131
   check "abstract"     "$(baseline "$out/conf.pdf" 1 'Abstract')"    238
   check "section 1"    "$(baseline "$out/conf.pdf" 1 'Introduction')" 257
+  # IEEEtran.cls:4492 puts 0.3\baselineskip between the References heading and
+  # the list, and \IEEEbibitemsep is effectively zero so entries are one line
+  # apart. The reference measures 15 then 9.
+  refh=$(baseline "$out/conf.pdf" 1 'References')
+  ref1=$(./scripts/baselines.sh "$out/conf.pdf" 1 300 | grep -A1 'References' | tail -1 | awk '{print $1}')
+  check "refs heading to entry 1" "$(awk -v a="$ref1" -v b="$refh" 'BEGIN{print a-b}')" 15
 fi
 
 echo "conference: IEEE 062824 wrapper, two author rows"
