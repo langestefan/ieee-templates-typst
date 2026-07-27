@@ -140,7 +140,7 @@ if typst fonts $FONTS 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
     check "cs authors"     "$(baseline "$out/cs.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
     check "cs abstract"    "$(baseline "$out/cs.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
     check "cs index terms" "$(baseline "$out/cs.pdf" 1 'Index Terms')"  "$(baseline "$ref" 1 'IndexTerms')"
-    check "cs diamond"     "$(baseline "$out/cs.pdf" 1 '25c6')"         "$(baseline "$ref" 1 '2726')"
+    check "cs diamond"     "$(baseline "$out/cs.pdf" 1 '2726')"         "$(baseline "$ref" 1 '2726')"
     check "cs section 1"   "$(baseline "$out/cs.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')"
   fi
 else
@@ -154,6 +154,13 @@ if build template/compsoc-conference.typ csc; then
   check "csc authors"   "$(baseline "$out/csc.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
   check "csc abstract"  "$(baseline "$out/csc.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
   check "csc section 1" "$(baseline "$out/csc.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION|Introduction')"
+fi
+
+echo "author row spacing probe"
+if build template/author-rows-probe.typ rows; then
+  ref=reference/pdf/Author_Row_Spacing_Probe.pdf
+  check "probe row 1" "$(baseline "$out/rows.pdf" 1 'Alpha')"   "$(baseline "$ref" 1 'AlphaOne')"
+  check "probe row 2" "$(baseline "$out/rows.pdf" 1 'Foxtrot')" "$(baseline "$ref" 1 'FoxtrotSix')"
 fi
 
 echo "A4"

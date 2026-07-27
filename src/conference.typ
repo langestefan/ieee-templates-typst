@@ -60,9 +60,11 @@
   },
 )
 
-// Vertical separation between wrapped author rows. Calibrated against the
-// 062824 wrapper, which is the only reference render with more than one row.
-#let author-row-gap = 26pt - line-advance
+// Vertical separation between wrapped author rows, calibrated against two
+// reference renders: IEEE's 062824 wrapper (six authors, two rows) and a
+// nine-author probe compiled for the purpose (two rows of five and four). 26pt
+// satisfies the first but leaves the probe 1pt short, and 27pt the reverse.
+#let author-row-gap = 26.5pt - line-advance
 
 // Author blocks sit in naturally sized cells separated by equal glue, not in
 // equal-width columns: an even three-way split would centre the first block at
@@ -80,8 +82,10 @@
   let current = ()
   let used = 0pt
   for (i, c) in cells.enumerate() {
-    // Each additional block needs at least a gutter's worth of glue beside it.
-    let needed = widths.at(i) + if current.len() > 0 { column-gutter } else { 0pt }
+    // \and is \hfill, which has zero natural width, so no gap is reserved: the
+    // blocks only have to fit the text width between them. Verified against the
+    // nine-author probe, where LaTeX also breaks five and four.
+    let needed = widths.at(i)
     if current.len() > 0 and used + needed > text-width {
       rows.push(current)
       current = (c,)

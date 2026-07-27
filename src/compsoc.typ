@@ -161,8 +161,27 @@
   body
 }
 
-// IEEEtran.cls:5239. A diamond rule closes the title block.
-#let diamond-line = align(center, text(size: sizes.sublarge.at(0), sym.diamond.filled))
+// IEEEtran.cls:4844-4850. The diamond rule is not a bare glyph: it is a 0.5pt
+// rule, 7.5pt of space, ZapfDingbats character 70 at 11pt dropped 3.5pt below
+// the baseline, then the same again. There are two widths; the 2.5cm one is the
+// double-column form.
+//
+// D050000L is the URW ZapfDingbats clone the class's pzd family maps to. The
+// same glyph is U+2726, which most fonts carry, so this degrades gracefully if
+// D050000L is absent.
+#let diamond-rule-width = 4cm
+#let diamond-gap = 7.5pt
+
+// A filled box rather than line(), which is block level and would break the row.
+#let diamond-rule = box(width: diamond-rule-width, height: 0.5pt, fill: black)
+
+#let diamond-line = align(center, box({
+  diamond-rule
+  h(diamond-gap)
+  text(font: ("D050000L", "DejaVu Sans"), size: 11pt, baseline: 3.5pt)[\u{2726}]
+  h(diamond-gap)
+  diamond-rule
+}))
 
 // IEEEtran.cls:4809 adds \vskip 0.75\baselineskip before the title in compsoc
 // non-conference mode, on top of \IEEEtitletopspace. Calibrated to put the
@@ -171,7 +190,7 @@
 #let title-author-gap = 12pt
 #let abstract-above = 18pt
 #let index-terms-above = 11pt
-#let diamond-above = 6pt
+#let diamond-above = 3pt
 
 #let abstract-label = "Abstract"
 #let index-terms-label = "Index Terms"
@@ -219,7 +238,7 @@
 // Unlike the other modes, the compsoc title block is not quantised to the body
 // grid: no slot count reproduces the reference's first section position, and the
 // diamond rule ends the block on its own terms. A fixed trailing gap does match.
-#let title-below = 20pt
+#let title-below = 23pt
 
 #let quantize(body) = block(body + v(title-below))
 
