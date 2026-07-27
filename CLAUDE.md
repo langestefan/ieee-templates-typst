@@ -11,7 +11,12 @@ template with:
 typst compile --root . template/main.typ out.pdf              # bare conference demo
 typst compile --root . template/conference-062824.typ out.pdf # IEEE's official wrapper, 6 authors
 typst compile --root . template/journal.typ out.pdf           # journal
+scripts/check.sh                                              # regression suite, 29 checks
 ```
+
+Both modes take `paper: "us-letter"` or `paper: "a4"`. Beyond the layout functions, `src/lib.typ`
+exports `parstart` for the journal drop cap, `appendices`, `biography` and `biography-no-photo`, and
+`author-mark` for affiliation symbols.
 
 Everything under `reference/` is third-party material and is the **specification to port from**, not code
 to modify or wrap.
@@ -99,11 +104,13 @@ From `https://mirror.ctan.org/macros/latex/contrib/IEEEtran.zip`.
 
 ### `reference/pdf/` — rendered ground truth for visual diffing
 
-All US Letter, compiled 2026-07-27 with pdfTeX 1.40.27.
+Compiled 2026-07-27 with pdfTeX 1.40.27. US Letter unless the name says `_A4`.
 
 | File | Renders |
 |---|---|
 | `IEEE_Journal_Paper_Template.pdf` | `bare_jrnl.tex` |
+| `IEEE_Bare_Demo_Template_for_Conferences_A4.pdf` | `bare_conf.tex` with `a4paper` |
+| `IEEE_Journal_Paper_Template_A4.pdf` | `bare_jrnl.tex` with `a4paper` |
 | `One_column_IEEE_journal_article.pdf` | `bare_jrnl.tex` with `onecolumn` |
 | `IEEE_Bare_Demo_Template_for_Conferences.pdf` | `bare_conf.tex` |
 | `IEEE_Demo_Template_for_Computer_Science_Journals.pdf` | `bare_jrnl_compsoc.tex` |
@@ -128,18 +135,36 @@ IEEE's current official conference wrapper, the only part of their distribution 
 
 IEEE's site is behind a bot challenge, so re-fetching these means doing it manually in a browser.
 
-## Key layout constants for `conference` mode
+## Key layout constants
 
-From `IEEEtran.cls`, where the defaults are set around lines 1715–1740. What a Typst page setup must match:
+### Units: the single most important fact
 
-- Paper: US Letter 8.5in × 11in. `a4paper` gives 210 × 297mm, `technote` gives 7.875 × 10.75in.
-- Base font 10pt, Times.
-- Text block: `\textwidth` 43pc, `\textheight` 58pc, roughly 9.63in or 696pt, top margin 58pt, sides centred.
-- Two columns of 21pc with a 1pc gutter, so 43pc = 2 × 21pc + 1pc.
-- Text height quantised to whole lines per column, 58 lines/column at 10pt. The class documents 9pt/63,
-  10pt/58, 11pt/52, 12pt/50. Residual error is split evenly top and bottom.
+**TeX's point is 1/72.27in; PDF and Typst points are 1/72in.** Every dimension and font size in the class
+is in TeX points and must be scaled by 72/72.27. Skipping it drifts the layout 0.37%, about 2.5pt down a
+column, enough to lose a line off the page. It shows up as a 12pt class value rendering at 11.955pt.
+`geometry.typ` defines `tpt` and `tpc` for this; use them for anything read out of the class.
 
-The `compsoc` and `technote` branches use different values. Plain `conference` is what the bundled `.tex` uses.
+### Vertical geometry is mode-specific
+
+Conference **overrides** the class defaults rather than inheriting them (`IEEEtran.cls:1741-1748`).
+Getting this backwards is an easy mistake: the defaults at 1722-1734 are the *journal* values.
+
+| | conference | journal |
+|---|---|---|
+| requested height | 9.25in | 58pc |
+| lines per column | **56** | **58** |
+| top margin | 0.75in, then error-split → 52.45 TeX pt | 58 TeX pt |
+
+Conference quantises 9.25in up to 56 lines and splits the resulting 3.5 TeX pt error evenly between top
+and bottom. Journal's 58pc already divides evenly.
+
+### Shared by both modes and both paper sizes
+
+- Base font 10pt Times; the ladder is in `geometry.typ`'s `sizes`.
+- Text block `\textwidth` 43pc = 2 × 21pc + 1pc gutter (`IEEEtran.cls:1734-1735`).
+- `a4paper` changes only the sheet. `\if@IEEEusingAfourpaper` is referenced once outside the option
+  declaration and that occurrence is inside the compsoc branch (1773), so vertical landmarks are
+  identical to US Letter and only the side margins move, 48.96pt → 40.60pt. Verified against A4 renders.
 
 ## Working notes
 
