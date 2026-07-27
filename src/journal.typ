@@ -121,6 +121,7 @@
 
 #let ieee-journal(
   paper: "us-letter",
+  pt: "10pt",
   columns: 2,
   peerreview: false,
   technote: false,
@@ -134,7 +135,7 @@
   bibliography: none,
   body,
 ) = {
-  show: page-setup.with(mode: "journal", paper: paper, columns: columns)
+  show: page-setup.with(mode: "journal", paper: paper, columns: columns, pt: pt)
   show: headings.rules.with(mode: "journal")
   show: floats.rules
   show: elements.rules

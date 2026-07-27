@@ -212,6 +212,32 @@ for spec in "conf:71:72" "jrnl:77:78" "tmag:72:73" "cs:74:75" "csc:108:109"; do
   check "$tag title centred" "$(centre "$out/$tag.pdf" "$lo" "$hi")" 306
 done
 
+echo "point sizes"
+# The layouts are wired for 10pt, which is what IEEE uses and what every
+# reference render is. The other ladders drive the page geometry and body text;
+# no reference exists to check them against, so this asserts they follow the
+# class rather than that they match IEEE output.
+cat > "$out/pt11.typ" <<'PTEOF'
+#import "/src/conference.typ": ieee-conference
+#show: ieee-conference.with(
+  pt: "11pt",
+  title: [Eleven],
+  authors: ((name: "A", affiliation: ("X",)),),
+  abstract: [Eleven.],
+)
+= Introduction
+#for i in range(200) [Filler sentence number #i here. ]
+PTEOF
+if build "$out/pt11.typ" pt11; then
+  adv=$(./scripts/baselines.sh "$out/pt11.pdf" 1 300 \
+        | awk '{v[NR]=$1} END {for (i=2;i<=NR;i++) {d=sprintf("%.2f", v[i]-v[i-1]); c[d]++}
+                 best=""; n=0; for (k in c) if (c[k]>n) {n=c[k]; best=k}; print best}')
+  # 13.3846 TeX pt, the 11pt ladder's advance, is 13.33 in Typst points. The
+  # baselines are integers, so the modal gap reads 13; a tolerance is honest
+  # here rather than asserting a precision the measurement does not have.
+  check "11pt body advance" "$adv" 13.33 1
+fi
+
 echo "README previews"
 # The images in assets/ are generated, and nothing else here would notice them
 # drifting: a layout change updates the templates and the checks while the

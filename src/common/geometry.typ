@@ -178,8 +178,22 @@
 // IEEEtran indents every paragraph, including the first after a heading.
 #let par-indent = 1 * tpc
 
-#let page-setup(mode: "conference", paper: "us-letter", columns: 2, body) = {
-  let v = vertical.at(mode)
+// `pt` selects the font ladder and, through it, the page geometry: the line
+// count and margins are derived, not tabulated. Sizes above the body — the
+// title block gaps and heading skips — are still calibrated for 10pt, so a
+// different ladder gives correct page metrics and body text but a title block
+// that has not been checked against anything.
+#let page-setup(
+  mode: "conference",
+  paper: "us-letter",
+  columns: 2,
+  pt: "10pt",
+  body,
+) = {
+  let ladder = ladders.at(pt)
+  let scale(e) = (e.at(0) * tpt, e.at(1) * tpt)
+  let body-size = scale(ladder.normal)
+  let v = vertical-for(mode, pt) + (slack: vertical.at(mode).slack)
   let sheet = papers.at(paper)
   let side = side-margin-for(paper)
   set page(
@@ -193,11 +207,11 @@
     columns: columns,
   )
   set std.columns(gutter: column-gutter)
-  set text(font: body-font, size: sizes.normal.at(0), ..em-box)
+  set text(font: body-font, size: body-size.at(0), ..em-box)
   set par(
     justify: true,
-    leading: leading-for(sizes.normal),
-    spacing: leading-for(sizes.normal),
+    leading: leading-for(body-size),
+    spacing: leading-for(body-size),
     first-line-indent: (amount: par-indent, all: true),
   )
   body

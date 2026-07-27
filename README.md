@@ -221,8 +221,12 @@ checked against IEEE output.
 Society option only swaps in the newtxmath math fonts, leaving it geometrically
 identical to a plain journal.
 
-Not implemented: point sizes other than 10pt, and automatic last-page column
-balancing, which Typst cannot do — `#colbreak()` is the manual remedy.
+`ieee-conference` and `ieee-journal` take `pt`, which selects the font ladder
+and with it the page geometry. Only 10pt is verified: no reference render exists
+at any other size, and the title-block spacing is calibrated for 10pt.
+
+Not implemented: automatic last-page column balancing, which Typst cannot do —
+`#colbreak()` is the manual remedy.
 
 ### The two Computer Society modes
 

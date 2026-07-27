@@ -4,10 +4,14 @@
 // subsection reads "B." rather than "I-B". Styling and spacing come from
 // IEEEtran.cls:5467-5482, and the run-in behaviour from 5387 and 5416.
 
-#import "geometry.typ": par-indent, sizes
+#import "geometry.typ": par-indent as default-indent, sizes as default-sizes
 
 // Times has no ex unit in Typst; its x-height is 0.448em.
 #let ex = 0.448em
+
+// The Times-based modes all share the 10pt ladder, so `body-size` and `indent`
+// default to it. They are arguments rather than fixed so a mode on a different
+// ladder can pass its own; this is what stops the module being tied to 10pt.
 
 // Both engines add heading separation on top of the line advance, so the class
 // values carry over directly: a gap of 1.5ex renders as 11.955 + 6.69 = 18.65pt
@@ -60,7 +64,11 @@
   journal: (3.0 * ex, 3.5 * ex),
 )
 
-#let rules(mode: "conference", body) = {
+#let rules(mode: "conference", body-size: none, indent: none, body) = {
+  let text-size = if body-size == none { default-sizes.normal.at(0) } else {
+    body-size
+  }
+  let par-indent = if indent == none { default-indent } else { indent }
   let above = above-skip.at(mode)
   set heading(numbering: numbering-fn)
 
@@ -79,7 +87,7 @@
       let extra = heading-below-extra.at(it.location())
       block(above: above.at(0), below: 0.7 * ex + extra, width: 100%)[
         #set align(center)
-        #set text(size: sizes.normal.at(0), weight: "regular")
+        #set text(size: text-size, weight: "regular")
         #if in-appendix and n != none {
           // "Appendix A" on one line, the title beneath it. An empty title
           // leaves just the label, as \@IEEEprocessthesectionargument does.
@@ -99,7 +107,7 @@
     } else if it.level == 2 {
       // Level 2: flush-left italic, same spacing.
       block(above: above.at(1), below: 0.7 * ex, width: 100%)[
-        #set text(size: sizes.normal.at(0), style: "italic", weight: "regular")
+        #set text(size: text-size, style: "italic", weight: "regular")
         #if n != none [#n#h(num-gap)]#it.body
       ]
     } else {
@@ -112,7 +120,7 @@
       // only level 4 needs to make up the difference.
       let extra = if it.level == 3 { 0pt } else { par-indent }
       let head = text(
-        size: sizes.normal.at(0),
+        size: text-size,
         style: "italic",
         weight: "regular",
       )[

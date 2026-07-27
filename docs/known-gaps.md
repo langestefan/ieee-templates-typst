@@ -31,12 +31,17 @@ landmark in any mode that is not exact.
 
 ## Deliberately not done
 
-**Point sizes other than 10pt.** All four ladders are in `geometry.typ` and the
-vertical geometry derives from them: `vertical-for(mode, pt)` reproduces every
-line count the class documents. Wiring them through the layouts is mechanical
-but unverifiable, since no reference render exists at any other size, and IEEE
-papers are 10pt in practice. `parstart` and `biography` are already
-parameterised; `headings` is not.
+**Point sizes other than 10pt** are partly wired. `ieee-conference` and
+`ieee-journal` take `pt`, which selects the ladder and, through it, the page
+geometry and body text: an 11pt document gets a 13.33pt advance and 50 lines per
+column, matching what the class documents. `parstart`, `biography` and
+`headings` are all parameterised.
+
+What is *not* done is the title block. Its internal gaps and the heading skips
+are calibrated for 10pt, so another ladder gives correct page metrics and body
+text under a title block that has never been checked against anything. No
+reference render exists at any other size, and IEEE papers are 10pt in practice,
+so this is deliberately left partial rather than finished blind.
 
 **`comsoc`.** Per the class changelog, V1.8b's Communications Society option
 only swaps in the newtxmath math fonts, leaving it geometrically identical to a
