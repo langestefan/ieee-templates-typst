@@ -8,12 +8,14 @@
 # measured with scripts/baselines.sh. A change to geometry.typ affects all three
 # templates at once, so this exists to catch drift that is invisible by eye.
 #
-# Tolerance is 1pt because Ghostscript's txtwrite reports integer baselines.
+# Tolerance is 0: every landmark currently matches its reference exactly, and
+# Ghostscript's txtwrite reports integer baselines, so anything that moves by a
+# whole point is a real change worth looking at.
 
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-TOL=1
+TOL=0
 pass=0
 fail=0
 # Output goes inside the repo: tmp/ is gitignored, and writing outside the
@@ -26,14 +28,15 @@ baseline() {
   ./scripts/baselines.sh "$1" "$2" 9999 | awk -v re="$3" '$0 ~ re {print $1; exit}'
 }
 
+# check <label> <got> <want> [tolerance]
 check() {
-  local label="$1" got="$2" want="$3"
+  local label="$1" got="$2" want="$3" tol="${4:-$TOL}"
   if [ -z "$got" ]; then
     printf '  FAIL  %-34s not found\n' "$label"; fail=$((fail + 1)); return
   fi
   local d
   d=$(awk -v a="$got" -v b="$want" 'BEGIN{d=a-b; print (d<0?-d:d)}')
-  if awk -v d="$d" -v t="$TOL" 'BEGIN{exit !(d <= t)}'; then
+  if awk -v d="$d" -v t="$tol" 'BEGIN{exit !(d <= t)}'; then
     printf '  ok    %-34s %s\n' "$label" "$got"; pass=$((pass + 1))
   else
     printf '  FAIL  %-34s got %s want %s\n' "$label" "$got" "$want"; fail=$((fail + 1))
@@ -83,8 +86,10 @@ if build template/journal.typ jrnl; then
   check "index terms"  "$(baseline "$out/jrnl.pdf" 1 'Index Terms')" 199
   check "section 1"    "$(baseline "$out/jrnl.pdf" 1 'Introduction')" 238
   # The drop cap's baseline sits on the second body line. The reference puts it
-  # at 266; this catches the offset conversion in parstart.typ silently breaking.
-  check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266
+  # at 266 and this port at 265; the 1pt is the only landmark not exact, so the
+  # tolerance is local rather than global. Catches the offset conversion in
+  # parstart.typ silently breaking.
+  check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266 1
   # Appendices letter their sections and title them "Appendix A" on a line of
   # their own. Presence is what matters here, not the exact baseline.
   if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'Appendix.*B'; then
@@ -119,9 +124,13 @@ if [ -f "$out/conf-a4.pdf" ]; then
   check "A4 conf title"    "$(baseline "$out/conf-a4.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
   check "A4 conf authors"  "$(baseline "$out/conf-a4.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
   check "A4 conf abstract" "$(baseline "$out/conf-a4.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
-  left=$(pdftotext -bbox -f 1 -l 1 "$out/conf-a4.pdf" - 2>/dev/null \
-         | grep -oE 'xMin="[0-9.]+"' | sed -E 's/[^0-9.]//g' | sort -n | head -1)
-  check "A4 left edge"     "$left" 40.6
+  # Compare the left edge against the reference render rather than a rounded
+  # literal, so the check does not depend on how many digits were written down.
+  edge() {
+    pdftotext -bbox -f 1 -l 1 "$1" - 2>/dev/null \
+    | grep -oE 'xMin="[0-9.]+"' | sed -E 's/[^0-9.]//g' | sort -n | head -1
+  }
+  check "A4 left edge"     "$(edge "$out/conf-a4.pdf")" "$(edge "$ref")" 1
 fi
 if [ -f "$out/jrnl-a4.pdf" ]; then
   ref=reference/pdf/IEEE_Journal_Paper_Template_A4.pdf

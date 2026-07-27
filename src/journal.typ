@@ -20,7 +20,7 @@
 // conference constants: these put the title baseline at 77pt and the author
 // line at 128pt.
 #let title-top-space = 2pt
-#let title-author-gap = 8pt
+#let title-author-gap = 7pt
 
 // IEEEtran.cls:5277 and 5283. Both label and body are bold, and the journal
 // branch adds 1.34ex below the abstract where conference adds nothing.

@@ -62,7 +62,7 @@
 
 // Vertical separation between wrapped author rows. Calibrated against the
 // 062824 wrapper, which is the only reference render with more than one row.
-#let author-row-gap = 27pt - line-advance
+#let author-row-gap = 26pt - line-advance
 
 // Author blocks sit in naturally sized cells separated by equal glue, not in
 // equal-width columns: an even three-way split would centre the first block at
