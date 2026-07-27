@@ -6,6 +6,7 @@
   with-size,
 )
 #import "common/headings.typ" as headings
+#import "common/floats.typ" as floats
 
 // Space above the title and between the title and the author blocks. The class
 // specifies 0.5\baselineskip (IEEEtran.cls:4748) and \vskip1.0em (4809), but
@@ -136,6 +137,7 @@
 ) = {
   show: page-setup.with(mode: "conference")
   show: headings.rules
+  show: floats.rules
 
   // The title spans both columns; everything after it flows in the columns.
   // clearance must be zero: the quantised block height is what puts the columns
@@ -148,10 +150,15 @@
     block(width: 100%, title-block(title, authors)),
   )
 
+  // The reference list is set at footnotesize under an unnumbered heading, which
+  // the heading rules already render as centred small caps. std.bibliography is
+  // needed because the parameter of the same name shadows the element function.
+  set std.bibliography(title: [References], style: "ieee")
+
   if abstract != none { runin-section(abstract-label, abstract) }
   if index-terms != none { runin-section(index-terms-label, index-terms) }
 
   body
 
-  if bibliography != none { bibliography }
+  if bibliography != none { with-size(sizes.footnote, bibliography) }
 }

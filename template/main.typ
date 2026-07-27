@@ -32,6 +32,7 @@
     ),
   ),
   abstract: [The abstract goes here.],
+  bibliography: bibliography("refs.bib"),
 )
 
 = Introduction
@@ -45,4 +46,4 @@ Subsection text here.
 Subsubsection text here.
 
 = Conclusion
-The conclusion goes here.
+The conclusion goes here. A citation appears here @kopka1999.
