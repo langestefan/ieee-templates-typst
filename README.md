@@ -202,49 +202,44 @@ at `(3)` afterwards. References follow suit.
 
 ## Status
 
-| | Conference | Journal |
-|---|---|---|
-| Page geometry, 56 / 58 lines per column | ✅ | ✅ |
-| Title block, author blocks, wrapping | ✅ | ✅ |
-| Abstract and index terms | ✅ | ✅ |
-| Section heading hierarchy | ✅ | ✅ |
-| Figures, tables, equations, footnotes | ✅ | ✅ |
-| Bibliography | ✅ | ✅ |
-| `\thanks` funding notes | ✅ | ✅ |
-| US Letter and A4 | ✅ | ✅ |
-| Running heads | — | ✅ |
-| Drop cap, appendices, biographies | — | ✅ |
-| Single column (`columns: 1`) | — | ✅ |
+| Mode | Verified against |
+|---|---|
+| `ieee-conference` | `bare_conf.tex` and IEEE's 2024-06-28 wrapper |
+| `ieee-journal` | `bare_jrnl.tex`, two columns and one |
+| `ieee-transmag` | `bare_jrnl_transmag.tex` |
+| `ieee-compsoc` | `bare_jrnl_compsoc.tex` |
+| `ieee-compsoc-conference` | `bare_conf_compsoc.tex` |
 
-`ieee-transmag` covers IEEE Transactions on Magnetics, which differs from a plain journal in its title
-area: a smaller bold title, numeric affiliation marks with one affiliation per line, and the abstract and
-index terms carried full width inside the title block with no `Abstract—` label. Verified against
-`bare_jrnl_transmag.tex`.
+All on US Letter and A4. Every landmark matches its reference exactly, with two
+exceptions noted in [docs/known-gaps.md](docs/known-gaps.md).
 
-`comsoc` needs no separate mode: per the class changelog, V1.8b's Communications Society option only
-swaps in the newtxmath math fonts, so it is geometrically identical to a plain journal.
+`peerreview` and `technote` are implemented as arguments to `ieee-journal`, but
+no reference render exists for either, so unlike the six above they are not
+checked against IEEE output.
 
-Not implemented: point sizes other than 10pt, and automatic last-page column balancing
-(`#colbreak()` is the manual remedy).
+`comsoc` needs no separate mode: per the class changelog, V1.8b's Communications
+Society option only swaps in the newtxmath math fonts, leaving it geometrically
+identical to a plain journal.
 
-`ieee-compsoc` covers IEEE Computer Society journals. It is a different design rather than a variant:
-Palatino body at 9.5pt on 11.54pt leading with 61 lines per column, Helvetica bold small-caps headings
-numbered `1`, `1.1`, a diamond rule closing the title block, and dimensions in big points with none of
-the TeX-point conversion the other modes need.
+Not implemented: point sizes other than 10pt, and automatic last-page column
+balancing, which Typst cannot do — `#colbreak()` is the manual remedy.
 
-`ieee-compsoc-conference` covers Computer Society conferences. Those are set in Times, so unlike the
-journals they need no extra fonts; sections there are numbered `1.`, `1.1.` with trailing periods in bold
-roman.
+### The two Computer Society modes
 
-The journal form needs a Palatino and a Helvetica clone. [TeX Gyre Pagella](https://ctan.org/pkg/tex-gyre-pagella) and
-Nimbus Sans are the free ones; if they are not installed system wide, pass `--font-path`. The title
-block, geometry and first section match the reference exactly. Body headings below that run about 3pt
-tight per heading, and the reference's own source uses `\IEEEraisesectionheading` on its first section,
-which this port does not implement.
+`ieee-compsoc` is a different design rather than a variant of the others:
+Palatino body at 9.5pt on 11.54pt leading, 61 lines per column, Helvetica bold
+small-caps headings numbered `1`, `1.1`, and a diamond rule closing the title
+block. It is the only mode needing fonts beyond Times:
+[TeX Gyre Pagella](https://ctan.org/pkg/tex-gyre-pagella) and Nimbus Sans are
+the free choices, and `--font-path` works if they are not installed system wide.
+
+`ieee-compsoc-conference` is set in Times and needs no extra fonts. Its sections
+are numbered `1.`, `1.1.` with trailing periods, in bold roman.
 
 ## Verification
 
-The point of this port is that it is checked, not eyeballed.
+The point of this port is that it is checked, not eyeballed. Notes on the
+awkward parts of the port are in [docs/porting-notes.md](docs/porting-notes.md).
 
 ```bash
 scripts/check.sh
@@ -267,23 +262,6 @@ Two supporting tools:
   depending on whether a line happens to contain descenders, which is the same magnitude as the spacing
   being measured.
 - `scripts/verify-geometry.sh <pdf> <page> [ref] [page]` — text-block extent, line count, modal advance.
-
-## Notes for anyone porting from LaTeX
-
-Three things cost real time here and are not obvious from the class source.
-
-**TeX's point is 1/72.27in; Typst's is 1/72in.** Every dimension and font size in `IEEEtran.cls` needs
-scaling by 72/72.27. Skip it and the layout drifts 0.37%, roughly 2.5pt down a column — enough to lose a
-line off the page. It shows up as the class's `12pt` rendering at 11.955pt.
-
-**`\vspace` and `v()` are not the same.** LaTeX's `\vspace` adds to the baselineskip, which already
-contains the interline gap. Typst's `v()` adds on top of `par.spacing`, so a class value carried over
-directly overshoots by exactly that spacing.
-
-**Typst cannot indent only the first N lines of a paragraph.** `par` offers first-line and
-all-but-first, nothing between. Both the drop cap and the biography photo need it, so
-`src/common/textsplit.typ` splits the paragraph explicitly, binary-searching word count against a
-measured height.
 
 ## Repository layout
 
