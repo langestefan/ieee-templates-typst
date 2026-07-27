@@ -50,7 +50,18 @@
   appendix-state.update(false)
 }
 
-#let rules(body) = {
+// IEEEtran.cls:5466-5476. The class comment reads "The IEEE wants section
+// heading spacing to decrease for conference mode": conference uses 1.5ex above
+// both sections and subsections, journal uses 3.0ex and 3.5ex. The space below
+// is 0.7ex in both. Applying the conference values to journal put its first
+// section heading 5pt high.
+#let above-skip = (
+  conference: (1.5 * ex, 1.5 * ex),
+  journal: (3.0 * ex, 3.5 * ex),
+)
+
+#let rules(mode: "conference", body) = {
+  let above = above-skip.at(mode)
   set heading(numbering: numbering-fn)
 
   show heading: it => {
@@ -66,7 +77,7 @@
     // Level 1: centred small caps, 1.5ex above and 0.7ex below.
     if it.level == 1 {
       let extra = heading-below-extra.at(it.location())
-      block(above: 1.5 * ex, below: 0.7 * ex + extra, width: 100%)[
+      block(above: above.at(0), below: 0.7 * ex + extra, width: 100%)[
         #set align(center)
         #set text(size: sizes.normal.at(0), weight: "regular")
         #if in-appendix {
@@ -80,7 +91,7 @@
       ]
     } else if it.level == 2 {
       // Level 2: flush-left italic, same spacing.
-      block(above: 1.5 * ex, below: 0.7 * ex, width: 100%)[
+      block(above: above.at(1), below: 0.7 * ex, width: 100%)[
         #set text(size: sizes.normal.at(0), style: "italic", weight: "regular")
         #if n != none [#n#h(num-gap)]#it.body
       ]

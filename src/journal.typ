@@ -27,9 +27,19 @@
 #let abstract-label = "Abstract"
 #let index-terms-label = "Index Terms"
 #let ex = 0.448 * sizes.normal.at(0)
-#let abstract-below = 1.34 * ex
+
+// LaTeX's \vspace adds to the baselineskip, which already contains the inter-
+// line gap. Typst's v() adds on top of par.spacing instead, so a class value
+// carried over directly overshoots by exactly that spacing. Every one of these
+// gaps measured 2pt long before this correction, and par.spacing is 1.99pt.
+#let vspace(x) = x - leading-for(sizes.normal)
+
+// IEEEtran.cls:5283. The journal branch of \endabstract adds 1.34ex; the
+// conference branch adds nothing.
+#let abstract-below = vspace(1.34 * ex)
+
 // IEEEtran.cls:5292. \endIEEEkeywords adds 0.67ex below the index terms.
-#let index-terms-below = 0.67 * ex
+#let index-terms-below = vspace(0.67 * ex)
 
 #let runin-section(label, body) = with-size(
   sizes.small,
@@ -80,7 +90,7 @@
   body,
 ) = {
   show: page-setup.with(mode: "journal", paper: paper)
-  show: headings.rules
+  show: headings.rules.with(mode: "journal")
   show: floats.rules
   show: elements.rules
 

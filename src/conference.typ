@@ -133,7 +133,7 @@
   body,
 ) = {
   show: page-setup.with(mode: "conference", paper: paper)
-  show: headings.rules
+  show: headings.rules.with(mode: "conference")
   show: floats.rules
   show: elements.rules
 
