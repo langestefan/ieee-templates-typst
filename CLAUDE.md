@@ -37,15 +37,15 @@ Current agreement with the references, in points:
 | title | exact | exact | exact |
 | authors | exact | row 1 exact, row 2 +1 | +1 |
 | abstract | exact | exact | exact |
-| first section | exact | — | −5 |
+| index terms | — | — | exact |
+| first section | exact | — | exact |
+| drop cap | — | — | −1 |
 
 ### Known gaps
 
 - **Last-page column balancing.** Typst fills page-level columns sequentially and offers no balancing,
   so a final page leaves column one full and column two short. `#colbreak()` at the right point is the
   manual remedy and works fine.
-- **The journal's first section heading sits 5pt high**, 233 against 238. Unresolved. Possibly the same
-  unmodelled cause as the quantisation slack described below.
 - `IEEEeqnarray` multi-line equation layout has no Typst analogue and is not attempted.
 - `compsoc`, `comsoc`, `transmag`, `technote` and `peerreview` modes are untouched, as are point sizes
   other than 10pt. Four of those modes already have reference renders in `reference/pdf/`.
@@ -66,6 +66,19 @@ settled. The three ranges do intersect, but in a window under a point wide, so p
 
 Treat these as load-bearing: if a layout drifts after a change, check them first, and run
 `scripts/check.sh`.
+
+### Two conversions that bite
+
+Both caused real, hard-to-spot errors here.
+
+**Heading skips differ by mode.** Conference uses 1.5ex above sections and subsections; journal uses
+3.0ex and 3.5ex (`IEEEtran.cls:5466-5476`). Applying one mode's values to the other is silent and shifts
+everything below.
+
+**`\vspace` and `v()` are not the same.** LaTeX's `\vspace` adds to the baselineskip, which already
+contains the interline gap. Typst's `v()` adds on top of `par.spacing`. A class value carried over
+directly overshoots by exactly that spacing, 1.99pt at 10pt. `journal.typ` has a `vspace()` helper that
+does the conversion.
 
 ## Critical context: upstream is frozen
 
