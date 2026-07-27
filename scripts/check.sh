@@ -43,15 +43,8 @@ check() {
   fi
 }
 
-# compsoc needs Palatino and Helvetica clones. If they are not installed system
-# wide, drop TeX Gyre Pagella into tmp/fonts and this picks it up.
-# An array, not a string: it is either empty or two words, and quoting a string
-# would pass "--font-path tmp/fonts" as a single argument.
-FONTS=()
-[ -d tmp/fonts ] && FONTS=(--font-path tmp/fonts)
-
 build() {
-  if ! typst compile --root . "${FONTS[@]}" "$1" "$out/$2.pdf" 2>"$out/$2.err"; then
+  if ! typst compile --root . "$1" "$out/$2.pdf" 2>"$out/$2.err"; then
     printf '  FAIL  %-34s did not compile\n' "$2"
     grep -v "unknown font family" "$out/$2.err" | sed 's/^/          /' | head -5
     fail=$((fail + 1)); return 1
@@ -86,7 +79,7 @@ fi
 
 echo "journal"
 if build template/journal.typ jrnl; then
-  check "running head" "$(baseline "$out/jrnl.pdf" 1 'Journal of')"  31
+  check "running head" "$(baseline "$out/jrnl.pdf" 1 'JOURNAL OF')"  31
   check "title"        "$(baseline "$out/jrnl.pdf" 1 'Bare Demo')"   77
   check "author line"  "$(baseline "$out/jrnl.pdf" 1 'Michael')"    128
   check "abstract"     "$(baseline "$out/jrnl.pdf" 1 'Abstract')"   184
@@ -135,7 +128,7 @@ if build template/transmag.typ tmag; then
 fi
 
 echo "computer society journal"
-if typst fonts "${FONTS[@]}" 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
+if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
   if build template/compsoc.typ cs; then
     ref=reference/pdf/IEEE_Demo_Template_for_Computer_Science_Journals.pdf
     check "cs title"       "$(baseline "$out/cs.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
@@ -194,9 +187,49 @@ if [ -f "$out/conf-a4.pdf" ]; then
 fi
 if [ -f "$out/jrnl-a4.pdf" ]; then
   ref=reference/pdf/IEEE_Journal_Paper_Template_A4.pdf
-  check "A4 jrnl head"     "$(baseline "$out/jrnl-a4.pdf" 1 'Journal of')"   "$(baseline "$ref" 1 'JOURNAL')"
+  check "A4 jrnl head"     "$(baseline "$out/jrnl-a4.pdf" 1 'JOURNAL OF')"   "$(baseline "$ref" 1 'JOURNAL')"
   check "A4 jrnl title"    "$(baseline "$out/jrnl-a4.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
   check "A4 jrnl abstract" "$(baseline "$out/jrnl-a4.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
+fi
+
+echo "horizontal centring"
+# The baseline checks are all vertical, which let a real bug through: the title
+# block was centred against its own narrow content box rather than the text
+# width, so every mode except conference sat about 60pt left of where IEEE puts
+# it. Nothing above would have caught it.
+centre() {
+  gs -q -dBATCH -dNOPAUSE -sDEVICE=txtwrite -dTextFormat=0 \
+     -dFirstPage=1 -dLastPage=1 -sOutputFile=- "$1" 2>/dev/null \
+  | grep -oE '<span bbox="[0-9.-]+ [0-9.-]+ [0-9.-]+ [0-9.-]+"' \
+  | sed -E 's/<span bbox="//; s/"//' \
+  | awk -v lo="$2" -v hi="$3" '$2+0>=lo && $2+0<=hi {
+      if (min == "" || $1 < min) min = $1; if ($3 > max) max = $3
+    } END { if (min != "") printf "%.1f", (min + max) / 2 }'
+}
+for spec in "conf:71:72" "jrnl:77:78" "tmag:72:73" "cs:74:75" "csc:108:109"; do
+  tag=${spec%%:*}; rest=${spec#*:}; lo=${rest%%:*}; hi=${rest#*:}
+  [ -f "$out/$tag.pdf" ] || continue
+  check "$tag title centred" "$(centre "$out/$tag.pdf" "$lo" "$hi")" 306
+done
+
+echo "README previews"
+# The images in assets/ are generated, and nothing else here would notice them
+# drifting: a layout change updates the templates and the checks while the
+# pictures quietly keep showing the old output. Comparing baseline signatures
+# rather than image bytes keeps this usable off this machine, since pixels
+# depend on the font build and the renderer version.
+if [ -f assets/previews.txt ]; then
+  if ./scripts/update-previews.sh --signature-only >/dev/null 2>&1 \
+     && diff -q assets/previews.txt tmp/previews/signature.new >/dev/null 2>&1; then
+    printf '  ok    %-34s current\n' "previews"; pass=$((pass + 1))
+  else
+    printf '  FAIL  %-34s stale, run scripts/update-previews.sh\n' "previews"
+    diff assets/previews.txt tmp/previews/signature.new 2>/dev/null | head -6 | sed 's/^/          /'
+    fail=$((fail + 1))
+  fi
+else
+  printf '  FAIL  %-34s missing, run scripts/update-previews.sh\n' "previews"
+  fail=$((fail + 1))
 fi
 
 echo "geometry invariants"

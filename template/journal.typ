@@ -10,6 +10,12 @@
   ],
   header-left: [Journal of LaTeX Class Files, Vol. 14, No. 8, August 2015],
   header-right: [Shell #emph[et al.]: Bare Demo of IEEEtran.cls for IEEE Journals],
+  thanks: [
+    M. Shell was with the Department of Electrical and Computer Engineering,
+    Georgia Institute of Technology, Atlanta, GA, 30332 USA.
+    #linebreak() J. Doe and J. Doe are with Anonymous University.
+    #linebreak() Manuscript received April 19, 2005; revised August 26, 2015.
+  ],
   abstract: [The abstract goes here.],
   index-terms: [IEEE, IEEEtran, journal, LaTeX, paper, template.],
 )
@@ -24,7 +30,7 @@ Subsection text here.
 Subsubsection text here.
 
 = Conclusion
-The conclusion goes here.
+The conclusion goes here @kopka1999.
 
 #show: appendices
 = Proof of the First Zonklar Equation
@@ -32,6 +38,13 @@ Appendix one text goes here.
 
 =
 Appendix two text goes here.
+
+#heading(numbering: none)[Acknowledgment]
+The authors would like to thank\u{2026}
+
+// IEEE orders a journal paper acknowledgment, references, then biographies, so
+// the reference list is placed here rather than passed as an argument.
+#bibliography("refs.bib")
 
 #biography(name: [Michael Shell])[Biography text here.]
 

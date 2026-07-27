@@ -14,6 +14,7 @@
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
 #import "common/parstart.typ": parstart
+#import "common/runninghead.typ": running-head
 #import "common/biography.typ": biography, biography-no-photo
 
 // Calibrated against IEEE_Journal_Paper_Template.pdf the same way as the
@@ -76,28 +77,14 @@
   pad(left: quotation-indent, right: quotation-indent, body)
 })
 
-// The running head is set at 7pt on the text-block width, with the page number
-// pushed to the outer edge. Measured at baseline 31pt in the reference.
-#let head-size = 7 * (72pt / 72.27)
-
-#let running-head(left-text, right-text) = context {
-  let n = counter(page).at(here()).first()
-  // IEEE puts the journal line on page one and on versos, and the author line
-  // on the remaining rectos.
-  let text-for-page = if n == 1 or calc.even(n) { left-text } else {
-    right-text
-  }
-  set text(size: head-size)
-  block(width: 100%, grid(
-    columns: (1fr, auto),
-    align(left, text-for-page), align(right, [#n]),
-  ))
-}
 
 #let quantize(body) = context {
   let natural = measure(block(width: text-width, body)).height
   let slots = calc.ceil((natural + vertical.journal.slack) / line-advance)
-  block(height: slots * line-advance, body)
+  // width must be explicit: without it the block shrinks to its content and
+  // `set align(center)` inside then centres against that narrower box rather
+  // than the full text width.
+  block(height: slots * line-advance, width: 100%, body)
 }
 
 #let title-block(title, authors) = quantize({
@@ -155,6 +142,20 @@
   set page(header: running-head(header-left, header-right), header-ascent: 25pt)
 
   set std.bibliography(title: [References], style: "ieee")
+
+  // A show rule rather than styling a trailing parameter, so the reference list
+  // can sit wherever the document puts it. Journals need it before the author
+  // biographies, which the old "emit it last" arrangement made impossible.
+  show std.bibliography: it => {
+    heading-below-extra.update(0.3 * line-advance)
+    with-size(sizes.footnote, {
+      // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
+      // apart like any other line.
+      set par(spacing: leading-for(sizes.footnote))
+      it
+    })
+    heading-below-extra.update(0pt)
+  }
 
   // A technote keeps its title inside the first column, so like the one-column
   // case it needs neither the float nor the quantisation.
@@ -221,18 +222,9 @@
 
   body
 
-  if bibliography != none {
-    // IEEEtran.cls:4492 adds 0.3aselineskip between the References heading
-    // and the list.
-    heading-below-extra.update(0.3 * line-advance)
-    with-size(sizes.footnote, {
-      // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
-      // apart like any other line. Paragraph spacing has to be dropped to the
-      // footnotesize leading or each entry drifts a point from the enclosing
-      // body-size spacing.
-      set par(spacing: leading-for(sizes.footnote))
-      bibliography
-    })
-    heading-below-extra.update(0pt)
-  }
+  // Emitting it here is a convenience for the common case. Documents that need
+  // it elsewhere, such as a journal placing it before the biographies, can drop
+  // the argument and write #bibliography(..) into the body instead; the show
+  // rule above styles it either way.
+  if bibliography != none { bibliography }
 }

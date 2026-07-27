@@ -80,9 +80,13 @@
       block(above: above.at(0), below: 0.7 * ex + extra, width: 100%)[
         #set align(center)
         #set text(size: sizes.normal.at(0), weight: "regular")
-        #if in-appendix {
+        #if in-appendix and n != none {
           // "Appendix A" on one line, the title beneath it. An empty title
           // leaves just the label, as \@IEEEprocessthesectionargument does.
+          //
+          // Only numbered headings get the label: the class leaves \section*
+          // alone in appendix mode (IEEEtran.cls:5745), which is how the
+          // Acknowledgment and References headings keep their normal form.
           smallcaps[#appendix-name#if n != none [~#n]]
           if it.body != [] {
             linebreak()

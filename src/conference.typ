@@ -115,7 +115,10 @@
 #let quantize(body) = context {
   let natural = measure(block(width: text-width, body)).height
   let slots = calc.ceil((natural + vertical.conference.slack) / line-advance)
-  block(height: slots * line-advance, body)
+  // width must be explicit: without it the block shrinks to its content and
+  // `set align(center)` inside then centres against that narrower box rather
+  // than the full text width.
+  block(height: slots * line-advance, width: 100%, body)
 }
 
 #let title-block(title, authors) = quantize({
@@ -157,6 +160,20 @@
   // needed because the parameter of the same name shadows the element function.
   set std.bibliography(title: [References], style: "ieee")
 
+  // A show rule rather than styling a trailing parameter, so the reference list
+  // can sit wherever the document puts it. Journals need it before the author
+  // biographies, which the old "emit it last" arrangement made impossible.
+  show std.bibliography: it => {
+    heading-below-extra.update(0.3 * line-advance)
+    with-size(sizes.footnote, {
+      // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
+      // apart like any other line.
+      set par(spacing: leading-for(sizes.footnote))
+      it
+    })
+    heading-below-extra.update(0pt)
+  }
+
   // \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
   // \thefootnote and \@makefnmark so the funding note carries no superscript.
   // It must ride inside the first paragraph rather than stand alone, or it forms
@@ -179,18 +196,9 @@
 
   body
 
-  if bibliography != none {
-    // IEEEtran.cls:4492 adds 0.3aselineskip between the References heading
-    // and the list.
-    heading-below-extra.update(0.3 * line-advance)
-    with-size(sizes.footnote, {
-      // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
-      // apart like any other line. Paragraph spacing has to be dropped to the
-      // footnotesize leading or each entry drifts a point from the enclosing
-      // body-size spacing.
-      set par(spacing: leading-for(sizes.footnote))
-      bibliography
-    })
-    heading-below-extra.update(0pt)
-  }
+  // Emitting it here is a convenience for the common case. Documents that need
+  // it elsewhere, such as a journal placing it before the biographies, can drop
+  // the argument and write #bibliography(..) into the body instead; the show
+  // rule above styles it either way.
+  if bibliography != none { bibliography }
 }

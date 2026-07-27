@@ -18,6 +18,7 @@
 
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
+#import "common/runninghead.typ": running-head
 
 #let body-font = (
   "Palatino",
@@ -226,27 +227,14 @@
   diamond-line
 }
 
-#let head-size = 7pt
 #let header-ascent = 7pt
-
-#let running-head(left-text, right-text) = context {
-  let n = counter(page).at(here()).first()
-  let text-for-page = if n == 1 or calc.even(n) { left-text } else {
-    right-text
-  }
-  set text(size: head-size)
-  block(width: 100%, grid(
-    columns: (1fr, auto),
-    align(left, text-for-page), align(right, [#n]),
-  ))
-}
 
 // Unlike the other modes, the compsoc title block is not quantised to the body
 // grid: no slot count reproduces the reference's first section position, and the
 // diamond rule ends the block on its own terms. A fixed trailing gap does match.
 #let title-below = 23pt
 
-#let quantize(body) = block(body + v(title-below))
+#let quantize(body) = block(width: 100%, body + v(title-below))
 
 // Computer Society conferences are set in Times, not Palatino: only the
 // journals use the Palatino and Helvetica pairing. Sizes are still big points.
