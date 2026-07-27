@@ -4,3 +4,4 @@
 #import "journal.typ": ieee-journal
 #import "common/parstart.typ": parstart
 #import "common/headings.typ": appendices
+#import "common/biography.typ": biography, biography-no-photo

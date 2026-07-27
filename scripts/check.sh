@@ -84,6 +84,12 @@ if build template/journal.typ jrnl; then
   else
     printf '  FAIL  %-34s missing\n' "appendix lettering"; fail=$((fail + 1))
   fi
+  # The biography placeholder box, drawn when no photo is supplied.
+  if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'PHOTO'; then
+    printf '  ok    %-34s present\n' "biography photo box"; pass=$((pass + 1))
+  else
+    printf '  FAIL  %-34s missing\n' "biography photo box"; fail=$((fail + 1))
+  fi
 fi
 
 echo "geometry invariants"

@@ -12,6 +12,7 @@
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
 #import "common/parstart.typ": parstart
+#import "common/biography.typ": biography, biography-no-photo
 
 // Calibrated against IEEE_Journal_Paper_Template.pdf the same way as the
 // conference constants: these put the title baseline at 77pt and the author

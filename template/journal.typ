@@ -1,4 +1,5 @@
 #import "/src/journal.typ": ieee-journal, appendices
+#import "/src/common/biography.typ": biography, biography-no-photo
 #import "/src/common/parstart.typ": parstart
 
 #show: ieee-journal.with(
@@ -31,3 +32,9 @@ Appendix one text goes here.
 
 = 
 Appendix two text goes here.
+
+#biography(name: [Michael Shell])[Biography text here.]
+
+#biography-no-photo(name: [John Doe])[Biography text here.]
+
+#biography-no-photo(name: [Jane Doe])[Biography text here.]
