@@ -105,6 +105,17 @@ if build template/journal.typ jrnl; then
   fi
 fi
 
+echo "journal, one column"
+if build template/journal-onecolumn.typ jrnl1; then
+  ref=reference/pdf/One_column_IEEE_journal_article.pdf
+  check "1col title"      "$(baseline "$out/jrnl1.pdf" 1 'Bare Demo')"   "$(baseline "$ref" 1 'BareDemo')"
+  check "1col authors"    "$(baseline "$out/jrnl1.pdf" 1 'Michael')"     "$(baseline "$ref" 1 'Michael')"
+  check "1col abstract"   "$(baseline "$out/jrnl1.pdf" 1 'Abstract')"    "$(baseline "$ref" 1 'Abstract')"
+  check "1col index terms" "$(baseline "$out/jrnl1.pdf" 1 'Index Terms')" "$(baseline "$ref" 1 'IndexTerms')"
+  # 1pt: see the one-column calibration note in journal.typ.
+  check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')" 1
+fi
+
 echo "A4"
 # Verified against real IEEE A4 renders. a4paper changes only the sheet
 # dimensions for conference and journal mode: \if@IEEEusingAfourpaper is

@@ -192,10 +192,16 @@ Equations number as `(1)` flush right, and `@eq` references render as a bare `(1
 | US Letter and A4 | ✅ | ✅ |
 | Running heads | — | ✅ |
 | Drop cap, appendices, biographies | — | ✅ |
+| Single column (`columns: 1`) | — | ✅ |
 
 Not implemented: `IEEEeqnarray` multi-line equation layout, the `compsoc` / `comsoc` / `transmag` /
 `technote` / `peerreview` modes, point sizes other than 10pt, and automatic last-page column balancing
 (`#colbreak()` is the manual remedy).
+
+`compsoc` is a larger job than the name suggests. It is a different design rather than a variant: Palatino
+body text at 9.5pt, Helvetica bold headings, arabic hierarchical section numbers, a diamond rule after the
+abstract, and dimensions in big points with none of the TeX-point conversion the other modes need. It also
+needs a Palatino clone installed to render or verify at all.
 
 ## Verification
 
@@ -205,7 +211,7 @@ The point of this port is that it is checked, not eyeballed.
 scripts/check.sh
 ```
 
-Compiles every template and asserts 31 landmark baselines against IEEE's compiled reference PDFs in
+Compiles every template and asserts 37 landmark baselines against IEEE's compiled reference PDFs in
 `reference/pdf/`. Conference, journal and A4 all match their references exactly on title, authors,
 abstract, index terms and first section; the largest remaining discrepancy anywhere is 1pt.
 

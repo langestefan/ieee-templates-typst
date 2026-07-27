@@ -117,7 +117,7 @@
 // IEEEtran indents every paragraph, including the first after a heading.
 #let par-indent = 1 * tpc
 
-#let page-setup(mode: "conference", paper: "us-letter", body) = {
+#let page-setup(mode: "conference", paper: "us-letter", columns: 2, body) = {
   let v = vertical.at(mode)
   let sheet = papers.at(paper)
   let side = side-margin-for(paper)
@@ -129,9 +129,9 @@
       left: side,
       right: side,
     ),
-    columns: 2,
+    columns: columns,
   )
-  set columns(gutter: column-gutter)
+  set std.columns(gutter: column-gutter)
   set text(font: body-font, size: sizes.normal.at(0), ..em-box)
   set par(
     justify: true,

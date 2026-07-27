@@ -22,6 +22,23 @@
 #let title-top-space = 2pt
 #let title-author-gap = 7pt
 
+// One column places the title without the float and quantisation the two-column
+// path needs, and the reference sits it 8pt higher than the two-column title
+// despite an identical top margin, verified from page two's body start. The
+// cause is in LaTeX's \@maketitle path for single-column mode and is not
+// pinned down, so this is calibrated like the other title-internal gaps.
+#let title-top-space-onecolumn = -6pt
+
+// IEEEtran.cls:4955-4959. One-column journal puts 2.5\baselineskip between the
+// title block and the text, and \abstract adds a further 0.5 above its centred
+// label (5279).
+#let title-body-gap = 3 * line-advance
+// Space above the centred Index Terms label in one-column mode. The class has
+// \addvspace{0.5\baselineskip} here (IEEEtran.cls:5279) but that lands 8pt
+// short against the reference, so this is calibrated like the other one-column
+// title gaps.
+#let index-terms-above = 8pt
+
 // IEEEtran.cls:5277 and 5283. Both label and body are bold, and the journal
 // branch adds 1.34ex below the abstract where conference adds nothing.
 #let abstract-label = "Abstract"
@@ -45,6 +62,19 @@
   sizes.small,
   text(weight: "bold")[#text(style: "italic")[#label]---#body],
 )
+
+// IEEEtran.cls:5277-5281. In one-column mode the abstract is not run in: the
+// label is centred and bold on its own line, and the text follows inside a
+// \quotation, indented on both sides. Measured at 35pt in the reference.
+#let quotation-indent = 35pt
+
+#let block-section(label, body, above: 0pt) = with-size(sizes.small, {
+  block(above: above, below: 0.5 * line-advance, width: 100%)[
+    #set align(center)
+    #text(weight: "bold", label)
+  ]
+  pad(left: quotation-indent, right: quotation-indent, body)
+})
 
 // The running head is set at 7pt on the text-block width, with the page number
 // pushed to the outer edge. Measured at baseline 31pt in the reference.
@@ -79,6 +109,7 @@
 
 #let ieee-journal(
   paper: "us-letter",
+  columns: 2,
   title: [],
   authors: [],
   header-left: [],
@@ -89,7 +120,7 @@
   bibliography: none,
   body,
 ) = {
-  show: page-setup.with(mode: "journal", paper: paper)
+  show: page-setup.with(mode: "journal", paper: paper, columns: columns)
   show: headings.rules.with(mode: "journal")
   show: floats.rules
   show: elements.rules
@@ -98,13 +129,25 @@
 
   set std.bibliography(title: [References], style: "ieee")
 
-  place(
-    top,
-    scope: "parent",
-    float: true,
-    clearance: 0pt,
-    block(width: 100%, title-block(title, authors)),
-  )
+  // With one column there is nothing to span, so the title flows normally and
+  // the quantisation that puts two columns on the baseline grid is unnecessary.
+  if columns == 1 {
+    block(width: 100%, {
+      set align(center)
+      v(title-top-space-onecolumn)
+      with-size(sizes.huge, title)
+      v(title-author-gap)
+      with-size(sizes.sublarge, authors)
+    })
+  } else {
+    place(
+      top,
+      scope: "parent",
+      float: true,
+      clearance: 0pt,
+      block(width: 100%, title-block(title, authors)),
+    )
+  }
 
   // \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
   // \thefootnote and \@makefnmark so the funding note carries no superscript.
@@ -113,14 +156,19 @@
   let note = if thanks != none { footnote(numbering: _ => "", thanks) } else { [] }
   let placed = false
 
+  let one-col = columns == 1
+  let section-form(label, body, above: 0pt) = if one-col {
+    block-section(label, body, above: above)
+  } else { runin-section(label, body) }
+
   if abstract != none {
-    runin-section(abstract-label, [#note#abstract])
+    section-form(abstract-label, [#note#abstract], above: vspace(title-body-gap))
     v(abstract-below)
     placed = true
   }
   if index-terms != none {
     let lead = if placed { [] } else { note }
-    runin-section(index-terms-label, [#lead#index-terms])
+    section-form(index-terms-label, [#lead#index-terms], above: index-terms-above)
     v(index-terms-below)
     placed = true
   }
