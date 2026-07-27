@@ -1,0 +1,41 @@
+# Typst build output. Reference PDFs under pdf/ stay tracked, so *.pdf is not ignored.
+/out/
+/build/
+/dist/
+
+# Upstream archives. These duplicate the extracted directories.
+/reference/*.zip
+
+# LaTeX intermediates
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Nextcloud sync artifacts
+.nextcloudsync.log
+.owncloudsync.log
+._sync_*.db*
+.sync_*.db*
+*.~lock.*
+*conflicted copy*
+*_conflict-*
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Scratch
+scratch/
+tmp/
