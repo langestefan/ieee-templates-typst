@@ -43,8 +43,13 @@ check() {
   fi
 }
 
+# compsoc needs Palatino and Helvetica clones. If they are not installed system
+# wide, drop TeX Gyre Pagella into tmp/fonts and this picks it up.
+FONTS=""
+[ -d tmp/fonts ] && FONTS="--font-path tmp/fonts"
+
 build() {
-  if ! typst compile --root . "$1" "$out/$2.pdf" 2>"$out/$2.err"; then
+  if ! typst compile --root . $FONTS "$1" "$out/$2.pdf" 2>"$out/$2.err"; then
     printf '  FAIL  %-34s did not compile\n' "$2"
     grep -v "unknown font family" "$out/$2.err" | sed 's/^/          /' | head -5
     fail=$((fail + 1)); return 1
@@ -125,6 +130,21 @@ if build template/transmag.typ tmag; then
   check "tmag abstract"    "$(baseline "$out/tmag.pdf" 1 'abstract goes')"  "$(baseline "$ref" 1 'Theabstractgoes')"
   check "tmag index terms" "$(baseline "$out/tmag.pdf" 1 'Index Terms')"    "$(baseline "$ref" 1 'IndexTerms')"
   check "tmag section 1"   "$(baseline "$out/tmag.pdf" 1 'Introduction')"   "$(baseline "$ref" 1 'INTRODUCTION')"
+fi
+
+echo "computer society journal"
+if typst fonts $FONTS 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
+  if build template/compsoc.typ cs; then
+    ref=reference/pdf/IEEE_Demo_Template_for_Computer_Science_Journals.pdf
+    check "cs title"       "$(baseline "$out/cs.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
+    check "cs authors"     "$(baseline "$out/cs.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
+    check "cs abstract"    "$(baseline "$out/cs.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
+    check "cs index terms" "$(baseline "$out/cs.pdf" 1 'Index Terms')"  "$(baseline "$ref" 1 'IndexTerms')"
+    check "cs diamond"     "$(baseline "$out/cs.pdf" 1 '25c6')"         "$(baseline "$ref" 1 '2726')"
+    check "cs section 1"   "$(baseline "$out/cs.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')"
+  fi
+else
+  printf '  skip  %-34s no Palatino clone found\n' "compsoc"
 fi
 
 echo "A4"

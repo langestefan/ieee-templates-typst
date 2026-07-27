@@ -3,6 +3,7 @@
 #import "conference.typ": ieee-conference
 #import "journal.typ": ieee-journal
 #import "transmag.typ": ieee-transmag
+#import "compsoc.typ": ieee-compsoc
 #import "common/parstart.typ": parstart
 #import "common/headings.typ": appendices
 #import "common/biography.typ": biography, biography-no-photo

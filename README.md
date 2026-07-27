@@ -203,14 +203,20 @@ area: a smaller bold title, numeric affiliation marks with one affiliation per l
 index terms carried full width inside the title block with no `Abstract—` label. Verified against
 `bare_jrnl_transmag.tex`.
 
-Not implemented: `IEEEeqnarray` multi-line equation layout, the `compsoc` / `comsoc` / `technote` /
-`peerreview` modes, point sizes other than 10pt, and automatic last-page column balancing
+Not implemented: `IEEEeqnarray` multi-line equation layout, the `comsoc` / `technote` / `peerreview`
+modes, point sizes other than 10pt, and automatic last-page column balancing
 (`#colbreak()` is the manual remedy).
 
-`compsoc` is a larger job than the name suggests. It is a different design rather than a variant: Palatino
-body text at 9.5pt, Helvetica bold headings, arabic hierarchical section numbers, a diamond rule after the
-abstract, and dimensions in big points with none of the TeX-point conversion the other modes need. It also
-needs a Palatino clone installed to render or verify at all.
+`ieee-compsoc` covers IEEE Computer Society journals. It is a different design rather than a variant:
+Palatino body at 9.5pt on 11.54pt leading with 61 lines per column, Helvetica bold small-caps headings
+numbered `1`, `1.1`, a diamond rule closing the title block, and dimensions in big points with none of
+the TeX-point conversion the other modes need.
+
+It needs a Palatino and a Helvetica clone. [TeX Gyre Pagella](https://ctan.org/pkg/tex-gyre-pagella) and
+Nimbus Sans are the free ones; if they are not installed system wide, pass `--font-path`. The title
+block, geometry and first section match the reference exactly. Body headings below that run about 3pt
+tight per heading, and the reference's own source uses `\IEEEraisesectionheading` on its first section,
+which this port does not implement.
 
 ## Verification
 
@@ -220,7 +226,7 @@ The point of this port is that it is checked, not eyeballed.
 scripts/check.sh
 ```
 
-Compiles every template and asserts 44 landmark baselines against IEEE's compiled reference PDFs in
+Compiles every template and asserts 51 landmark baselines against IEEE's compiled reference PDFs in
 `reference/pdf/`. Conference, journal and A4 all match their references exactly on title, authors,
 abstract, index terms and first section; the largest remaining discrepancy anywhere is 1pt.
 
