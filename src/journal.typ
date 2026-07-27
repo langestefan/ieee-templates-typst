@@ -8,6 +8,7 @@
   line-advance, margin-side, page-setup, sizes, text-width, vertical, with-size,
 )
 #import "common/headings.typ" as headings
+#import "common/headings.typ": appendices
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
 #import "common/parstart.typ": parstart

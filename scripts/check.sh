@@ -77,6 +77,13 @@ if build template/journal.typ jrnl; then
   # The drop cap's baseline sits on the second body line, one line below the
   # first. Catches the offset conversion in parstart.typ silently breaking.
   check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 260
+  # Appendices letter their sections and title them "Appendix A" on a line of
+  # their own. Presence is what matters here, not the exact baseline.
+  if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'Appendix.*B'; then
+    printf '  ok    %-34s present\n' "appendix lettering"; pass=$((pass + 1))
+  else
+    printf '  FAIL  %-34s missing\n' "appendix lettering"; fail=$((fail + 1))
+  fi
 fi
 
 echo "geometry invariants"

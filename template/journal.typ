@@ -1,4 +1,4 @@
-#import "/src/journal.typ": ieee-journal
+#import "/src/journal.typ": ieee-journal, appendices
 #import "/src/common/parstart.typ": parstart
 
 #show: ieee-journal.with(
@@ -24,3 +24,10 @@ Subsubsection text here.
 
 = Conclusion
 The conclusion goes here.
+
+#show: appendices
+= Proof of the First Zonklar Equation
+Appendix one text goes here.
+
+= 
+Appendix two text goes here.

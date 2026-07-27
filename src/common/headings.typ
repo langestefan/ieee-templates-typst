@@ -31,12 +31,31 @@
 // as run-in headings (IEEEtran.cls:5416 treats afterskip <= 0 that way).
 #let is-runin(level) = level >= 3
 
+// IEEEtran.cls:2611 and 5764-5773. After \appendices, top-level sections are
+// lettered rather than numbered and are titled "Appendix A", with the section
+// title on a second line. Note the letter carries no trailing period, unlike
+// the "I." of the main body.
+#let appendix-name = "Appendix"
+#let appendix-state = state("ieee-appendix-mode", false)
+
+#let appendices(body) = {
+  appendix-state.update(true)
+  counter(heading).update(0)
+  body
+  appendix-state.update(false)
+}
+
 #let rules(body) = {
   set heading(numbering: numbering-fn)
 
   show heading: it => {
+    let in-appendix = appendix-state.at(it.location())
     let n = if it.numbering != none {
-      numbering-fn(..counter(heading).at(it.location()))
+      if in-appendix and it.level == 1 {
+        numbering("A", counter(heading).at(it.location()).first())
+      } else {
+        numbering-fn(..counter(heading).at(it.location()))
+      }
     } else { none }
 
     // Level 1: centred small caps, 1.5ex above and 0.7ex below.
@@ -44,7 +63,14 @@
       block(above: 1.5 * ex, below: 0.7 * ex, width: 100%)[
         #set align(center)
         #set text(size: sizes.normal.at(0), weight: "regular")
-        #smallcaps[#if n != none [#n#h(num-gap)]#it.body]
+        #if in-appendix {
+          // "Appendix A" on one line, the title beneath it. An empty title
+          // leaves just the label, as \@IEEEprocessthesectionargument does.
+          smallcaps[#appendix-name#if n != none [~#n]]
+          if it.body != [] { linebreak(); smallcaps(it.body) }
+        } else {
+          smallcaps[#if n != none [#n#h(num-gap)]#it.body]
+        }
       ]
     } else if it.level == 2 {
       // Level 2: flush-left italic, same spacing.
