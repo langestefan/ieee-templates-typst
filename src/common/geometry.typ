@@ -19,10 +19,38 @@
 // modules. IEEE papers are 10pt in practice and there is no reference render at
 // any other size to verify against.
 #let ladders = (
-  "9pt": (normal: (9, 11.0476), small: (8.5, 10), footnote: (8, 9), sublarge: (10, 12), large: (10, 12), huge: (20, 24)),
-  "10pt": (normal: (10, 12), small: (9, 10), footnote: (8, 9), sublarge: (11, 13.4), large: (12, 14), huge: (24, 28)),
-  "11pt": (normal: (11, 13.3846), small: (10, 12), footnote: (9, 10.5), sublarge: (12, 14), large: (12, 14), huge: (24, 28)),
-  "12pt": (normal: (12, 13.92), small: (10, 12), footnote: (9, 10.5), sublarge: (14, 17), large: (14, 17), huge: (24, 28)),
+  "9pt": (
+    normal: (9, 11.0476),
+    small: (8.5, 10),
+    footnote: (8, 9),
+    sublarge: (10, 12),
+    large: (10, 12),
+    huge: (20, 24),
+  ),
+  "10pt": (
+    normal: (10, 12),
+    small: (9, 10),
+    footnote: (8, 9),
+    sublarge: (11, 13.4),
+    large: (12, 14),
+    huge: (24, 28),
+  ),
+  "11pt": (
+    normal: (11, 13.3846),
+    small: (10, 12),
+    footnote: (9, 10.5),
+    sublarge: (12, 14),
+    large: (12, 14),
+    huge: (24, 28),
+  ),
+  "12pt": (
+    normal: (12, 13.92),
+    small: (10, 12),
+    footnote: (9, 10.5),
+    sublarge: (14, 17),
+    large: (14, 17),
+    huge: (24, 28),
+  ),
 )
 
 #let sizes = {
@@ -123,7 +151,8 @@
 // point wide and a fourth document could easily fall outside it. Per-mode
 // values with margin on both sides are the safer choice.
 #let vertical = (
-  conference: vertical-for("conference", "10pt") + (slack: 2.5 * sizes.normal.at(1)),
+  conference: vertical-for("conference", "10pt")
+    + (slack: 2.5 * sizes.normal.at(1)),
   journal: vertical-for("journal", "10pt") + (slack: 3 * sizes.normal.at(1)),
 )
 

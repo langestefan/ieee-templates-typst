@@ -1,0 +1,54 @@
+name: Layout mismatch
+description: Report output that does not match IEEE's own rendering.
+title: "[layout] "
+labels: ["layout"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Layout in this package is checked baseline-for-baseline against IEEE's
+        compiled PDFs, so a mismatch is usually measurable rather than a matter
+        of opinion. The more precise you can be, the faster it gets fixed.
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Which template
+      options:
+        - Conference
+        - Journal (two column)
+        - Journal (one column)
+        - Transactions on Magnetics
+        - Computer Society journal
+        - Computer Society conference
+        - Technote
+        - Peer review
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What differs
+      description: |
+        What does IEEE's output do that this does not? If you can measure it,
+        `scripts/baselines.sh <pdf> <page>` prints text baselines and is what
+        the checks use.
+      placeholder: |
+        The section heading sits about 5pt lower than IEEEtran puts it.
+        baselines.sh gives 233 here against 238 in the reference.
+    validations:
+      required: true
+
+  - type: textarea
+    id: minimal
+    attributes:
+      label: Minimal document
+      description: The smallest Typst file that shows it.
+      render: typst
+
+  - type: input
+    id: version
+    attributes:
+      label: Typst version
+      placeholder: "typst 0.15.0"

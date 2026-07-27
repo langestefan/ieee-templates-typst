@@ -1,4 +1,4 @@
-#import "/src/journal.typ": ieee-journal, appendices
+#import "/src/journal.typ": appendices, ieee-journal
 #import "/src/common/biography.typ": biography, biography-no-photo
 #import "/src/common/parstart.typ": parstart
 
@@ -30,7 +30,7 @@ The conclusion goes here.
 = Proof of the First Zonklar Equation
 Appendix one text goes here.
 
-= 
+=
 Appendix two text goes here.
 
 #biography(name: [Michael Shell])[Biography text here.]

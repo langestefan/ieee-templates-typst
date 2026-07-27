@@ -84,12 +84,13 @@
   let n = counter(page).at(here()).first()
   // IEEE puts the journal line on page one and on versos, and the author line
   // on the remaining rectos.
-  let text-for-page = if n == 1 or calc.even(n) { left-text } else { right-text }
+  let text-for-page = if n == 1 or calc.even(n) { left-text } else {
+    right-text
+  }
   set text(size: head-size)
   block(width: 100%, grid(
     columns: (1fr, auto),
-    align(left, text-for-page),
-    align(right, [#n]),
+    align(left, text-for-page), align(right, [#n]),
   ))
 }
 
@@ -187,7 +188,9 @@
   // \thefootnote and \@makefnmark so the funding note carries no superscript.
   // It must ride inside the first paragraph rather than stand alone, or it forms
   // an empty paragraph of its own and pushes the columns a line down.
-  let note = if thanks != none { footnote(numbering: _ => "", thanks) } else { [] }
+  let note = if thanks != none { footnote(numbering: _ => "", thanks) } else {
+    []
+  }
   let placed = false
 
   let one-col = columns == 1
@@ -196,13 +199,21 @@
   } else { runin-section(label, body) }
 
   if abstract != none {
-    section-form(abstract-label, [#note#abstract], above: vspace(title-body-gap))
+    section-form(
+      abstract-label,
+      [#note#abstract],
+      above: vspace(title-body-gap),
+    )
     v(abstract-below)
     placed = true
   }
   if index-terms != none {
     let lead = if placed { [] } else { note }
-    section-form(index-terms-label, [#lead#index-terms], above: index-terms-above)
+    section-form(
+      index-terms-label,
+      [#lead#index-terms],
+      above: index-terms-above,
+    )
     v(index-terms-below)
     placed = true
   }

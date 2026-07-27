@@ -21,7 +21,11 @@
     ),
     (
       name: "Homer Simpson",
-      affiliation: ("Twentieth Century Fox", "Springfield, USA", "Email: homer@thesimpsons.com"),
+      affiliation: (
+        "Twentieth Century Fox",
+        "Springfield, USA",
+        "Email: homer@thesimpsons.com",
+      ),
     ),
     (
       name: ("James Kirk", "and Montgomery Scott"),

@@ -161,7 +161,9 @@
   // \thefootnote and \@makefnmark so the funding note carries no superscript.
   // It must ride inside the first paragraph rather than stand alone, or it forms
   // an empty paragraph of its own and pushes the columns a line down.
-  let note = if thanks != none { footnote(numbering: _ => "", thanks) } else { [] }
+  let note = if thanks != none { footnote(numbering: _ => "", thanks) } else {
+    []
+  }
   let placed = false
 
   if abstract != none {

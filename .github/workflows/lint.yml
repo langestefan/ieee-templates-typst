@@ -1,0 +1,39 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Typst formatting for the package and the example documents.
+      # reference/ is third-party and deliberately left alone.
+      - name: Install typstyle
+        uses: cargo-bins/cargo-binstall@main
+      - name: typstyle
+        run: |
+          cargo binstall -y typstyle
+          typstyle --check src template
+
+      # The measurement and check scripts are the only executable code here
+      # outside Typst, and they parse PDF output, so quoting mistakes matter.
+      # They are clean at the default severity, so the gate is not relaxed.
+      - name: ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends shellcheck
+          shellcheck scripts/*.sh

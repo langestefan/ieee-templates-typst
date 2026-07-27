@@ -97,7 +97,9 @@
     v(vspace(index-terms-above))
     with-size(sizes.small, {
       set par(first-line-indent: (amount: 1em, all: true))
-      text(weight: "bold")[#text(style: "italic")[#index-terms-label]---#index-terms]
+      text(weight: "bold")[#text(
+          style: "italic",
+        )[#index-terms-label]---#index-terms]
     })
   }
 }
@@ -106,12 +108,13 @@
 
 #let running-head(left-text, right-text) = context {
   let n = counter(page).at(here()).first()
-  let text-for-page = if n == 1 or calc.even(n) { left-text } else { right-text }
+  let text-for-page = if n == 1 or calc.even(n) { left-text } else {
+    right-text
+  }
   set text(size: head-size)
   block(width: 100%, grid(
     columns: (1fr, auto),
-    align(left, text-for-page),
-    align(right, [#n]),
+    align(left, text-for-page), align(right, [#n]),
   ))
 }
 

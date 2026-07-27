@@ -27,7 +27,9 @@
 
   // IEEEtran renders the remainder of the first word in upper case.
   let space-at = after.position(" ")
-  let word-rest = if space-at == none { after } else { after.slice(0, space-at) }
+  let word-rest = if space-at == none { after } else {
+    after.slice(0, space-at)
+  }
   let tail = if space-at == none { "" } else { after.slice(space-at + 1) }
 
   let cap = text(size: cap-size, letter)

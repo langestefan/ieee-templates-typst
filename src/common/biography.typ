@@ -13,7 +13,9 @@
 #let bio-skip = 4 * line-advance
 
 // IEEEtran.cls:6006. The placeholder shown when no photo is supplied.
-#let photo-placeholder = align(center)[PLACE #linebreak() PHOTO #linebreak() HERE]
+#let photo-placeholder = align(
+  center,
+)[PLACE #linebreak() PHOTO #linebreak() HERE]
 
 #let photo-gap = 1em
 
@@ -54,8 +56,7 @@
     grid(
       columns: (photo-width, 1fr),
       column-gutter: photo-gap,
-      photo-box(photo),
-      par(first-line-indent: 0pt, justify: true)[#lead #head],
+      photo-box(photo), par(first-line-indent: 0pt, justify: true)[#lead #head],
     )
     if rest != "" { par(first-line-indent: 0pt, justify: true, rest) }
   }))

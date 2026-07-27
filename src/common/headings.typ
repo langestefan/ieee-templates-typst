@@ -84,7 +84,10 @@
           // "Appendix A" on one line, the title beneath it. An empty title
           // leaves just the label, as \@IEEEprocessthesectionargument does.
           smallcaps[#appendix-name#if n != none [~#n]]
-          if it.body != [] { linebreak(); smallcaps(it.body) }
+          if it.body != [] {
+            linebreak()
+            smallcaps(it.body)
+          }
         } else {
           smallcaps[#if n != none [#n#h(num-gap)]#it.body]
         }
@@ -104,7 +107,11 @@
       // The first of those is already supplied by par.first-line-indent, so
       // only level 4 needs to make up the difference.
       let extra = if it.level == 3 { 0pt } else { par-indent }
-      let head = text(size: sizes.normal.at(0), style: "italic", weight: "regular")[
+      let head = text(
+        size: sizes.normal.at(0),
+        style: "italic",
+        weight: "regular",
+      )[
         #if n != none [#n#h(num-gap)]#it.body#runin-punct
       ]
       // The parbreak closes the preceding paragraph. Without it the heading

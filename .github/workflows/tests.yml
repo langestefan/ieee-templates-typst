@@ -1,0 +1,59 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel superseded PR runs so a force-push doesn't queue up duplicate work,
+# but let main-branch runs complete in order.
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: Reference checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Typst
+        uses: typst-community/setup-typst@v4
+
+      # ghostscript reads text baselines via its txtwrite device, which is what
+      # scripts/baselines.sh uses; poppler supplies pdftotext, pdfinfo and
+      # pdftoppm. fonts-urw-base35 provides Nimbus Roman and Nimbus Sans, the
+      # Times and Helvetica clones the layouts fall back to, plus D050000L for
+      # the Computer Society diamond rule.
+      - name: Install PDF tools and base fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            ghostscript poppler-utils fonts-urw-base35 fonts-texgyre
+
+      # scripts/check.sh skips the Computer Society journal checks when no
+      # Palatino clone is present, which would quietly drop six checks. The
+      # runner is meant to have all of these, so treat a missing one as a
+      # failure rather than let coverage disappear silently.
+      - name: Confirm the fonts the layouts need are present
+        run: |
+          missing=0
+          for f in "Nimbus Roman" "Nimbus Sans" "TeX Gyre Pagella"; do
+            if typst fonts | grep -qx "$f"; then
+              echo "ok      $f"
+            else
+              echo "MISSING $f"
+              missing=1
+            fi
+          done
+          exit $missing
+
+      # Asserts every landmark baseline against IEEE's own compiled reference
+      # PDFs in reference/pdf/. Exits non-zero on any mismatch.
+      - name: Run reference checks
+        run: bash ./scripts/check.sh

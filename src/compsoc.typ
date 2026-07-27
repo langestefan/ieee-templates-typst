@@ -19,7 +19,12 @@
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
 
-#let body-font = ("Palatino", "TeX Gyre Pagella", "URW Palladio L", "Palatino Linotype")
+#let body-font = (
+  "Palatino",
+  "TeX Gyre Pagella",
+  "URW Palladio L",
+  "Palatino Linotype",
+)
 #let heading-font = ("Helvetica", "Nimbus Sans", "TeX Gyre Heros", "Arial")
 #let conf-body-font = ("Times New Roman", "TeX Gyre Termes", "Nimbus Roman")
 
@@ -226,12 +231,13 @@
 
 #let running-head(left-text, right-text) = context {
   let n = counter(page).at(here()).first()
-  let text-for-page = if n == 1 or calc.even(n) { left-text } else { right-text }
+  let text-for-page = if n == 1 or calc.even(n) { left-text } else {
+    right-text
+  }
   set text(size: head-size)
   block(width: 100%, grid(
     columns: (1fr, auto),
-    align(left, text-for-page),
-    align(right, [#n]),
+    align(left, text-for-page), align(right, [#n]),
   ))
 }
 
@@ -305,8 +311,13 @@
     // blocks only have to fit the text width between them.
     let needed = widths.at(i)
     if current.len() > 0 and used + needed > conf-text-width {
-      rows.push(current); current = (c,); used = widths.at(i)
-    } else { current.push(c); used += needed }
+      rows.push(current)
+      current = (c,)
+      used = widths.at(i)
+    } else {
+      current.push(c)
+      used += needed
+    }
   }
   if current.len() > 0 { rows.push(current) }
   stack(dir: ttb, spacing: conf-author-row-gap, ..rows.map(r => block(
@@ -370,7 +381,10 @@
   show: floats.rules
   show: elements.rules
 
-  set page(header: running-head(header-left, header-right), header-ascent: header-ascent)
+  set page(
+    header: running-head(header-left, header-right),
+    header-ascent: header-ascent,
+  )
   set std.bibliography(title: [References], style: "ieee")
 
   place(

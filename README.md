@@ -1,5 +1,7 @@
 # ieee-templates-typst
 
+[![Tests](https://github.com/langestefan/ieee-templates-typst/actions/workflows/tests.yml/badge.svg)](https://github.com/langestefan/ieee-templates-typst/actions/workflows/tests.yml)
+[![Lint](https://github.com/langestefan/ieee-templates-typst/actions/workflows/lint.yml/badge.svg)](https://github.com/langestefan/ieee-templates-typst/actions/workflows/lint.yml)
 [![Typst](https://img.shields.io/badge/typst-%E2%89%A50.15.0-239dad)](https://typst.app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -251,6 +253,12 @@ scripts/check.sh
 Compiles every template and asserts 59 landmark baselines against IEEE's compiled reference PDFs in
 `reference/pdf/`. Conference, journal and A4 all match their references exactly on title, authors,
 abstract, index terms and first section; the largest remaining discrepancy anywhere is 1pt.
+
+CI runs the same script on every push and pull request, on a runner with the
+Nimbus and TeX Gyre fonts installed; a missing font fails the job rather than
+silently skipping the checks that need it. Formatting is enforced with
+[typstyle](https://github.com/typstyle-rs/typstyle) and the shell scripts with
+ShellCheck at its default severity.
 
 Two supporting tools:
 

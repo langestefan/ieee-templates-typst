@@ -45,11 +45,13 @@ check() {
 
 # compsoc needs Palatino and Helvetica clones. If they are not installed system
 # wide, drop TeX Gyre Pagella into tmp/fonts and this picks it up.
-FONTS=""
-[ -d tmp/fonts ] && FONTS="--font-path tmp/fonts"
+# An array, not a string: it is either empty or two words, and quoting a string
+# would pass "--font-path tmp/fonts" as a single argument.
+FONTS=()
+[ -d tmp/fonts ] && FONTS=(--font-path tmp/fonts)
 
 build() {
-  if ! typst compile --root . $FONTS "$1" "$out/$2.pdf" 2>"$out/$2.err"; then
+  if ! typst compile --root . "${FONTS[@]}" "$1" "$out/$2.pdf" 2>"$out/$2.err"; then
     printf '  FAIL  %-34s did not compile\n' "$2"
     grep -v "unknown font family" "$out/$2.err" | sed 's/^/          /' | head -5
     fail=$((fail + 1)); return 1
@@ -133,7 +135,7 @@ if build template/transmag.typ tmag; then
 fi
 
 echo "computer society journal"
-if typst fonts $FONTS 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
+if typst fonts "${FONTS[@]}" 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
   if build template/compsoc.typ cs; then
     ref=reference/pdf/IEEE_Demo_Template_for_Computer_Science_Journals.pdf
     check "cs title"       "$(baseline "$out/cs.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
