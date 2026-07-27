@@ -9,6 +9,7 @@
 )
 #import "common/headings.typ" as headings
 #import "common/floats.typ" as floats
+#import "common/elements.typ" as elements
 
 // Calibrated against IEEE_Journal_Paper_Template.pdf the same way as the
 // conference constants: these put the title baseline at 77pt and the author
@@ -80,6 +81,7 @@
   show: page-setup.with(mode: "journal")
   show: headings.rules
   show: floats.rules
+  show: elements.rules
 
   set page(header: running-head(header-left, header-right), header-ascent: 25pt)
 

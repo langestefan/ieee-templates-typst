@@ -9,9 +9,15 @@
 // IEEEtran.cls:2697. Space between a float and its caption.
 #let caption-skip = 0.5 * line-advance
 
-// IEEEtran.cls:2607-2608.
+// IEEEtran.cls:2607-2608. These are the caption forms.
 #let figure-supplement = "Fig."
 #let table-supplement = "TABLE"
+
+// In prose the table is a "Table", not a "TABLE". LaTeX never had to draw this
+// distinction because \ref emits only the number and the author types the word,
+// but Typst supplies the supplement automatically, so the two forms have to be
+// kept apart. IEEE's own 062824 wrapper asks for "Table I" and "Fig. 1" in text.
+#let table-reference-supplement = "Table"
 
 #let caption-text(body) = with-size(sizes.footnote, body)
 
@@ -29,6 +35,17 @@
 
   // Table captions sit above the table, figure captions below it.
   show figure.where(kind: table): set figure.caption(position: top)
+
+  show ref: it => {
+    let el = it.element
+    if el != none and el.func() == figure and el.kind == table {
+      let num = numbering(
+        el.numbering,
+        ..counter(figure.where(kind: table)).at(el.location()),
+      )
+      link(el.location(), [#table-reference-supplement~#num])
+    } else { it }
+  }
 
   show figure.caption: it => {
     let num = context it.counter.display(it.numbering)

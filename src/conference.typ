@@ -7,6 +7,7 @@
 )
 #import "common/headings.typ" as headings
 #import "common/floats.typ" as floats
+#import "common/elements.typ" as elements
 
 // Space above the title and between the title and the author blocks. The class
 // specifies 0.5\baselineskip (IEEEtran.cls:4748) and \vskip1.0em (4809), but
@@ -138,6 +139,7 @@
   show: page-setup.with(mode: "conference")
   show: headings.rules
   show: floats.rules
+  show: elements.rules
 
   // The title spans both columns; everything after it flows in the columns.
   // clearance must be zero: the quantised block height is what puts the columns
