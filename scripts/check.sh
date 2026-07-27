@@ -147,6 +147,15 @@ else
   printf '  skip  %-34s no Palatino clone found\n' "compsoc"
 fi
 
+echo "computer society conference"
+if build template/compsoc-conference.typ csc; then
+  ref=reference/pdf/IEEE_Demo_Template_for_Computer_Society_Conferences.pdf
+  check "csc title"     "$(baseline "$out/csc.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
+  check "csc authors"   "$(baseline "$out/csc.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
+  check "csc abstract"  "$(baseline "$out/csc.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
+  check "csc section 1" "$(baseline "$out/csc.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION|Introduction')"
+fi
+
 echo "A4"
 # Verified against real IEEE A4 renders. a4paper changes only the sheet
 # dimensions for conference and journal mode: \if@IEEEusingAfourpaper is
