@@ -54,8 +54,15 @@
 #let leading-for(entry) = entry.at(1) - entry.at(0)
 
 // Applies a ladder entry as an exact baseline grid.
+//
+// The edges are absolute rather than em-relative so that a nested size change
+// does not shrink the line box. TeX holds \baselineskip fixed for the whole
+// paragraph, so a small line still sits a full advance below the one above it.
+// The conference title relies on this: its subtitle is set at 8pt but still
+// sits 28pt below the 24pt title baseline.
 #let with-size(entry, body) = {
-  set text(size: entry.at(0), ..em-box)
+  let size = entry.at(0)
+  set text(size: size, top-edge: 0.7 * size, bottom-edge: -0.3 * size)
   set par(leading: leading-for(entry))
   body
 }

@@ -1,7 +1,8 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  em-box, line-advance, page-setup, par-indent, sizes, text-width, tpc, tpt,
+  column-gutter, em-box, line-advance, page-setup, par-indent, sizes,
+  text-width, tpc, tpt,
   with-size,
 )
 #import "common/headings.typ" as headings
@@ -33,22 +34,72 @@
   if type(x) == array { x.map(l => [#l]).join(linebreak()) } else { x }
 }
 
-// Author blocks sit in a row of naturally sized cells separated by equal glue,
-// which is what \IEEEauthorblock produces. Equal-width columns would place them
-// differently: the reference centres block one at x=154, not at the 134.7 an
-// even three-way split would give.
-#let author-row(authors) = block(width: 100%, grid(
-  columns: (auto,) * authors.len(),
-  column-gutter: 1fr,
-  ..authors.map(a => align(
-    center,
-    {
-      with-size(sizes.sublarge, as-lines(a.at("name", default: [])))
-      let aff = a.at("affiliation", default: none)
-      if aff != none { with-size(sizes.normal, as-lines(aff)) }
-    },
-  ))
-))
+// IEEEtran.cls:4583-4584. Author blocks set their own interline spacing rather
+// than inheriting the body advance: 2.6ex between name lines and 2.75ex between
+// affiliation lines. At 10pt Times, ex is 4.463pt, so affiliations advance
+// 12.27pt where the body advances 11.955pt. Over four affiliation lines that is
+// most of a point and a half, which shows up as drift in the second author row.
+#let ex = 0.448 * sizes.normal.at(0)
+#let name-advance = 2.6 * ex
+#let aff-advance = 2.75 * ex
+
+#let author-cell(a) = align(
+  center,
+  {
+    with-size(
+      (sizes.sublarge.at(0), name-advance),
+      as-lines(a.at("name", default: [])),
+    )
+    let aff = a.at("affiliation", default: none)
+    if aff != none {
+      with-size((sizes.normal.at(0), aff-advance), as-lines(aff))
+    }
+  },
+)
+
+// Vertical separation between wrapped author rows. Calibrated against the
+// 062824 wrapper, which is the only reference render with more than one row.
+#let author-row-gap = 27pt - line-advance
+
+// Author blocks sit in naturally sized cells separated by equal glue, not in
+// equal-width columns: an even three-way split would centre the first block at
+// x=134.7 where the reference has it at 154.
+//
+// \and is \hfill between separate halign groups (IEEEtran.cls:4731), so the
+// blocks form one horizontal list that TeX line-breaks when it overruns. Six
+// authors therefore wrap to two rows of three. Typst grids do not wrap, so the
+// packing is done explicitly here.
+#let author-row(authors) = context {
+  let cells = authors.map(author-cell)
+  let widths = cells.map(c => measure(c).width)
+
+  let rows = ()
+  let current = ()
+  let used = 0pt
+  for (i, c) in cells.enumerate() {
+    // Each additional block needs at least a gutter's worth of glue beside it.
+    let needed = widths.at(i) + if current.len() > 0 { column-gutter } else { 0pt }
+    if current.len() > 0 and used + needed > text-width {
+      rows.push(current)
+      current = (c,)
+      used = widths.at(i)
+    } else {
+      current.push(c)
+      used += needed
+    }
+  }
+  if current.len() > 0 { rows.push(current) }
+
+  stack(
+    dir: ttb,
+    spacing: author-row-gap,
+    ..rows.map(r => block(width: 100%, grid(
+      columns: (auto,) * r.len(),
+      column-gutter: 1fr,
+      ..r,
+    ))),
+  )
+}
 
 // Slack added below the author blocks before quantising. IEEEtran.cls:4969-4974
 // specifies 1\baselineskip for conference mode, but that lands the columns two
