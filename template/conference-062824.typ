@@ -33,6 +33,7 @@
     author(5, "th"),
     author(6, "th"),
   ),
+  thanks: [Identify applicable funding agency here. If none, delete this.],
   abstract: [
     This document is a model and instructions for LaTeX. This and the
     IEEEtran.cls file define the components of your paper [title, text, heads,

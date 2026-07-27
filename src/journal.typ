@@ -73,6 +73,7 @@
   authors: [],
   header-left: [],
   header-right: [],
+  thanks: none,
   abstract: none,
   index-terms: none,
   bibliography: none,
@@ -95,14 +96,25 @@
     block(width: 100%, title-block(title, authors)),
   )
 
+  // \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
+  // \thefootnote and \@makefnmark so the funding note carries no superscript.
+  // It must ride inside the first paragraph rather than stand alone, or it forms
+  // an empty paragraph of its own and pushes the columns a line down.
+  let note = if thanks != none { footnote(numbering: _ => "", thanks) } else { [] }
+  let placed = false
+
   if abstract != none {
-    runin-section(abstract-label, abstract)
+    runin-section(abstract-label, [#note#abstract])
     v(abstract-below)
+    placed = true
   }
   if index-terms != none {
-    runin-section(index-terms-label, index-terms)
+    let lead = if placed { [] } else { note }
+    runin-section(index-terms-label, [#lead#index-terms])
     v(index-terms-below)
+    placed = true
   }
+  if not placed { note }
 
   body
 
