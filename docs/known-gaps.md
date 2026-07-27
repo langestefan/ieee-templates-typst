@@ -17,14 +17,14 @@ Nothing. Every mode now has a reference render to check against, including A4,
 
 ## Measured differences that remain
 
-**Computer Society body headings run about 3pt tight per heading**, and the
-first body line sits 8pt above the reference. The reference's source calls
-`\IEEEraisesectionheading` on its opening section and this port does not
-implement it, but that command raises content while the reference sits *lower*
-than this port, so it does not explain the gap. Unresolved.
-
 **The journal drop cap is 1pt above the reference**, 265 against 266. The only
 landmark in any mode that is not exact.
+
+Computer Society heading spacing was previously off by 8pt after the first
+section and about 3pt per heading after that. The class's stated skips carried
+over directly do not reproduce the reference, so the values are calibrated to it
+and now match exactly. `\IEEEraisesectionheading` was investigated as the cause
+and ruled out: it raises content, while the reference sat lower than this port.
 
 ## Deliberately not done
 

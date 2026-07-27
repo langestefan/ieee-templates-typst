@@ -173,10 +173,17 @@
       (size: sizes.normal, weight: "regular", caps: false, style: "italic")
     }
 
-    let own-ex = ex-of(style.size)
-    let above = if it.level == 3 { 2.5 * own-ex } else { 3.5 * own-ex }
+    // IEEEtran.cls:5498-5507 gives 3.5ex above a section and subsection, 2.5ex
+    // above a subsubsection, and 0.7ex / 0.7ex / 0.5ex below. Carried over
+    // directly those leave every gap short against the reference, which
+    // measures 29/23/27 above and 21/14/14 below. These are calibrated to it,
+    // as the title-block constants elsewhere are.
+    let above = if it.level == 1 { 19.25pt } else if it.level == 2 {
+      17.9pt
+    } else { 13.6pt }
+    let below = if it.level == 1 { 11.05pt } else { 4.5pt }
 
-    block(above: above, below: 0.7 * ex, width: 100%)[
+    block(above: above, below: below, width: 100%)[
       #set text(
         font: heading-font,
         size: style.size.at(0),

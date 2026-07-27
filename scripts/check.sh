@@ -137,6 +137,11 @@ if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
     check "cs index terms" "$(baseline "$out/cs.pdf" 1 'Index Terms')"  "$(baseline "$ref" 1 'IndexTerms')"
     check "cs diamond"     "$(baseline "$out/cs.pdf" 1 '2726')"         "$(baseline "$ref" 1 '2726')"
     check "cs section 1"   "$(baseline "$out/cs.pdf" 1 'INTRODUCTION')" "$(baseline "$ref" 1 'INTRODUCTION')"
+    # Heading spacing below the title block: these caught an 8pt gap after the
+    # first section and 3pt per heading after that.
+    check "cs subsection"  "$(baseline "$out/cs.pdf" 1 '1.1Subsection')" "$(baseline "$ref" 1 '1.1Subsection')"
+    check "cs subsub"      "$(baseline "$out/cs.pdf" 1 '1.1.1Subsub')"   "$(baseline "$ref" 1 '1.1.1Subsub')"
+    check "cs section 2"   "$(baseline "$out/cs.pdf" 1 '2CONCLUSION')"   "$(baseline "$ref" 1 '2CONCLUSION')"
   fi
 else
   printf '  skip  %-34s no Palatino clone found\n' "compsoc"
