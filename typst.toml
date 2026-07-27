@@ -5,8 +5,9 @@ entrypoint = "src/lib.typ"
 authors = ["Stefan de Lange"]
 description = "IEEE paper templates ported from IEEEtran.cls v1.8b."
 repository = "https://github.com/langestefan/ieee-templates-typst"
+license = "MIT"
 
-# Universe publishing additionally needs `license`, and the reference/ directory
-# must be excluded: IEEEtran itself is LPPL, but IEEE's template wrapper and the
-# compiled reference PDFs are IEEE copyright.
+# The MIT licence covers src/, template/ and scripts/ only. reference/ is
+# excluded from the package: IEEEtran itself is LPPL, and IEEE's template
+# wrapper and the compiled reference PDFs are IEEE copyright. See LICENSE.
 exclude = ["reference", "scripts", "tmp"]

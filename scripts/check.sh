@@ -99,28 +99,33 @@ if build template/journal.typ jrnl; then
 fi
 
 echo "A4"
-# No A4 reference render exists, so this is a smoke test only: the sheet must be
-# A4 and the text block centred on it at the same width as US Letter.
-cat > "$out/a4.typ" <<'A4EOF'
-#import "/src/conference.typ": ieee-conference
-#show: ieee-conference.with(
-  paper: "a4",
-  title: [A4],
-  authors: ((name: "A", affiliation: ("X",)),),
-  abstract: [A4.],
-)
-= Introduction
-#for i in range(120) [Filler sentence number #i here. ]
-A4EOF
-if typst compile --root . "$out/a4.typ" "$out/a4.pdf" 2>/dev/null; then
-  size=$(pdfinfo "$out/a4.pdf" | awk '/^Page size/{print $3}')
-  left=$(./scripts/baselines.sh "$out/a4.pdf" 1 9999 >/dev/null 2>&1; \
-         pdftotext -bbox -f 1 -l 1 "$out/a4.pdf" - 2>/dev/null \
+# Verified against real IEEE A4 renders. a4paper changes only the sheet
+# dimensions for conference and journal mode: \if@IEEEusingAfourpaper is
+# referenced once outside the option declaration and that is inside the compsoc
+# branch (IEEEtran.cls:1773). So every vertical landmark matches US Letter and
+# only the side margins move, from 48.96pt to 40.60pt.
+for pair in "template/main.typ:conf-a4:ieee-conference" \
+            "template/journal.typ:jrnl-a4:ieee-journal"; do
+  src=${pair%%:*}; rest=${pair#*:}; tag=${rest%%:*}; fn=${rest##*:}
+  sed "s|^#show: $fn.with(|#show: $fn.with(\n  paper: \"a4\",|" "$src" > "$out/$tag.typ"
+  cp template/refs.bib "$out/refs.bib" 2>/dev/null
+  build "$out/$tag.typ" "$tag" || continue
+done
+
+if [ -f "$out/conf-a4.pdf" ]; then
+  ref=reference/pdf/IEEE_Bare_Demo_Template_for_Conferences_A4.pdf
+  check "A4 conf title"    "$(baseline "$out/conf-a4.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
+  check "A4 conf authors"  "$(baseline "$out/conf-a4.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
+  check "A4 conf abstract" "$(baseline "$out/conf-a4.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
+  left=$(pdftotext -bbox -f 1 -l 1 "$out/conf-a4.pdf" - 2>/dev/null \
          | grep -oE 'xMin="[0-9.]+"' | sed -E 's/[^0-9.]//g' | sort -n | head -1)
-  check "A4 sheet width" "$size" 595.276
-  check "A4 left edge"   "$left" 40.6
-else
-  printf '  FAIL  %-34s did not compile\n' "a4"; fail=$((fail + 1))
+  check "A4 left edge"     "$left" 40.6
+fi
+if [ -f "$out/jrnl-a4.pdf" ]; then
+  ref=reference/pdf/IEEE_Journal_Paper_Template_A4.pdf
+  check "A4 jrnl head"     "$(baseline "$out/jrnl-a4.pdf" 1 'Journal of')"   "$(baseline "$ref" 1 'JOURNAL')"
+  check "A4 jrnl title"    "$(baseline "$out/jrnl-a4.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
+  check "A4 jrnl abstract" "$(baseline "$out/jrnl-a4.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
 fi
 
 echo "geometry invariants"
