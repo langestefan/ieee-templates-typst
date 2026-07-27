@@ -12,11 +12,8 @@ the manual remedy.
 
 ## Unverified
 
-**`peerreview` and `technote`.** Built from the class alone. No reference render
-exists for either, so unlike the six verified modes there is nothing to check
-them against. They are the only layouts here in that position.
-
-**A4** is verified, against renders compiled specifically for it.
+Nothing. Every mode now has a reference render to check against, including A4,
+`technote` and `peerreview`, whose renders were compiled specifically for it.
 
 ## Measured differences that remain
 

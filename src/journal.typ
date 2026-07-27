@@ -30,6 +30,13 @@
 // pinned down, so this is calibrated like the other title-internal gaps.
 #let title-top-space-onecolumn = -6pt
 
+// Calibrated to put the technote title baseline at 78pt, as the reference does.
+#let technote-title-top = -2pt
+
+// The peerreview cover sets its abstract closer to the author line than the
+// one-column journal does. Calibrated to the reference's 146pt.
+#let peerreview-body-gap = 1.5 * line-advance
+
 // IEEEtran.cls:4955-4959. One-column journal puts 2.5\baselineskip between the
 // title block and the text, and \abstract adds a further 0.5 above its centred
 // label (5279).
@@ -113,10 +120,15 @@
 // author line following at body size after 1.3em.
 #let technote-title(title, authors) = {
   set align(center)
+  v(technote-title-top)
   with-size(sizes.large, text(weight: "bold", title))
   v(1.3em)
-  with-size(sizes.normal, authors)
-  v(vspace(1 * line-advance))
+  // \@IEEEauthordefaulttextstyle is \normalfont\sublargesize
+  // (IEEEtran.cls:4555), so the author line is 11pt. Its advance stays at the
+  // body's 12 TeX pt though, not sublargesize's 13.4: the reference measures
+  // 12 between the two author lines.
+  with-size((sizes.sublarge.at(0), sizes.normal.at(1)), authors)
+  v(vspace(1.4 * line-advance))
 }
 
 #let ieee-journal(
@@ -163,10 +175,32 @@
   if technote {
     technote-title(title, authors)
   } else if peerreview {
-    // The cover page carries the full title block; the body starts overleaf
-    // under a repeated title.
-    block(width: 100%, title-block(title, authors))
-    pagebreak(weak: false)
+    // IEEEtran.cls:4766 does not wrap the peerreview title in \twocolumn, so
+    // the cover page is single column, and it carries no running head. The
+    // abstract and index terms therefore take their block form, label centred
+    // above indented text, and sit on the cover rather than in the body.
+    page(columns: 1, header: none, {
+      set align(center)
+      v(title-top-space-onecolumn)
+      with-size(sizes.huge, title)
+      v(title-author-gap)
+      with-size(sizes.sublarge, authors)
+      set align(left)
+      if abstract != none {
+        block-section(
+          abstract-label,
+          abstract,
+          above: vspace(peerreview-body-gap),
+        )
+        v(abstract-below)
+      }
+      if index-terms != none {
+        block-section(index-terms-label, index-terms, above: index-terms-above)
+      }
+      if thanks != none {
+        place(top + left, box(footnote(numbering: _ => "", thanks)))
+      }
+    })
     block(width: 100%, peerreview-title(title))
   } else if columns == 1 {
     block(width: 100%, {
@@ -196,6 +230,10 @@
   let placed = false
 
   let one-col = columns == 1
+  // Already emitted on the cover page.
+  let abstract = if peerreview { none } else { abstract }
+  let index-terms = if peerreview { none } else { index-terms }
+  let thanks = if peerreview { none } else { thanks }
   let section-form(label, body, above: 0pt) = if one-col {
     block-section(label, body, above: above)
   } else { runin-section(label, body) }

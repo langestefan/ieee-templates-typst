@@ -212,6 +212,27 @@ for spec in "conf:71:72" "jrnl:77:78" "tmag:72:73" "cs:74:75" "csc:108:109"; do
   check "$tag title centred" "$(centre "$out/$tag.pdf" "$lo" "$hi")" 306
 done
 
+echo "technote and peer review"
+if build template/technote.typ tn; then
+  ref=reference/pdf/IEEE_Journal_Technote.pdf
+  check "technote head"     "$(baseline "$out/tn.pdf" 1 'JOURNAL OF')" "$(baseline "$ref" 1 'JOURNALOF')"
+  check "technote title"    "$(baseline "$out/tn.pdf" 1 'Bare Demo')"  "$(baseline "$ref" 1 'BareDemo')"
+  check "technote authors"  "$(baseline "$out/tn.pdf" 1 'Michael')"    "$(baseline "$ref" 1 'MichaelShell')" 1
+  check "technote abstract" "$(baseline "$out/tn.pdf" 1 'Abstract')"   "$(baseline "$ref" 1 'Abstract')"
+fi
+if build template/peerreview.typ pr; then
+  ref=reference/pdf/IEEE_Journal_Peerreview.pdf
+  check "peerreview title"    "$(baseline "$out/pr.pdf" 1 'Bare Demo')" "$(baseline "$ref" 1 'BareDemo')"
+  check "peerreview authors"  "$(baseline "$out/pr.pdf" 1 'Michael')"   "$(baseline "$ref" 1 'MichaelShell')"
+  check "peerreview abstract" "$(baseline "$out/pr.pdf" 1 'Abstract')"  "$(baseline "$ref" 1 'Abstract')"
+  # The cover page carries no running head; the body overleaf does.
+  if ./scripts/baselines.sh "$out/pr.pdf" 1 9999 | grep -q 'JOURNAL OF'; then
+    printf '  FAIL  %-34s cover page should have no running head\n' "peerreview cover"; fail=$((fail + 1))
+  else
+    printf '  ok    %-34s no running head\n' "peerreview cover"; pass=$((pass + 1))
+  fi
+fi
+
 echo "point sizes"
 # The layouts are wired for 10pt, which is what IEEE uses and what every
 # reference render is. The other ladders drive the page geometry and body text;

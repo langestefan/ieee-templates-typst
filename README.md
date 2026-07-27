@@ -213,9 +213,8 @@ at `(3)` afterwards. References follow suit.
 All on US Letter and A4. Every landmark matches its reference exactly, with two
 exceptions noted in [docs/known-gaps.md](docs/known-gaps.md).
 
-`peerreview` and `technote` are implemented as arguments to `ieee-journal`, but
-no reference render exists for either, so unlike the six above they are not
-checked against IEEE output.
+`peerreview` and `technote` are arguments to `ieee-journal`, and are verified the
+same way against `bare_jrnl.tex` compiled with each option.
 
 `comsoc` needs no separate mode: per the class changelog, V1.8b's Communications
 Society option only swaps in the newtxmath math fonts, leaving it geometrically
