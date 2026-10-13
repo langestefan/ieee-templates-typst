@@ -242,6 +242,12 @@ if build tests/peerreview.typ pr; then
   else
     printf '  ok    %-34s no running head\n' "peerreview cover"; pass=$((pass + 1))
   fi
+  # The funding note belongs to the cover only.
+  if ./scripts/baselines.sh "$out/pr.pdf" 2 9999 | grep -q 'Manuscript received'; then
+    printf '  FAIL  %-34s repeated on page 2\n' "peerreview thanks"; fail=$((fail + 1))
+  else
+    printf '  ok    %-34s cover only\n' "peerreview thanks"; pass=$((pass + 1))
+  fi
 fi
 
 echo "point sizes"

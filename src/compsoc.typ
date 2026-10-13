@@ -380,9 +380,7 @@
     v(conf-title-below)
   }))
 
-  if thanks != none {
-    place(top + left, box(footnote(numbering: _ => "", thanks)))
-  }
+  elements.placed-thanks-note(thanks)
 
   if abstract != none { conf-runin-section(abstract-label, abstract) }
   if index-terms != none { conf-runin-section(index-terms-label, index-terms) }
@@ -446,11 +444,7 @@
     )),
   )
 
-  // As in transmag: a footnote inside a float never registers, and emitting it
-  // in the flow costs a paragraph, so it is placed without taking flow space.
-  if thanks != none {
-    place(top + left, box(footnote(numbering: _ => "", thanks)))
-  }
+  elements.placed-thanks-note(thanks)
 
   body
 

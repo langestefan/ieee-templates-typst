@@ -196,9 +196,7 @@
       if index-terms != none {
         block-section(index-terms-label, index-terms, above: index-terms-above)
       }
-      if thanks != none {
-        place(top + left, box(footnote(numbering: _ => "", thanks)))
-      }
+      elements.placed-thanks-note(thanks)
     })
     block(width: 100%, peerreview-title(title))
   } else if columns == 1 {
@@ -219,20 +217,17 @@
     )
   }
 
-  // \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
-  // \thefootnote and \@makefnmark so the funding note carries no superscript.
-  // It must ride inside the first paragraph rather than stand alone, or it forms
-  // an empty paragraph of its own and pushes the columns a line down.
-  let note = if thanks != none { footnote(numbering: _ => "", thanks) } else {
-    []
+  // Already emitted on the cover page.
+  let (abstract, index-terms, thanks) = if peerreview { (none,) * 3 } else {
+    (abstract, index-terms, thanks)
   }
+
+  // The note must ride inside the first paragraph rather than stand alone, or
+  // it forms an empty paragraph of its own and pushes the columns a line down.
+  let note = elements.thanks-note(thanks)
   let placed = false
 
   let one-col = columns == 1
-  // Already emitted on the cover page.
-  let abstract = if peerreview { none } else { abstract }
-  let index-terms = if peerreview { none } else { index-terms }
-  let thanks = if peerreview { none } else { thanks }
   let section-form(label, body, above: 0pt) = if one-col {
     block-section(label, body, above: above)
   } else { runin-section(label, body) }

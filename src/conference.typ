@@ -174,13 +174,9 @@
     heading-below-extra.update(0pt)
   }
 
-  // \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
-  // \thefootnote and \@makefnmark so the funding note carries no superscript.
-  // It must ride inside the first paragraph rather than stand alone, or it forms
-  // an empty paragraph of its own and pushes the columns a line down.
-  let note = if thanks != none { footnote(numbering: _ => "", thanks) } else {
-    []
-  }
+  // The note must ride inside the first paragraph rather than stand alone, or
+  // it forms an empty paragraph of its own and pushes the columns a line down.
+  let note = elements.thanks-note(thanks)
   let placed = false
 
   if abstract != none {

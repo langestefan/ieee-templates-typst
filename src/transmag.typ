@@ -165,14 +165,9 @@
     ))),
   )
 
-  // \thanks sits inside \author in the class, but a footnote inside
-  // place(float: true) never registers, so it cannot ride with the author line
-  // here. Emitting it in the column flow instead registers it but forms an empty
-  // paragraph that pushes the first section down 29pt. Wrapping it in a
-  // non-floating place() registers the footnote while taking no flow space.
-  if thanks != none {
-    place(top + left, box(footnote(numbering: _ => "", thanks)))
-  }
+  // \thanks sits inside \author in the class, but it cannot ride with the
+  // author line here because the title block is a float.
+  elements.placed-thanks-note(thanks)
 
   body
 

@@ -35,6 +35,22 @@
   body
 }
 
+// \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
+// \thefootnote and \@makefnmark so the funding note carries no superscript,
+// and 4784 resets the counter afterwards so the note does not use up number 1.
+#let thanks-note(thanks) = if thanks == none { [] } else {
+  footnote(numbering: _ => "", thanks)
+  counter(footnote).update(0)
+}
+
+// For layouts whose title block is a float. A footnote inside
+// place(float: true) never registers, and emitting it in the column flow forms
+// an empty paragraph that pushes the first section down. A non-floating place()
+// registers the footnote while taking no flow space.
+#let placed-thanks-note(thanks) = if thanks != none {
+  place(top + left, box(thanks-note(thanks)))
+}
+
 // IEEEtran's IEEEeqnarray family exists because LaTeX's own multi-line equation
 // support is poor. Typst's native math already aligns on & and breaks on \\, so
 // there is nothing to port there: write the equation normally.
