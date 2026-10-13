@@ -1,8 +1,7 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  column-gutter, em-box, leading-for, line-advance, page-setup, par-indent,
-  sizes, text-width, tpc, tpt, vertical, with-size,
+  leading-for, line-advance, page-setup, sizes, text-width, vertical, with-size,
 )
 #import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings

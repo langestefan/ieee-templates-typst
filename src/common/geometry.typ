@@ -53,18 +53,9 @@
   ),
 )
 
-#let sizes = {
-  let l = ladders.at("10pt")
-  let scale(e) = (e.at(0) * tpt, e.at(1) * tpt)
-  (
-    normal: scale(l.normal),
-    small: scale(l.small),
-    footnote: scale(l.footnote),
-    sublarge: scale(l.sublarge),
-    large: scale(l.large),
-    huge: scale(l.huge),
-  )
-}
+#let scale(entry) = entry.map(x => x * tpt)
+
+#let sizes = ladders.at("10pt").pairs().map(((k, e)) => (k, scale(e))).to-dict()
 
 #let line-advance = sizes.normal.at(1)
 
@@ -77,16 +68,13 @@
 // The class keeps the text block the same size on A4 and centres it
 // horizontally (\IEEEsetsidemargin{c}), while the fixed top margin means the
 // extra height is absorbed at the bottom. Only the compsoc branch varies its
-// vertical metrics by paper size, and compsoc is not ported.
+// vertical metrics by paper size.
 #let papers = (
   "us-letter": (width: 612pt, height: 792pt),
   "a4": (width: 595.28pt, height: 841.89pt),
 )
 
 #let side-margin-for(paper) = (papers.at(paper).width - text-width) / 2
-
-// Retained for callers that predate paper selection; US Letter is the default.
-#let margin-side = side-margin-for("us-letter")
 
 // Vertical geometry is mode-specific. All arithmetic below is in TeX points,
 // converted only at the end.
@@ -190,10 +178,8 @@
   pt: "10pt",
   body,
 ) = {
-  let ladder = ladders.at(pt)
-  let scale(e) = (e.at(0) * tpt, e.at(1) * tpt)
-  let body-size = scale(ladder.normal)
-  let v = vertical-for(mode, pt) + (slack: vertical.at(mode).slack)
+  let body-size = scale(ladders.at(pt).normal)
+  let v = vertical-for(mode, pt)
   let sheet = papers.at(paper)
   let side = side-margin-for(paper)
   set page(

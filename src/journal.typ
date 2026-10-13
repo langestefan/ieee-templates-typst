@@ -5,8 +5,7 @@
 // side-by-side author blocks, and 58 lines per column instead of 56.
 
 #import "common/geometry.typ": (
-  leading-for, line-advance, margin-side, page-setup, sizes, text-width,
-  vertical, with-size,
+  leading-for, line-advance, page-setup, sizes, text-width, vertical, with-size,
 )
 #import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings

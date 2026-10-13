@@ -63,7 +63,6 @@
 #let conf-line-advance = conf-sizes.normal.at(1)
 #let conf-gutter = 0.25in
 #let conf-text-width = 612pt - 2 * 0.75in
-#let conf-column-width = (conf-text-width - conf-gutter) / 2
 #let conf-lines = 58
 #let conf-text-height = conf-lines * conf-line-advance
 #let conf-margin-top = 1in - (conf-text-height - (11in - 2in)) / 2
@@ -72,7 +71,6 @@
 // 3.5in; the class notes the 6.875in in the CS spec disagrees with their proofs.
 #let column-gutter = 12pt
 #let text-width = 7in + column-gutter
-#let column-width = (text-width - column-gutter) / 2
 
 // IEEEtran.cls:1765-1768. 0.625in margins give 9.75in of text, quantised to 61
 // lines of 11.54bp, with the resulting error split between top and bottom.
@@ -276,7 +274,7 @@
 // diamond rule ends the block on its own terms. A fixed trailing gap does match.
 #let title-below = 23pt
 
-#let quantize(body) = block(width: 100%, body + v(title-below))
+#let with-title-below(body) = block(width: 100%, body + v(title-below))
 
 // Computer Society conferences are set in Times, not Palatino: only the
 // journals use the Palatino and Helvetica pairing. Sizes are still big points.
@@ -443,7 +441,7 @@
     scope: "parent",
     float: true,
     clearance: 0pt,
-    block(width: 100%, quantize(
+    block(width: 100%, with-title-below(
       title-block(title, authors, abstract, index-terms),
     )),
   )

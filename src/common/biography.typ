@@ -44,7 +44,7 @@
   advance: default-advance,
   text-size: default-sizes.footnote,
   body,
-) = context {
+) = {
   v(bio-skip-lines * advance)
   with-size(text-size, layout(size => {
     let lead = text(weight: "bold", name)

@@ -63,7 +63,7 @@
       // fits on one line, otherwise wrapped flush left (IEEEtran.cls:2784-2792).
       let head = [#it.supplement~#num.]
       let full = [#head\u{00A0}\u{00A0}#it.body]
-      caption-text(layout(size => context {
+      caption-text(layout(size => {
         let fits = measure(full).width <= size.width
         align(if fits { center } else { left }, full)
       }))

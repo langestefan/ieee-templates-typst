@@ -14,7 +14,7 @@
 #let head-size = 7 * tpt
 
 #let running-head(left-text, right-text, size: head-size) = context {
-  let n = counter(page).at(here()).first()
+  let n = counter(page).get().first()
   let even = calc.even(n)
 
   // IEEE puts the journal line on page one and on versos, and the author line
