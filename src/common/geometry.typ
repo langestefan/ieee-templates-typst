@@ -1,5 +1,7 @@
 // Page geometry and the font-size ladder, ported from IEEEtran.cls V1.8b.
 
+#import "textsplit.typ": map-text
+
 // TeX's point is 1/72.27in; PDF and Typst points are 1/72in. Every dimension
 // and font size taken from the class is in TeX points and must be converted,
 // or the layout drifts by 0.37% — about 2.5pt across a column, which is enough
@@ -85,11 +87,49 @@
 // Typst hangs hyphens and punctuation into the margin by default. pdfTeX does
 // not without microtype, which the class does not load, so lines end on the
 // margin.
+//
+// LaTeX's Times has no drawn small caps. Its \scshape is the capitals at 0.8
+// of the size, every letter spaced out by 0.05em, which is what the reference
+// renders show. The small caps drawn into TeX Gyre Termes are narrower: a
+// section heading came out a tenth shorter with them. `tex-small-caps` sets
+// them the LaTeX way.
+#let small-cap-ratio = 0.8
+#let small-cap-tracking = 0.05
+#let tex-small-caps(body) = context {
+  let gap = small-cap-tracking * text.size
+  set text(tracking: gap, spacing: 100%)
+  // The space belongs half to each side of a letter. Typst tracks between the
+  // glyphs of a run only, so the halves at the ends of each run of capitals,
+  // small capitals or other marks are added by hand. That spacing would let a
+  // line break inside a word, so each word is boxed, up to a hyphen.
+  let runs = regex("\\p{Lu}+|\\p{Ll}+|[^\\p{L}\\s]+")
+  map-text(body, s => {
+    show regex("[^\\s\\-]+-*|-+"): word => box(
+      word
+        .text
+        .matches(runs)
+        .map(m => {
+          let run = m.text
+          h(gap / 2)
+          if lower(run) == run and upper(run) != run {
+            text(size: small-cap-ratio * 1em, upper(run))
+          } else { run }
+          h(gap / 2)
+        })
+        .join(),
+    )
+    s
+  })
+}
+
 #let word-spacing(face: "times", body) = {
   let space = word-space.at(face)
   set text(spacing: space.regular, overhang: false)
   show strong: set text(spacing: space.bold)
-  show smallcaps: set text(spacing: 100%)
+  show smallcaps: it => if face == "times" { tex-small-caps(it.body) } else {
+    set text(spacing: 100%)
+    it
+  }
   show raw: set text(spacing: 100%)
   body
 }

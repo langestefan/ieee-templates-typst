@@ -54,6 +54,6 @@ Subsection text here.
 The conclusion goes here @kopka1999.
 
 #heading(numbering: none)[Acknowledgment]
-The authors would like to thank\u{2026}
+The authors would like to thank\.\.\.
 
 #bibliography("refs.bib")

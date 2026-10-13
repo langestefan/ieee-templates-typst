@@ -55,7 +55,7 @@ Appendix one text goes here.
 Appendix two text goes here.
 
 #heading(numbering: none)[Acknowledgments]
-The authors would like to thank\u{2026}
+The authors would like to thank\.\.\.
 
 #bibliography("refs.bib")
 

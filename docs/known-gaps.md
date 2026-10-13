@@ -93,6 +93,20 @@ over directly do not reproduce the reference, so the values are calibrated to it
 and now match exactly. `\IEEEraisesectionheading` was investigated as the cause
 and ruled out: it raises content, while the reference sat lower than this port.
 
+## Small caps
+
+LaTeX's Times has no drawn small caps: `\scshape` is the capitals at 0.8 of the
+size, letterspaced by 0.05em. The Times layouts set `smallcaps` that way, in
+headings and anywhere the document uses it, because the small caps drawn into
+TeX Gyre Termes are narrower and made a section heading a tenth shorter than
+the reference. Two consequences:
+
+- Text copied from the PDF comes out in capitals, as it does from a pdfTeX one.
+- A word in small caps is not hyphenated. It still breaks after a hyphen it
+  contains.
+
+The Computer Society journal keeps Palatino's own small caps in running text.
+
 ## Deliberately not done
 
 **`comsoc`.** Per the class changelog, V1.8b's Communications Society option

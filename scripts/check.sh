@@ -81,17 +81,17 @@ if build tests/conference.typ conf; then
   check "title"        "$(baseline "$out/conf.pdf" 1 'Bare Demo')"    71
   check "author names" "$(baseline "$out/conf.pdf" 1 'Michael')"     131
   check "abstract"     "$(baseline "$out/conf.pdf" 1 'Abstract')"    238
-  check "section 1"    "$(baseline "$out/conf.pdf" 1 'Introduction')" 257
+  check "section 1"    "$(baseline "$out/conf.pdf" 1 'INTRODUCTION')" 257
   # The first body line after a heading, not just the heading: a 1pt error in
   # the space below headings hid here for a long time.
   check "body after s1" "$(./scripts/baselines.sh "$out/conf.pdf" 1 300 \
-                           | sed -n '/Introduction/,+1p' | tail -1 | awk '{print $1}')" 272
+                           | sed -n '/INTRODUCTION/,+1p' | tail -1 | awk '{print $1}')" 272
   # IEEEtran.cls:4492 puts 0.3\baselineskip between the References heading and
   # the list, and \IEEEbibitemsep is effectively zero so entries are one line
   # apart. The reference measures 15 then 9.
   column "left column, every line" "$out/conf.pdf" reference/pdf/IEEE_Bare_Demo_Template_for_Conferences.pdf
-  refh=$(baseline "$out/conf.pdf" 1 'References')
-  ref1=$(./scripts/baselines.sh "$out/conf.pdf" 1 300 | grep -A1 'References' | tail -1 | awk '{print $1}')
+  refh=$(baseline "$out/conf.pdf" 1 'REFERENCES')
+  ref1=$(./scripts/baselines.sh "$out/conf.pdf" 1 300 | grep -A1 'REFERENCES' | tail -1 | awk '{print $1}')
   check "refs heading to entry 1" "$(awk -v a="$ref1" -v b="$refh" 'BEGIN{print a-b}')" 15
 fi
 
@@ -111,9 +111,9 @@ if build tests/journal.typ jrnl; then
   check "author line"  "$(baseline "$out/jrnl.pdf" 1 'Michael')"    128
   check "abstract"     "$(baseline "$out/jrnl.pdf" 1 'Abstract')"   184
   check "index terms"  "$(baseline "$out/jrnl.pdf" 1 'Index Terms')" 199
-  check "section 1"    "$(baseline "$out/jrnl.pdf" 1 'Introduction')" 238
+  check "section 1"    "$(baseline "$out/jrnl.pdf" 1 'INTRODUCTION')" 238
   check "body after s1" "$(./scripts/baselines.sh "$out/jrnl.pdf" 1 300 \
-                           | sed -n '/Introduction/,+1p' | tail -1 | awk '{print $1}')" 253
+                           | sed -n '/INTRODUCTION/,+1p' | tail -1 | awk '{print $1}')" 253
   # The drop cap's baseline sits on the second body line. Catches the offset
   # conversion in parstart.typ silently breaking.
   check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266
@@ -124,7 +124,7 @@ if build tests/journal.typ jrnl; then
   check "biography 3" "$(baseline "$out/jrnl.pdf" 1 'Jane Doe Biography')" "$(baseline "$ref" 1 'JaneDoeBiography')"
   # Appendices letter their sections and title them "Appendix A" on a line of
   # their own. Presence is what matters here, not the exact baseline.
-  if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'Appendix.*B'; then
+  if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'APPENDIX.*B'; then
     printf '  ok    %-34s present\n' "appendix lettering"; pass=$((pass + 1))
   else
     printf '  FAIL  %-34s missing\n' "appendix lettering"; fail=$((fail + 1))
@@ -144,7 +144,7 @@ if build tests/journal-onecolumn.typ jrnl1; then
   check "1col authors"    "$(baseline "$out/jrnl1.pdf" 1 'Michael')"     "$(baseline "$ref" 1 'Michael')"
   check "1col abstract"   "$(baseline "$out/jrnl1.pdf" 1 'Abstract')"    "$(baseline "$ref" 1 'Abstract')"
   check "1col index terms" "$(baseline "$out/jrnl1.pdf" 1 'Index Terms')" "$(baseline "$ref" 1 'IndexTerms')"
-  check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')"
+  check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'INTRODUCTION')" "$(baseline "$ref" 1 'INTRODUCTION')"
 fi
 
 echo "transactions on magnetics"
@@ -155,7 +155,7 @@ if build tests/transmag.typ tmag; then
   check "tmag affil 1"     "$(baseline "$out/tmag.pdf" 1 'School of')"      "$(baseline "$ref" 1 'Schoolof')"
   check "tmag abstract"    "$(baseline "$out/tmag.pdf" 1 'abstract goes')"  "$(baseline "$ref" 1 'Theabstractgoes')"
   check "tmag index terms" "$(baseline "$out/tmag.pdf" 1 'Index Terms')"    "$(baseline "$ref" 1 'IndexTerms')"
-  check "tmag section 1"   "$(baseline "$out/tmag.pdf" 1 'Introduction')"   "$(baseline "$ref" 1 'INTRODUCTION')"
+  check "tmag section 1"   "$(baseline "$out/tmag.pdf" 1 'INTRODUCTION')"   "$(baseline "$ref" 1 'INTRODUCTION')"
   # 0.5pt: the superscript marks on the author line are raised from an 11pt
   # line in the class and from 8pt here.
   column "tmag left column, every line" "$out/tmag.pdf" "$ref" 0.5
@@ -283,7 +283,7 @@ if build tests/peerreview.typ pr; then
   check "peerreview abstract" "$(baseline "$out/pr.pdf" 1 'Abstract')"  "$(baseline "$ref" 1 'Abstract')"
   # Overleaf the title is repeated across both columns, without the authors.
   check "peerreview p2 title"     "$(baseline "$out/pr.pdf" 2 'Bare Demo of IEEEtran')" "$(baseline "$ref" 2 'BareDemo')"
-  check "peerreview p2 section 1" "$(baseline "$out/pr.pdf" 2 'Introduction')"          "$(baseline "$ref" 2 'INTRODUCTION')"
+  check "peerreview p2 section 1" "$(baseline "$out/pr.pdf" 2 'INTRODUCTION')"          "$(baseline "$ref" 2 'INTRODUCTION')"
   # The cover page carries no running head; the body overleaf does.
   if ./scripts/baselines.sh "$out/pr.pdf" 1 9999 | grep -q 'JOURNAL OF'; then
     printf '  FAIL  %-34s cover page should have no running head\n' "peerreview cover"; fail=$((fail + 1))

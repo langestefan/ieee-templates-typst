@@ -47,6 +47,26 @@
   smallcaps,
 )
 
+// Applies `f` to every run of text in `c` and leaves the rest as it is, so an
+// equation or raw text inside passes through untouched.
+#let map-text(c, f) = {
+  if type(c) == str {
+    f(c)
+  } else if type(c) != content {
+    c
+  } else if c.func() == text {
+    f(c.text)
+  } else if c.has("children") {
+    c.children.map(x => map-text(x, f)).join()
+  } else if c.func() == styled-func {
+    styled-func(map-text(c.child, f), c.styles)
+  } else if c.func() == smallcaps {
+    map-text(c.body, f)
+  } else if c.func() in inline-wrappers {
+    (c.func())(map-text(c.body, f))
+  } else { c }
+}
+
 #let is-break(c) = (
   type(c) == content and (c.func() == space-func or c.func() == parbreak)
 )
