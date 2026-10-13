@@ -122,9 +122,24 @@
   })
 }
 
+// IEEEtran.cls:1668. The class raises \hyphenpenalty from TeX's 50 to 750, so
+// a paragraph is hyphenated only where the lines would otherwise be loose.
+// Typst weighs a hyphen on a scale of its own and has no tolerance past which
+// a loose line is refused, so the figure is calibrated: between 150% and 225%
+// the first page of a published conference paper breaks as TeX broke it, and
+// outside that range it does not. Computer Society's 500 (1670) is not told
+// apart.
+#let hyphenation-cost = 200%
+
+// TeX hyphenates no word that already holds a hyphen: such a word breaks at
+// its hyphen and nowhere else.
+#let compound-word = regex("[\\p{L}\\p{N}]+(-[\\p{L}\\p{N}]+)+")
+
 #let word-spacing(face: "times", body) = {
   let space = word-space.at(face)
   set text(spacing: space.regular, overhang: false)
+  set text(costs: (hyphenation: hyphenation-cost))
+  show compound-word: set text(hyphenate: false)
   show strong: set text(spacing: space.bold)
   show smallcaps: it => if face == "times" { tex-small-caps(it.body) } else {
     set text(spacing: 100%)

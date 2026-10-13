@@ -70,9 +70,16 @@ footnotes. The suite asserts it for all five. What remains:
   it looser. The conference fixture carries a soft hyphen there to follow its
   reference.
 - **The limits on a justified space are Typst's.** The class lets a space
-  shrink to 0.23em and stretch to 0.50em (`IEEEtran.cls:1011-1018`). Typst
-  shrinks a space by up to a third, which from the class's 0.35em measures
-  0.235em, and has no setting for either limit.
+  shrink to 0.23em and stretch to 0.50em, or 0.55em in bold
+  (`IEEEtran.cls:1011-1018`). Typst shrinks a space by up to a third and has
+  no setting for either limit. From the regular 0.35em that is 0.233em, close
+  enough. From the bold 0.375em it is 0.25em, so a bold abstract cannot be
+  set as tightly as TeX sets it and can break at different words. In one
+  published paper TeX closed an abstract line to 0.235em.
+- **Line breaks follow TeX closely, not exactly.** The hyphenation cost is
+  calibrated on the first page of one published conference paper, where the
+  regular text then breaks as TeX broke it in all but three lines. Typst has
+  no tolerance past which a loose line is refused, and no `\hbadness`.
 
 ## Content the helpers split
 
