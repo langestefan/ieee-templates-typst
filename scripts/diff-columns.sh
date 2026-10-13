@@ -27,24 +27,29 @@ page="${3:-1}"; maxx="${4:-300}"; tol="${5:-0.25}"; minx="${6:-0}"; xtol="${7:-}
 lines() {
   gs -q -dBATCH -dNOPAUSE -sDEVICE=txtwrite -dTextFormat=0 -r7200 \
      -dFirstPage="$page" -dLastPage="$page" -sOutputFile=- "$1" 2>/dev/null \
-  | grep -oE '<span bbox="[0-9-]+ [0-9-]+ [0-9-]+ [0-9-]+" font="[^"]*" size="[0-9.]+">|c="[^"]*"' \
+  | grep -oE '<span bbox="[0-9-]+ [0-9-]+ [0-9-]+ [0-9-]+" font="[^"]*" size="[0-9.]+">|<char bbox="[0-9-]+ [0-9-]+ [0-9-]+ [0-9-]+" c="[^"]*"' \
   | awk -v maxx="$maxx" -v minx="$minx" '
       /^<span/ {
-        match($0, /bbox="[0-9-]+ [0-9-]+ [0-9-]+/); b=substr($0, RSTART+6, RLENGTH-6)
+        match($0, /bbox="[0-9-]+ [0-9-]+/); b=substr($0, RSTART+6, RLENGTH-6)
         split(b, xy, " ")
         match($0, /size="[0-9.]+"/); s=substr($0, RSTART+6, RLENGTH-7)
         # Below 7.5pt are superscripts and the raised A of the LaTeX logo,
         # which sit on baselines of their own.
         keep = (xy[1] / 100 < maxx && xy[1] / 100 >= minx && s + 0 >= 7.5)
         key = sprintf("%09.2f", xy[2] / 100)
-        if (keep && !(key in txt)) { txt[key] = ""; l[key] = xy[1]; r[key] = xy[3] }
-        if (keep && xy[1] < l[key]) l[key] = xy[1]
-        if (keep && xy[3] > r[key]) r[key] = xy[3]
+        if (keep && !(key in txt)) txt[key] = ""
         next
       }
       keep {
         match($0, /c="[^"]*"/); ch=substr($0, RSTART+3, RLENGTH-4)
-        if (ch != "&#32;") txt[key] = txt[key] ch
+        if (ch == "&#32;" || ch == " ") next
+        txt[key] = txt[key] ch
+        # Edges are taken from the glyphs, not the span: a span can end in a
+        # space that reaches past the last letter.
+        match($0, /bbox="[0-9-]+ [0-9-]+ [0-9-]+/); b=substr($0, RSTART+6, RLENGTH-6)
+        split(b, cx, " ")
+        if (!(key in l) || cx[1] < l[key]) l[key] = cx[1]
+        if (!(key in r) || cx[3] > r[key]) r[key] = cx[3]
       }
       END { for (k in txt) print k, l[k] / 100, r[k] / 100, txt[k] }' \
   | sort \
