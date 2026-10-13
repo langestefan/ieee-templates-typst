@@ -11,3 +11,11 @@ license = "MIT"
 # excluded from the package: IEEEtran itself is LPPL, and IEEE's template
 # wrapper and the compiled reference PDFs are IEEE copyright. See LICENSE.
 exclude = ["reference", "scripts", "tests", "tmp", "docs", "assets"]
+
+# Publishing this as a template package rather than a plain library is what
+# makes `typst init @preview/ieee-templates` work and lists it under Templates
+# on Universe. path/ and thumbnail must stay outside `exclude` above.
+[template]
+path = "template"
+entrypoint = "main.typ"
+thumbnail = "thumbnail.png"

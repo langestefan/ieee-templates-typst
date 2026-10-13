@@ -54,6 +54,19 @@ if [ "$SIGNATURE_ONLY" -eq 1 ]; then exit 0; fi
 
 cp tmp/previews/signature.new assets/previews.txt
 
+# The Universe thumbnail, declared in typst.toml. It shows the starter rather
+# than a reference port, since that is what `typst init` actually produces.
+# The starter imports by package name, which only resolves once published, so
+# it is rewritten to the local source the same way check.sh does it.
+version=$(awk -F'"' '/^version =/{print $2; exit}' typst.toml)
+sed "s|@preview/ieee-templates:$version|/src/lib.typ|" template/main.typ \
+  > tmp/previews/starter.typ
+cp template/refs.bib tmp/previews/refs.bib
+typst compile --root . tmp/previews/starter.typ tmp/previews/starter.pdf
+pdftoppm -r 150 -f 1 -l 1 -png tmp/previews/starter.pdf tmp/previews/thumbnail
+mv tmp/previews/thumbnail-1.png thumbnail.png
+
 echo "Regenerated:"
 for entry in $PREVIEWS; do echo "  assets/${entry%%:*}.png"; done
 echo "  assets/previews.txt"
+echo "  thumbnail.png"
