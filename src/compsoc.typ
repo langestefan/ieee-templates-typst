@@ -16,7 +16,9 @@
 // Sans are the free ones; pass --font-path if they are not installed system
 // wide.
 
-#import "common/geometry.typ": body-font as times-font, papers, with-size
+#import "common/geometry.typ": (
+  body-font as times-font, papers, with-size, word-space, word-spacing,
+)
 #import "common/authorblocks.typ": as-lines, author-rows
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
@@ -122,6 +124,7 @@
     spacing: adv - sz.normal.at(0),
     first-line-indent: (amount: 1em, all: true),
   )
+  show: word-spacing.with(face: if conf { "times" } else { "palatino" })
   body
 }
 
@@ -207,6 +210,7 @@
         size: style.size.at(0),
         weight: style.weight,
         style: style.style,
+        spacing: 100%,
         top-edge: 0.7 * sizes.normal.at(0),
         bottom-edge: -0.3 * sizes.normal.at(0),
       )
@@ -336,6 +340,7 @@
       #set text(
         size: size.at(0),
         weight: "bold",
+        spacing: word-space.times.bold,
         top-edge: 0.7 * conf-sizes.normal.at(0),
         bottom-edge: -0.3 * conf-sizes.normal.at(0),
       )
@@ -383,7 +388,7 @@
   place(top, scope: "parent", float: true, clearance: 0pt, block(width: 100%, {
     set align(center)
     v(conf-title-top-space)
-    with-size(conf-sizes.Large, text(weight: "bold", title))
+    with-size(conf-sizes.Large, strong(title))
     v(conf-title-author-gap)
     author-rows(
       authors.map(conf-author-cell),

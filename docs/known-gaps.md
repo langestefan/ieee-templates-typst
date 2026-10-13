@@ -63,6 +63,14 @@ footnotes. What remains:
   bullets and its own spacing. Here it is a plain footnote: the last line
   matches and the lines above it sit 4.5pt high.
 - **The photo placeholder text** sits 1.1pt high inside its frame.
+- **A word with punctuation inside it is not hyphenated.** TeX breaks
+  `IEEEtran.cls` after `IEEE`; Typst leaves it whole and sets the lines around
+  it looser. The conference fixture carries a soft hyphen there to follow its
+  reference.
+- **The limits on a justified space are Typst's.** The class lets a space
+  shrink to 0.23em and stretch to 0.50em (`IEEEtran.cls:1011-1018`). Typst
+  shrinks by a third and stretches by half, which from the class's 0.35em is
+  0.233em and 0.525em.
 
 ## Content the helpers split
 

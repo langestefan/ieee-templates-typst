@@ -66,6 +66,30 @@
 
 #let line-advance = sizes.normal.at(1)
 
+// IEEEtran.cls:1011-1018. The class widens the space between words from the
+// 0.25em Times carries to 0.35em, and to 0.375em in bold. The Palatino of the
+// Computer Society journals takes 0.28em and 0.305em (1023-1032).
+//
+// The class also sets the limits a justified line may reach, 0.23em and 0.50em
+// in regular Times. Typst lets a space shrink by a third and stretch by half,
+// which from 0.35em gives 0.233em and 0.525em, so they are not set separately.
+#let word-space = (
+  times: (regular: 0.35em, bold: 0.375em),
+  palatino: (regular: 0.28em, bold: 0.305em),
+)
+
+// Only the roman family in its upright and italic shapes is retuned
+// (IEEEtran.cls:1052-1070): small caps and typewriter keep the font's own
+// space.
+#let word-spacing(face: "times", body) = {
+  let space = word-space.at(face)
+  set text(spacing: space.regular)
+  show strong: set text(spacing: space.bold)
+  show smallcaps: set text(spacing: 100%)
+  show raw: set text(spacing: 100%)
+  body
+}
+
 // Column widths are shared by both modes and by both paper sizes.
 // IEEEtran.cls:1734-1735. 43pc = 2 x 21pc + 1pc.
 #let text-width = 43 * tpc
@@ -231,5 +255,6 @@
     spacing: leading-for(body-size),
     first-line-indent: (amount: par-indent, all: true),
   )
+  show: word-spacing
   body
 }

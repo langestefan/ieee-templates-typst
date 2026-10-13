@@ -84,7 +84,7 @@
 #let block-section(sz, label, body, above: 0pt) = with-size(sz.small, {
   block(above: above, below: 0.5 * sz.normal.at(1), width: 100%)[
     #set align(center)
-    #text(weight: "bold", label)
+    #strong(label)
   ]
   pad(left: quotation-indent, right: quotation-indent, body)
 })
@@ -124,7 +124,7 @@
 #let technote-title(sz, title, authors) = {
   set align(center)
   v(technote-title-top)
-  with-size(sz.large, text(weight: "bold", title))
+  with-size(sz.large, strong(title))
   v(technote-title-author-gap)
   // \@IEEEauthordefaulttextstyle is \normalfont\sublargesize
   // (IEEEtran.cls:4555), so the author line is 11pt. Its advance stays at the

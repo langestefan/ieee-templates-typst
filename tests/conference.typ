@@ -37,7 +37,7 @@
 
 = Introduction
 This demo file is intended to serve as a "starter file" for IEEE conference
-papers produced under LaTeX using IEEEtran.cls version 1.8b and later.
+papers produced under LaTeX using IEEE-?tran.cls version 1.8b and later.
 I wish you the best of success.
 
 #align(right)[mds]

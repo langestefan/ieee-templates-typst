@@ -74,7 +74,7 @@
 #let title-block(title, authors, affiliations, abstract, index-terms, note) = {
   set align(center)
   v(title-top-space)
-  with-size(title-size, text(weight: "bold", title))
+  with-size(title-size, strong(title))
   v(title-author-gap)
   // \thanks lives inside \author in the class, so the marker rides with the
   // author line. Emitting it on its own would form an empty paragraph and push
@@ -97,14 +97,14 @@
     v(vspace(abstract-above))
     with-size(sizes.small, {
       set par(first-line-indent: (amount: 1em, all: true))
-      text(weight: "bold", abstract)
+      strong(abstract)
     })
   }
   if index-terms != none {
     v(vspace(index-terms-above))
     with-size(sizes.small, {
       set par(first-line-indent: (amount: 1em, all: true))
-      text(weight: "bold")[#text(
+      strong[#text(
           style: "italic",
         )[#index-terms-label]---#index-terms]
     })

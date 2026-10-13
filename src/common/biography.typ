@@ -96,7 +96,7 @@
   let body = if body == auto { ladder.normal } else { body }
   bio-skip(text-size, body)
   with-size(text-size, layout(size => {
-    let lead = text(weight: "bold", name)
+    let lead = strong(name)
     let indent-width = size.width - photo-width - photo-gap
 
     // The name leads the same paragraph, so it is measured with each candidate
@@ -149,6 +149,6 @@
     par(
       first-line-indent: 0pt,
       justify: true,
-    )[#text(weight: "bold", name) #content],
+    )[#strong(name) #content],
   ))
 }

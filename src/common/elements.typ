@@ -62,7 +62,7 @@
 // confirms it: NimbusRomNo9L-Medi throughout.
 #let runin-section(label, body, size: sizes.small) = with-size(
   size,
-  text(weight: "bold")[#text(style: "italic")[#label]---#body],
+  strong[#text(style: "italic")[#label]---#body],
 )
 
 // A line set at `size` reaches less far below its baseline than a body line

@@ -13,8 +13,8 @@
 238.00 8.97pt Abstract&#x2014;The
 257.00 9.96pt I.Introduction
 272.00 9.96pt This
-284.00 9.96pt conference
-296.00 9.96pt version
+284.00 9.96pt IEEE
+296.00 9.96pt tran.cls
 308.00 9.96pt mds
 320.00 9.96pt August
 338.00 9.96pt A.Subsection
@@ -26,7 +26,7 @@
 433.00 9.96pt The
 452.00 9.96pt References
 467.00 7.97pt [1]H.
-475.00 7.97pt Addison-Wesley,
+475.00 7.97pt Addison&#xad;Wesley,
 # preview-journal <- tests/journal.typ
 31.00 6.97pt JOURNAL
 77.00 23.91pt Bare
@@ -64,8 +64,8 @@
 590.00 7.97pt Addison-Wesley,
 616.00 7.97pt Jane
 710.00 7.97pt M.
-719.00 7.97pt Georgia
-728.00 7.97pt www.michaelshell.org/contact.html).
+719.00 7.97pt ing,
+728.00 7.97pt http://www.michaelshell.org/contact.html).
 737.00 7.97pt J.
 746.00 7.97pt Manuscript
 # thumbnail <- template/main.typ
@@ -76,7 +76,7 @@
 140.00 9.96pt email@example.org
 225.00 7.97pt Fig.&#xa0;1.&#xa0;&#xa0;A
 249.00 8.97pt Abstract&#x2014;
-259.00 8.97pt in
+259.00 8.97pt run
 270.00 8.97pt Index
 289.00 9.96pt I.Introduction
 304.00 9.96pt Sections
