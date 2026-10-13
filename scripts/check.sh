@@ -8,9 +8,9 @@
 # measured with scripts/baselines.sh. A change to geometry.typ affects all three
 # templates at once, so this exists to catch drift that is invisible by eye.
 #
-# Tolerance is 0: every landmark currently matches its reference exactly, and
-# Ghostscript's txtwrite reports integer baselines, so anything that moves by a
-# whole point is a real change worth looking at.
+# Tolerance is 0 unless a check says otherwise. Ghostscript's txtwrite reports
+# integer baselines, so a match means within a point, and anything that moves
+# by a whole point is a real change worth looking at.
 
 set -u
 cd "$(dirname "$0")/.." || exit 1
@@ -97,11 +97,9 @@ if build tests/journal.typ jrnl; then
   check "section 1"    "$(baseline "$out/jrnl.pdf" 1 'Introduction')" 238
   check "body after s1" "$(./scripts/baselines.sh "$out/jrnl.pdf" 1 300 \
                            | sed -n '/Introduction/,+1p' | tail -1 | awk '{print $1}')" 253
-  # The drop cap's baseline sits on the second body line. The reference puts it
-  # at 266 and this port at 265; the 1pt is the only landmark not exact, so the
-  # tolerance is local rather than global. Catches the offset conversion in
-  # parstart.typ silently breaking.
-  check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266 1
+  # The drop cap's baseline sits on the second body line. Catches the offset
+  # conversion in parstart.typ silently breaking.
+  check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266
   # Appendices letter their sections and title them "Appendix A" on a line of
   # their own. Presence is what matters here, not the exact baseline.
   if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'Appendix.*B'; then
@@ -294,7 +292,8 @@ fi
 echo "starter template"
 # template/ is what `typst init` copies. It imports by package name, which only
 # resolves once published, so it is rewritten to the local source to be checked.
-sed 's|@preview/ieee-templates:0.1.0|/src/lib.typ|' template/main.typ > "$out/starter.typ"
+version=$(awk -F'"' '/^version =/{print $2; exit}' typst.toml)
+sed "s|@preview/ieee-templates:$version|/src/lib.typ|" template/main.typ > "$out/starter.typ"
 cp template/refs.bib "$out/refs.bib"
 build "$out/starter.typ" starter
 

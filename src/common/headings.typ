@@ -116,7 +116,7 @@
       }
     } else { none }
 
-    // Level 1: centred small caps, 1.5ex above and 0.7ex below.
+    // Level 1: centred small caps.
     if it.level == 1 {
       let extra = heading-below-extra.at(it.location())
       block(above: above.at(0), below: 0.8 * ex + extra, width: 100%)[
@@ -129,7 +129,7 @@
           // Only numbered headings get the label: the class leaves \section*
           // alone in appendix mode (IEEEtran.cls:5745), which is how the
           // Acknowledgment and References headings keep their normal form.
-          smallcaps[#appendix-name#if n != none [~#n]]
+          smallcaps[#appendix-name~#n]
           if it.body != [] {
             linebreak()
             smallcaps(it.body)
