@@ -41,7 +41,7 @@ Measured at a hundredth of a point with `scripts/diff-columns.sh`, the
 conference, journal, Magnetics and both Computer Society fixtures agree with
 their references to under 0.1pt on every body line of the first column, from
 the title through headings, appendices and the reference list to the
-footnotes. What remains:
+footnotes. The suite asserts it for all five. What remains:
 
 - **Running heads are uppercased whole**, including an "et al." that
   `bare_jrnl.tex` keeps lowercase with `\MakeLowercase`.
@@ -57,12 +57,14 @@ footnotes. What remains:
   Typst only asks whether the block fits, so near the foot of a column a
   biography can stay where LaTeX would have moved it. The one-column fixture
   shows it.
-- **Computer Society biographies** start 20pt lower in the reference than
-  here when they open a column. The cause is not known.
-- **Computer Society `\thanks`** is an itemised list in the class, with
-  bullets and its own spacing. Here it is a plain footnote: the last line
-  matches and the lines above it sit 4.5pt high.
-- **The photo placeholder text** sits 1.1pt high inside its frame.
+- **Computer Society `\thanks`.** The reference sets the plain note half a
+  line below the last `\IEEEcompsocitemizethanks` item, over it, because the
+  class takes a line back after the list (`IEEEtran.cls:4903`). Here the note
+  takes a line of its own, so the items sit 4.5pt higher than in the
+  reference and the rule above them with them.
+- **The Computer Society journal title block is not quantised.** Its gaps are
+  calibrated to the one reference render.
+- **The photo placeholder text** sits 0.9pt high inside its frame.
 - **A word with punctuation inside it is not hyphenated.** TeX breaks
   `IEEEtran.cls` after `IEEE`; Typst leaves it whole and sets the lines around
   it looser. The conference fixture carries a soft hyphen there to follow its

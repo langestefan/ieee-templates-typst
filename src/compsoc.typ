@@ -17,7 +17,8 @@
 // wide.
 
 #import "common/geometry.typ": (
-  body-font as times-font, papers, with-size, word-space, word-spacing,
+  body-font as times-font, papers, tex-small-caps, with-size, word-space,
+  word-spacing,
 )
 #import "common/authorblocks.typ": as-lines, author-rows
 #import "common/floats.typ" as floats
@@ -133,21 +134,14 @@
   body
 }
 
-// Typst's smallcaps() uses the font's smcp feature and does not synthesise, so
-// it silently does nothing in Helvetica clones: Nimbus Sans has no small caps.
-// The class asks for \scshape on the sans face, and the reference renders it at
-// 0.8 of the cap size, so it is emulated here rather than dropped.
-#let sc-ratio = 0.8
+// The class asks for \scshape on the sans face. Nimbus Sans has no small caps,
+// and LaTeX's Helvetica has none drawn either: it sets the capitals at 0.8 of
+// the size and spaces the letters out, as it does for Times.
+#let small-caps = tex-small-caps
 
-#let small-caps(body) = {
-  let s = plain(body)
-  if s == "" { return body }
-  for c in s.clusters() {
-    if lower(c) == c and upper(c) != c {
-      text(size: sc-ratio * 1em, upper(c))
-    } else { c }
-  }
-}
+// Helvetica keeps its own word space: the class only retunes the roman family
+// (IEEEtran.cls:1070-1072).
+#let sans = text.with(font: heading-font, spacing: 100%)
 
 // IEEEtran.cls:2548-2551 and 2579-2582. Arabic and hierarchical: 1, 1.1, 1.1.1.
 #let numbering-fn(..nums) = numbering("1.1.1.1", ..nums.pos())
@@ -160,6 +154,18 @@
 // IEEEtran.cls:5498-5507. Sans-serif throughout, bold small caps at the top
 // level. The negative before-skips in the class mark the following paragraph as
 // unindented, which `page-setup` does through the paragraph indent.
+//
+// `column-top` is where the columns begin under the title block on page one,
+// for the raised first heading below.
+#let column-top = state("ieee-compsoc-column-top", none)
+
+// IEEEtran.cls:5525. bare_jrnl_compsoc.tex wraps its Introduction in
+// \IEEEraisesectionheading, which lifts the heading into the space under the
+// title block and gives it no height, so that the drop cap opens the column.
+// The lift is 1.5\baselineskip plus what the heading leaves beneath it;
+// measured, the heading's baseline is this far above the first line's.
+#let heading-raise = 20.61pt
+
 #let heading-rules(body) = {
   set heading(numbering: numbering-fn)
 
@@ -188,24 +194,32 @@
     let above = if it.level == 1 { 19.59pt } else if it.level == 2 {
       17.63pt
     } else { 13.18pt }
-    //
-    // bare_jrnl_compsoc.tex wraps its Introduction in \IEEEraisesectionheading
-    // so the drop cap can sit beside it, which leaves more room below that one
-    // heading. The first section gets the same treatment here.
+    let below = if it.level == 1 {
+      5.16pt + heading-below-extra.at(it.location())
+    } else if it.level == 2 { 5.16pt } else { 4.27pt }
+
+    // The class leaves the raising to the author. Here the first section is
+    // raised when it opens the columns on page one, which is where the class's
+    // own demo uses it, and set as any other heading otherwise.
     let first = (
       it.level == 1
         and not in-appendix
         and it.numbering != none
         and counter(heading).at(it.location()) == (1,)
     )
-    let below = if it.level == 1 {
-      (
-        (if first { 11.05pt } else { 5.16pt })
-          + heading-below-extra.at(it.location())
-      )
-    } else if it.level == 2 { 5.16pt } else { 4.27pt }
+    let frame(content) = context {
+      let top = column-top.get()
+      let pos = here().position()
+      if (
+        first and top != none and pos.page == 1 and calc.abs(pos.y - top) < 1pt
+      ) {
+        place(dy: -heading-raise, block(width: 100%, content))
+      } else {
+        block(above: above, below: below, width: 100%, content)
+      }
+    }
 
-    block(above: above, below: below, width: 100%)[
+    frame[
       // The edges are pinned to the body's so the References heading, which
       // is emitted inside the footnotesize reference list, sits like the rest.
       // A heading of two lines advances at its own size's baselineskip.
@@ -229,7 +243,9 @@
           if style.caps { small-caps(it.body) } else { it.body }
         }
       } else {
-        let label = [#if n != none [#n#h(0.5em)]#it.body]
+        // IEEEtran.cls:5402. The journal follows the number with 1em, not
+        // the 0.5em of the other layouts.
+        let label = [#if n != none [#n#h(1em)]#it.body]
         if style.caps { small-caps(label) } else { label }
       }
     ]
@@ -263,31 +279,44 @@
 // IEEEtran.cls:4809 adds \vskip 0.75\baselineskip before the title in compsoc
 // non-conference mode, on top of \IEEEtitletopspace. Calibrated to put the
 // title baseline at 74pt as the reference does.
-#let title-top-space = 13pt
-#let title-author-gap = 12pt
-#let abstract-above = 18pt
-#let index-terms-above = 11pt
+#let title-top-space = 13.26pt
+#let title-author-gap = 11.83pt
+#let abstract-above = 17.71pt
+#let index-terms-above = 11.09pt
 #let diamond-above = 3pt
 
 #let abstract-label = "Abstract"
 #let index-terms-label = "Index Terms"
 
+// IEEEtran.cls:4796. The abstract and index terms sit in a box 0.922 of the
+// text width, centred, and are set ragged right.
+#let abstract-width = 0.922
+
+// IEEEtran.cls:5313-5318. Sans at footnotesize with a bold upright label, not
+// indented, on a baselineskip stretched by 1.15.
+#let abstract-stretch = 1.15
+#let abstract-section(label, body) = {
+  let (size, advance) = sizes.footnote
+  set par(first-line-indent: 0pt, justify: false)
+  with-size((size, abstract-stretch * advance), sans[*#label*---#body])
+}
+
+// IEEEtran.cls:4808 and 4832 set the title and the author line in sans.
 #let title-block(title, authors, abstract, index-terms) = {
   set align(center)
   v(title-top-space)
-  with-size(sizes.huge, title)
+  with-size(sizes.huge, sans(title))
   v(title-author-gap)
-  with-size(sizes.sublarge, authors)
+  with-size(sizes.sublarge, sans(authors))
   set align(left)
+  let inset = (1 - abstract-width) / 2 * 100%
   if abstract != none {
     v(abstract-above)
-    // IEEEtran.cls:5269. compsoc sets the abstract and index terms at
-    // footnotesize, and the label is bold italic as elsewhere.
-    runin-section(abstract-label, abstract, size: sizes.footnote)
+    pad(x: inset, abstract-section(abstract-label, abstract))
   }
   if index-terms != none {
     v(index-terms-above)
-    runin-section(index-terms-label, index-terms, size: sizes.footnote)
+    pad(x: inset, abstract-section(index-terms-label, index-terms))
   }
   v(diamond-above)
   diamond-line
@@ -307,9 +336,11 @@
 )
 
 // Unlike the other modes, the compsoc title block is not quantised to the body
-// grid: no slot count reproduces the reference's first section position, and the
-// diamond rule ends the block on its own terms. A fixed trailing gap does match.
-#let title-below = 23pt
+// grid. The reference's columns start a tenth of a line off the grid as this
+// layout computes it, so no slot count lands on them; a fixed gap under the
+// diamond rule does. A title block of another height will therefore not be
+// rounded as the class would round it.
+#let title-below = 43.72pt
 
 #let with-title-below(body) = block(width: 100%, body + v(title-below))
 
@@ -478,19 +509,46 @@
   cap: palatino-cap,
   letter-cap: palatino-cap,
 )
-#let biography(name: [], photo: none, body) = base-biography(
+// IEEEtran.cls:5991 and 6079. Biographies are sans here.
+#let biography(name: [], photo: none, body) = sans(base-biography(
   name: name,
   photo: photo,
   text-size: sizes.footnote,
   body: sizes.normal,
   body,
-)
-#let biography-no-photo(name: [], body) = base-biography-no-photo(
+))
+#let biography-no-photo(name: [], body) = sans(base-biography-no-photo(
   name: name,
   text-size: sizes.footnote,
   body: sizes.normal,
   body,
-)
+))
+
+// \IEEEcompsocitemizethanks and \thanks, IEEEtran.cls:4873-4906. Both are
+// italic and neither is indented (4762). The items hang behind a bullet, 1.2em
+// plus the bullet's width in (4891-4892). A rule half a column wide sits above
+// the note, the only footnote rule the class draws (2500-2512).
+//
+// The reference render sets the plain note over the last item, half a line
+// below it. That is the class's \vspace{-1\baselineskip} going wrong, so the
+// note goes on the next line here.
+#let thanks-hang = 13.42pt
+#let thanks-rule-above = 1pt
+#let thanks-body(items, thanks) = {
+  set text(style: "italic")
+  set par(first-line-indent: 0pt)
+  place(top + center, dy: -thanks-rule-above, line(
+    length: 50%,
+    stroke: 0.4pt,
+  ))
+  for item in items {
+    grid(
+      columns: (thanks-hang, 1fr),
+      text(style: "normal")[•], item,
+    )
+  }
+  thanks
+}
 
 #let ieee-compsoc(
   paper: "us-letter",
@@ -500,6 +558,7 @@
   header-right: [],
   twoside: false,
   thanks: none,
+  thanks-items: (),
   abstract: none,
   index-terms: none,
   bibliography: none,
@@ -514,7 +573,7 @@
   )
 
   set page(
-    header: running-head(header-left, header-right, twoside: twoside),
+    header: sans(running-head(header-left, header-right, twoside: twoside)),
     header-ascent: header-ascent,
   )
   show: bibliography-rules.with(
@@ -522,17 +581,19 @@
     heading-extra: refs-heading-gap,
   )
 
-  place(
-    top,
-    scope: "parent",
-    float: true,
-    clearance: 0pt,
-    block(width: 100%, with-title-below(
-      title-block(title, authors, abstract, index-terms),
-    )),
-  )
+  let head = block(width: 100%, with-title-below(
+    title-block(title, authors, abstract, index-terms),
+  ))
+  place(top, scope: "parent", float: true, clearance: 0pt, head)
+  context {
+    let g = geometry-for(paper, "journal")
+    let height = measure(block(width: g.width, head)).height
+    column-top.update(g.top + height)
+  }
 
-  elements.placed-thanks-note(thanks)
+  if thanks != none or thanks-items.len() > 0 {
+    elements.placed-thanks-note(thanks-body(thanks-items, thanks))
+  }
 
   body
 

@@ -45,9 +45,9 @@ the paragraph indent was 2pt off for as long as only baselines were compared.
 
 `scripts/check.sh` asserts hand-picked landmarks on page one, mostly the title block and the first
 section, at whole points. It also runs `diff-columns.sh` on the left column of the conference, journal,
-Magnetics and Computer Society conference fixtures. The other fixtures carry their reference's text too, but their columns are not
-compared yet because biographies and footnotes still differ, so passing the suite says little about
-those layouts further down the page. When changing spacing, diff a whole column against the reference
+Magnetics and both Computer Society fixtures. The one-column, technote and peer review fixtures carry
+their reference's text too, but their columns are not compared yet because biographies still differ, so
+passing the suite says little about those layouts further down the page. When changing spacing, diff a whole column against the reference
 rather than trusting the suite.
 
 Ghostscript reports whole points at its default 72dpi. Running `txtwrite` with `-r7200` gives baselines

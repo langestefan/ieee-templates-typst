@@ -34,18 +34,21 @@ gap() {
   | awk -v a="$2" -v b="$3" '$0 ~ a {y=$1} $0 ~ b && y != "" {print $1 - y; exit}'
 }
 
-# column <label> <pdf> <ref-pdf> [tolerance] -> every baseline in the left
-# column of page one, to a hundredth of a point. Only for fixtures that carry
-# the same text as their reference.
+# column <label> <pdf> <ref-pdf> [tolerance] [skip] -> every baseline in the
+# left column of page one, to a hundredth of a point. Only for fixtures that
+# carry the same text as their reference. Lines whose text matches the skip
+# pattern are not held to the tolerance.
 column() {
-  local label="$1" tol="${4:-0.25}" lines
-  if lines=$(./scripts/diff-columns.sh "$2" "$3" 1 300 "$tol"); then
+  local label="$1" tol="${4:-0.25}" skip="${5:-^$}" lines bad
+  lines=$(./scripts/diff-columns.sh "$2" "$3" 1 300 "$tol")
+  bad=$(echo "$lines" | awk -v t="$tol" -v skip="$skip" '$4 !~ skip && (NF < 4 || $3 > t || $3 < -t)')
+  if [ -n "$lines" ] && [ -z "$bad" ]; then
     printf '  ok    %-34s within %spt\n' "$label" \
-      "$(echo "$lines" | awk '{d = $3 < 0 ? -$3 : $3; if (d > m) m = d} END {printf "%.2f", m}')"
+      "$(echo "$lines" | awk -v skip="$skip" '$4 !~ skip {d = $3 < 0 ? -$3 : $3; if (d > m) m = d} END {printf "%.2f", m}')"
     pass=$((pass + 1))
   else
     printf '  FAIL  %-34s lines differ by more than %spt:\n' "$label" "$tol"
-    echo "$lines" | awk -v t="$tol" 'NF < 4 || $3 > t || $3 < -t' | head -5 | sed 's/^/          /'
+    echo "$bad" | head -5 | sed 's/^/          /'
     fail=$((fail + 1))
   fi
 }
@@ -176,6 +179,9 @@ if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
     check "cs subsection"  "$(baseline "$out/cs.pdf" 1 '1.1Subsection')" "$(baseline "$ref" 1 '1.1Subsection')"
     check "cs subsub"      "$(baseline "$out/cs.pdf" 1 '1.1.1Subsub')"   "$(baseline "$ref" 1 '1.1.1Subsub')"
     check "cs section 2"   "$(baseline "$out/cs.pdf" 1 '2CONCLUSION')"   "$(baseline "$ref" 1 '2CONCLUSION')"
+    # The itemised thanks are skipped: the reference sets the plain note half
+    # a line below the last item, over it, and here it takes a line of its own.
+    column "cs left column, every line" "$out/cs.pdf" "$ref" 0.25 '^(&#x2022;|Georgia|E-mail)'
   fi
 else
   printf '  skip  %-34s no Palatino clone found\n' "compsoc"

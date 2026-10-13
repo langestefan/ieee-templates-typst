@@ -20,13 +20,13 @@
   ],
   header-left: [Journal of LaTeX Class Files, Vol. 14, No. 8, August 2015],
   header-right: [Shell #emph[et al.]: Bare Demo of IEEEtran.cls for IEEE Computer Society Journals],
-  thanks: [
-    • M. Shell was with the Department of Electrical and Computer Engineering,
-    Georgia Institute of Technology, Atlanta, GA, 30332.
-    #linebreak() E-mail: see http:\/\/www.michaelshell.org/contact.html
-    #linebreak() • J. Doe and J. Doe are with Anonymous University.
-    #linebreak() Manuscript received April 19, 2005; revised August 26, 2015.
-  ],
+  thanks-items: (
+    [M. Shell was with the Department of Electrical and Computer Engineering,
+      Georgia Institute of Technology, Atlanta, GA, 30332. \
+      E-mail: see http:\/\/www.michaelshell.org/contact.html],
+    [J. Doe and J. Doe are with Anonymous University.],
+  ),
+  thanks: [Manuscript received April 19, 2005; revised August 26, 2015.],
   abstract: [The abstract goes here.],
   index-terms: [Computer Society, IEEE, IEEEtran, journal, LaTeX, paper, template.],
 )

@@ -67,9 +67,16 @@ There is no `pt`, `columns`, `technote` or `peerreview`: the class fixes all fou
 Both take the same arguments as `ieee-transmag` minus `affiliations`, and likewise have no `pt` or
 `columns`.
 
+`ieee-compsoc` adds one:
+
+| Argument | Type | Notes |
+|---|---|---|
+| `thanks-items` | array of content | `\IEEEcompsocitemizethanks`: bulleted affiliation notes set above `thanks`, under a rule |
+
 `ieee-compsoc` is a different design rather than a variant of the others: Palatino body at 9.5pt on
-11.54pt leading, 61 lines per column, Helvetica bold small-caps headings numbered `1`, `1.1`, and a
-diamond rule closing the title block. It is the only mode needing fonts beyond Times:
+11.54pt leading, 61 lines per column, Helvetica for the title, authors, abstract, running head and
+biographies, Helvetica bold small-caps headings numbered `1`, `1.1`, and a diamond rule closing the
+title block. It is the only mode needing fonts beyond Times:
 [TeX Gyre Pagella](https://ctan.org/pkg/tex-gyre-pagella) and Nimbus Sans are the free choices, and
 `--font-path` works if they are not installed system wide.
 
