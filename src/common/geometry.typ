@@ -81,9 +81,13 @@
 // Only the roman family in its upright and italic shapes is retuned
 // (IEEEtran.cls:1052-1070): small caps and typewriter keep the font's own
 // space.
+//
+// Typst hangs hyphens and punctuation into the margin by default. pdfTeX does
+// not without microtype, which the class does not load, so lines end on the
+// margin.
 #let word-spacing(face: "times", body) = {
   let space = word-space.at(face)
-  set text(spacing: space.regular)
+  set text(spacing: space.regular, overhang: false)
   show strong: set text(spacing: space.bold)
   show smallcaps: set text(spacing: 100%)
   show raw: set text(spacing: 100%)
