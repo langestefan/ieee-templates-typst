@@ -71,8 +71,8 @@
 // Computer Society journals takes 0.28em and 0.305em (1023-1032).
 //
 // The class also sets the limits a justified line may reach, 0.23em and 0.50em
-// in regular Times. Typst lets a space shrink by a third and stretch by half,
-// which from 0.35em gives 0.233em and 0.525em, so they are not set separately.
+// in regular Times. Typst has no setting for either. It shrinks a space by up
+// to a third, which from 0.35em measures 0.235em.
 #let word-space = (
   times: (regular: 0.35em, bold: 0.375em),
   palatino: (regular: 0.28em, bold: 0.305em),

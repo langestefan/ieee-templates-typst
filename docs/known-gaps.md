@@ -69,8 +69,8 @@ footnotes. What remains:
   reference.
 - **The limits on a justified space are Typst's.** The class lets a space
   shrink to 0.23em and stretch to 0.50em (`IEEEtran.cls:1011-1018`). Typst
-  shrinks by a third and stretches by half, which from the class's 0.35em is
-  0.233em and 0.525em.
+  shrinks a space by up to a third, which from the class's 0.35em measures
+  0.235em, and has no setting for either limit.
 
 ## Content the helpers split
 
