@@ -1,3 +1,4 @@
+#import "/tests/logo.typ": latex
 #import "/src/journal.typ": appendices, ieee-journal
 #import "/src/common/biography.typ": biography, biography-no-photo
 #import "/src/common/parstart.typ": parstart
@@ -13,7 +14,7 @@
   thanks: [
     M. Shell was with the Department of Electrical and Computer Engineering,
     Georgia Institute of Technology, Atlanta, GA, 30332 USA e-mail: (see
-    http:\/\/www.michaelshell.org/contact.html).
+    #box[http:\/\/www.michaelshell.org/contact.html]).
 
 
     J. Doe and J. Doe are with Anonymous University.
@@ -21,11 +22,11 @@
     Manuscript received April 19, 2005; revised August 26, 2015.
   ],
   abstract: [The abstract goes here.],
-  index-terms: [IEEE, IEEEtran, journal, LaTeX, paper, template.],
+  index-terms: [IEEE, IEEEtran, journal, #latex, paper, template.],
 )
 
 = Introduction
-#parstart[This demo file is intended to serve as a "starter file" for IEEE journal papers produced under LaTeX using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
+#parstart[This demo file is intended to serve as a "starter file" for IEEE journal papers produced under #latex using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
 
 #align(right)[mds]
 

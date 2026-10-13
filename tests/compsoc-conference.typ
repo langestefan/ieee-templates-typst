@@ -4,6 +4,7 @@
 // are needed. Sections are numbered 1., 1.1. with trailing periods and set in
 // bold roman flush left.
 
+#import "/tests/logo.typ": latex
 #import "/src/compsoc.typ": ieee-compsoc-conference
 
 #show: ieee-compsoc-conference.with(
@@ -42,7 +43,7 @@
 
 = Introduction
 This demo file is intended to serve as a "starter file" for IEEE Computer
-Society conference papers produced under LaTeX using IEEEtran.cls version 1.8b
+Society conference papers produced under #latex using IEEEtran.cls version 1.8b
 and later. I wish you the best of success.
 
 #align(right)[mds \ August 26, 2015]

@@ -8,6 +8,7 @@
 // wide:
 //   typst compile --root . --font-path <dir> template/compsoc.typ
 
+#import "/tests/logo.typ": latex
 #import "/src/compsoc.typ": (
   appendices, biography, biography-no-photo, ieee-compsoc, parstart,
 )
@@ -23,16 +24,16 @@
   thanks-items: (
     [M. Shell was with the Department of Electrical and Computer Engineering,
       Georgia Institute of Technology, Atlanta, GA, 30332. \
-      E-mail: see http:\/\/www.michaelshell.org/contact.html],
+      E-mail: see #box[http:\/\/www.michaelshell.org/contact.html]],
     [J. Doe and J. Doe are with Anonymous University.],
   ),
   thanks: [Manuscript received April 19, 2005; revised August 26, 2015.],
   abstract: [The abstract goes here.],
-  index-terms: [Computer Society, IEEE, IEEEtran, journal, LaTeX, paper, template.],
+  index-terms: [Computer Society, IEEE, IEEEtran, journal, #latex, paper, template.],
 )
 
 = Introduction
-#parstart[This demo file is intended to serve as a "starter file" for IEEE Computer Society journal papers produced under LaTeX using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
+#parstart[This demo file is intended to serve as a "starter file" for IEEE Computer Society journal papers produced under #latex using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
 
 #align(right)[mds]
 

@@ -5,6 +5,7 @@
 // and index terms carried full width inside the title block rather than in the
 // first column. The abstract has no "Abstract—" label.
 
+#import "/tests/logo.typ": latex
 #import "/src/transmag.typ": (
   appendices, biography, biography-no-photo, ieee-transmag, mark, parstart,
 )
@@ -26,14 +27,14 @@
   thanks: [
     Manuscript received December 1, 2012; revised August 26, 2015.
     Corresponding author: M. Shell (email:
-    http:\/\/www.michaelshell.org/contact.html).
+    #box[http:\/\/www.michaelshell.org/contact.html]).
   ],
   abstract: [The abstract goes here.],
-  index-terms: [IEEE, IEEEtran, IEEE Transactions on Magnetics, journal, LaTeX, magnetics, paper, template.],
+  index-terms: [IEEE, IEEEtran, IEEE Transactions on Magnetics, journal, #latex, magnetics, paper, template.],
 )
 
 = Introduction
-#parstart[This demo file is intended to serve as a "starter file" for IEEE #smallcaps[Transactions on Magnetics] journal papers produced under LaTeX using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
+#parstart[This demo file is intended to serve as a "starter file" for IEEE #smallcaps[Transactions on Magnetics] journal papers produced under #latex using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
 
 #align(right)[mds]
 
