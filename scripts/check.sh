@@ -242,6 +242,12 @@ if build tests/peerreview.typ pr; then
   else
     printf '  ok    %-34s no running head\n' "peerreview cover"; pass=$((pass + 1))
   fi
+  # The cover is page 0, so the page overleaf is numbered 1, on the right.
+  if pdftotext -layout -f 2 -l 2 "$out/pr.pdf" - | head -1 | grep -qE '^JOURNAL OF.* 2015 +1$'; then
+    printf '  ok    %-34s journal line, page 1\n' "peerreview body head"; pass=$((pass + 1))
+  else
+    printf '  FAIL  %-34s want the journal line and page 1\n' "peerreview body head"; fail=$((fail + 1))
+  fi
   # The funding note belongs to the cover only.
   if ./scripts/baselines.sh "$out/pr.pdf" 2 9999 | grep -q 'Manuscript received'; then
     printf '  FAIL  %-34s repeated on page 2\n' "peerreview thanks"; fail=$((fail + 1))

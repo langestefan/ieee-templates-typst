@@ -417,6 +417,7 @@
   authors: [],
   header-left: [],
   header-right: [],
+  twoside: false,
   thanks: none,
   abstract: none,
   index-terms: none,
@@ -429,7 +430,7 @@
   show: elements.rules
 
   set page(
-    header: running-head(header-left, header-right),
+    header: running-head(header-left, header-right, twoside: twoside),
     header-ascent: header-ascent,
   )
   set std.bibliography(title: [References], style: "ieee")

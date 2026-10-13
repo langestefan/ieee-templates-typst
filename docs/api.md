@@ -41,8 +41,9 @@ Everything above, plus:
 | `columns` | `2` \| `1` | `1` matches the `onecolumn` class option |
 | `peerreview` | bool | Cover page carrying the authors, then the title repeated overleaf for double-blind review |
 | `technote` | bool | Title in the first column rather than spanning, set `\large` bold |
-| `header-left` | content | Journal line. Shown on page 1 and on even pages |
-| `header-right` | content | Author line, e.g. `Shell et al.: Title`. Shown on odd pages after the first |
+| `header-left` | content | Journal line, shown on every page with the page number on the right |
+| `header-right` | content | Author line, e.g. `Shell et al.: Title`. Only shown with `twoside` |
+| `twoside` | bool | The `twoside` class option: `header-right` on odd pages after the first, page number on the outer edge |
 
 With `columns: 1` the abstract and index terms are no longer run in: each gets a centred bold label with
 its text indented beneath, which is what IEEEtran does in single-column mode.
@@ -52,8 +53,8 @@ lines: `Michael Shell, _Member, IEEE,_ John Doe, _Fellow, OSA_`.
 
 ## `ieee-transmag`
 
-Transactions on Magnetics. Takes `paper`, `title`, `authors`, `header-left`, `header-right`, `thanks`,
-`abstract`, `index-terms` and `bibliography` as `ieee-journal` does, and adds one of its own:
+Transactions on Magnetics. Takes `paper`, `title`, `authors`, `header-left`, `header-right`, `twoside`,
+`thanks`, `abstract`, `index-terms` and `bibliography` as `ieee-journal` does, and adds one of its own:
 
 | Argument | Type | Notes |
 |---|---|---|

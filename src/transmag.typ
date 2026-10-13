@@ -122,6 +122,7 @@
   affiliations: (),
   header-left: [],
   header-right: [],
+  twoside: false,
   thanks: none,
   abstract: none,
   index-terms: none,
@@ -133,7 +134,10 @@
   show: floats.rules
   show: elements.rules
 
-  set page(header: running-head(header-left, header-right), header-ascent: 25pt)
+  set page(
+    header: running-head(header-left, header-right, twoside: twoside),
+    header-ascent: 25pt,
+  )
   set std.bibliography(title: [References], style: "ieee")
 
   // A show rule rather than styling a trailing parameter, so the reference list

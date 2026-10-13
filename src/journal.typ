@@ -140,6 +140,7 @@
   authors: [],
   header-left: [],
   header-right: [],
+  twoside: false,
   thanks: none,
   abstract: none,
   index-terms: none,
@@ -151,7 +152,10 @@
   show: floats.rules
   show: elements.rules
 
-  set page(header: running-head(header-left, header-right), header-ascent: 25pt)
+  set page(
+    header: running-head(header-left, header-right, twoside: twoside),
+    header-ascent: 25pt,
+  )
 
   set std.bibliography(title: [References], style: "ieee")
 
@@ -179,6 +183,9 @@
     // abstract and index terms therefore take their block form, label centred
     // above indented text, and sit on the cover rather than in the body.
     page(columns: 1, header: none, {
+      // The cover is page 0, so the paper proper starts on page 1
+      // (IEEEtran.cls:5639-5643).
+      counter(page).update(0)
       set align(center)
       v(title-top-space-onecolumn)
       with-size(sizes.huge, title)
