@@ -62,7 +62,7 @@
 // of the surrounding footnote size or the mark comes out at 4.8pt instead of 8.
 #let mark(n) = text(
   size: sizes.footnote.at(0),
-  super(typographic: false, size: 1em, baseline: -0.4em, [#n]),
+  super(typographic: false, size: 1em, baseline: -0.455em, [#n]),
 )
 
 #let title-block(title, authors, affiliations, abstract, index-terms, note) = {
@@ -121,7 +121,7 @@
   body,
 ) = {
   show: page-setup.with(mode: "journal", paper: paper)
-  show: headings.rules.with(mode: "journal")
+  show: headings.rules.with(mode: "transmag")
   show: floats.rules
   show: elements.rules
   show: headings.bibliography-rules
@@ -154,4 +154,8 @@
   // A convenience for the common case. Documents that need the list elsewhere
   // write #bibliography(..) into the body instead; it is styled either way.
   if bibliography != none { bibliography }
+
+  // Closes the last column the way LaTeX's final \vfil does, so biographies
+  // spread down it. Without any, it has no effect.
+  v(1fr)
 }

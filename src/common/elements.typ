@@ -16,7 +16,11 @@
 // parenthesised, set flush right, which is Typst's default position.
 #let equation-numbering = "(1)"
 
-#let rules(footnote-drop: default-footnote-drop, body) = {
+#let rules(
+  footnote-size: sizes.footnote,
+  footnote-drop: default-footnote-drop,
+  body,
+) = {
   set math.equation(numbering: equation-numbering)
 
   // IEEEtran.cls:2498, with the comment "The IEEE does not use footnote rules".
@@ -28,10 +32,10 @@
   set footnote.entry(
     separator: none,
     indent: par-indent,
-    gap: leading-for(sizes.footnote) - footnote-drop,
+    gap: leading-for(footnote-size) - footnote-drop,
   )
   show footnote.entry: it => pad(bottom: footnote-drop, with-size(
-    sizes.footnote,
+    footnote-size,
     it,
   ))
 

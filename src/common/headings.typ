@@ -107,8 +107,15 @@
 #let above-skip = (
   conference: (1.5, 1.5),
   journal: (3.0, 3.5),
+  transmag: (3.0, 3.5),
 )
 #let below-skip = 0.7
+
+// IEEEtran.cls:5503-5508. Transactions on Magnetics indents its subsections by
+// 0.75\parindent, and sets subsubsections on a line of their own, indented
+// 1.25\parindent with 0.1ex above and below, rather than running them in.
+#let transmag-indent = (0.75, 1.25)
+#let transmag-subsub-skip = 0.1
 
 #let rules(
   mode: "conference",
@@ -122,6 +129,7 @@
   let leading = leading-for(body)
   let above = above-skip.at(mode).map(x => x * ex + leading)
   let below = below-skip * ex + leading
+  let transmag = mode == "transmag"
   // Pinned to the body's line box, so a heading sits the same wherever it is
   // emitted. The References heading comes from inside the footnotesize
   // reference list and would otherwise inherit its smaller edges.
@@ -177,6 +185,21 @@
         below: below,
         width: 100%,
         sticky: true,
+        inset: (
+          left: if transmag { transmag-indent.at(0) * par-indent } else {
+            0pt
+          },
+        ),
+        heading-text(style: "italic")[#if n != none [#n#h(num-gap)]#it.body],
+      )
+    } else if transmag and it.level == 3 {
+      let skip = transmag-subsub-skip * ex + leading
+      block(
+        above: skip,
+        below: skip,
+        width: 100%,
+        sticky: true,
+        inset: (left: transmag-indent.at(1) * par-indent),
         heading-text(style: "italic")[#if n != none [#n#h(num-gap)]#it.body],
       )
     } else {

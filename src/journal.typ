@@ -262,4 +262,8 @@
   // A convenience for the common case. Documents that need the list elsewhere
   // write #bibliography(..) into the body instead; it is styled either way.
   if bibliography != none { bibliography }
+
+  // Closes the last column the way LaTeX's final \vfil does, so biographies
+  // spread down it. Without any, it has no effect.
+  v(1fr)
 }

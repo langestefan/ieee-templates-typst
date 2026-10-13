@@ -169,18 +169,34 @@
     // IEEEtran.cls:5498-5507 gives 3.5ex above a section and subsection, 2.5ex
     // above a subsubsection, and 0.7ex / 0.7ex / 0.5ex below. Carried over
     // directly those leave every gap short against the reference, which
-    // measures 29/23/27 above and 21/14/14 below. These are calibrated to it,
-    // as the title-block constants elsewhere are.
-    let above = if it.level == 1 { 19.25pt } else if it.level == 2 {
-      17.9pt
-    } else { 13.6pt }
+    // measures 29.1/27.1/22.7 above and 14.7/14.7/13.8 below, baseline to
+    // baseline. These are calibrated to it, as the title-block constants
+    // elsewhere are.
+    let above = if it.level == 1 { 19.59pt } else if it.level == 2 {
+      17.63pt
+    } else { 13.18pt }
+    //
+    // bare_jrnl_compsoc.tex wraps its Introduction in \IEEEraisesectionheading
+    // so the drop cap can sit beside it, which leaves more room below that one
+    // heading. The first section gets the same treatment here.
+    let first = (
+      it.level == 1
+        and not in-appendix
+        and it.numbering != none
+        and counter(heading).at(it.location()) == (1,)
+    )
     let below = if it.level == 1 {
-      11.05pt + heading-below-extra.at(it.location())
-    } else { 4.5pt }
+      (
+        (if first { 11.05pt } else { 5.16pt })
+          + heading-below-extra.at(it.location())
+      )
+    } else if it.level == 2 { 5.16pt } else { 4.27pt }
 
     block(above: above, below: below, width: 100%)[
       // The edges are pinned to the body's so the References heading, which
       // is emitted inside the footnotesize reference list, sits like the rest.
+      // A heading of two lines advances at its own size's baselineskip.
+      #set par(leading: style.size.at(1) - sizes.normal.at(0))
       #set text(
         font: heading-font,
         size: style.size.at(0),
@@ -290,7 +306,7 @@
 // Space below the References heading, on top of the normal heading skip.
 // Calibrated against the references, which measure 14pt from heading to first
 // entry in the journal and 23pt in the conference.
-#let refs-heading-gap = -5.5pt
+#let refs-heading-gap = 1.21pt
 #let conf-refs-heading-gap = 10.5pt
 
 #let conf-numbering(..nums) = numbering("1.1.1.", ..nums.pos())
@@ -349,7 +365,10 @@
   show: page-setup.with(paper: paper, mode: "conference")
   show: conf-heading-rules
   show: floats.rules
-  show: elements.rules.with(footnote-drop: conf-footnote-drop)
+  show: elements.rules.with(
+    footnote-size: conf-sizes.footnote,
+    footnote-drop: conf-footnote-drop,
+  )
   show: bibliography-rules.with(
     size: conf-sizes.footnote,
     heading-extra: conf-refs-heading-gap,
@@ -381,6 +400,10 @@
   body
 
   if bibliography != none { bibliography }
+
+  // Closes the last column the way LaTeX's final \vfil does, so biographies
+  // spread down it. Without any, it has no effect.
+  v(1fr)
 }
 
 // The shared helpers default to the 10pt Times ladder, so Computer Society
@@ -393,14 +416,14 @@
 #let biography(name: [], photo: none, body) = base-biography(
   name: name,
   photo: photo,
-  advance: line-advance,
   text-size: sizes.footnote,
+  body: sizes.normal,
   body,
 )
 #let biography-no-photo(name: [], body) = base-biography-no-photo(
   name: name,
-  advance: line-advance,
   text-size: sizes.footnote,
+  body: sizes.normal,
   body,
 )
 
@@ -420,7 +443,10 @@
   show: page-setup.with(paper: paper)
   show: heading-rules
   show: floats.rules
-  show: elements.rules.with(footnote-drop: footnote-drop)
+  show: elements.rules.with(
+    footnote-size: sizes.footnote,
+    footnote-drop: footnote-drop,
+  )
 
   set page(
     header: running-head(header-left, header-right, twoside: twoside),
@@ -446,4 +472,8 @@
   body
 
   if bibliography != none { bibliography }
+
+  // Closes the last column the way LaTeX's final \vfil does, so biographies
+  // spread down it. Without any, it has no effect.
+  v(1fr)
 }
