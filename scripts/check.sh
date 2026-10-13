@@ -205,24 +205,26 @@ echo "A4"
 # branch (IEEEtran.cls:1773). So every vertical landmark matches US Letter and
 # only the side margins move, from 48.96pt to 40.60pt.
 for pair in "tests/conference.typ:conf-a4:ieee-conference" \
-            "tests/journal.typ:jrnl-a4:ieee-journal"; do
+            "tests/journal.typ:jrnl-a4:ieee-journal" \
+            "tests/compsoc.typ:cs-a4:ieee-compsoc" \
+            "tests/compsoc-conference.typ:csc-a4:ieee-compsoc-conference"; do
   src=${pair%%:*}; rest=${pair#*:}; tag=${rest%%:*}; fn=${rest##*:}
   sed "s|^#show: $fn.with(|#show: $fn.with(\n  paper: \"a4\",|" "$src" > "$out/$tag.typ"
   cp tests/refs.bib "$out/refs.bib" 2>/dev/null
   build "$out/$tag.typ" "$tag" || continue
 done
 
+# edge <pdf> -> x of the leftmost ink on page one
+edge() {
+  pdftotext -bbox -f 1 -l 1 "$1" - 2>/dev/null \
+  | grep -oE 'xMin="[0-9.]+"' | sed -E 's/[^0-9.]//g' | sort -n | head -1
+}
+
 if [ -f "$out/conf-a4.pdf" ]; then
   ref=reference/pdf/IEEE_Bare_Demo_Template_for_Conferences_A4.pdf
   check "A4 conf title"    "$(baseline "$out/conf-a4.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
   check "A4 conf authors"  "$(baseline "$out/conf-a4.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
   check "A4 conf abstract" "$(baseline "$out/conf-a4.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
-  # Compare the left edge against the reference render rather than a rounded
-  # literal, so the check does not depend on how many digits were written down.
-  edge() {
-    pdftotext -bbox -f 1 -l 1 "$1" - 2>/dev/null \
-    | grep -oE 'xMin="[0-9.]+"' | sed -E 's/[^0-9.]//g' | sort -n | head -1
-  }
   check "A4 left edge"     "$(edge "$out/conf-a4.pdf")" "$(edge "$ref")" 1
 fi
 if [ -f "$out/jrnl-a4.pdf" ]; then
@@ -230,6 +232,20 @@ if [ -f "$out/jrnl-a4.pdf" ]; then
   check "A4 jrnl head"     "$(baseline "$out/jrnl-a4.pdf" 1 'JOURNAL OF')"   "$(baseline "$ref" 1 'JOURNAL')"
   check "A4 jrnl title"    "$(baseline "$out/jrnl-a4.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
   check "A4 jrnl abstract" "$(baseline "$out/jrnl-a4.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
+fi
+
+# No A4 render of either Computer Society mode exists, so these compare against
+# what the class derives (IEEEtran.cls:1773-1796). The journal margins go from
+# 0.625in to 24.675mm, which lowers the page by 25pt and leaves 61 lines. The
+# conference keeps 1in margins, so the taller sheet holds 62 lines instead of
+# 58 and the quantising error moves the top by 3pt.
+if [ -f "$out/cs-a4.pdf" ] && [ -f "$out/cs.pdf" ]; then
+  check "A4 cs title"      "$(baseline "$out/cs-a4.pdf" 1 'Bare Demo')" "$(baseline "$out/cs.pdf" 1 'Bare Demo' | awk '{print $1 + 25}')"
+  check "A4 cs left edge"  "$(edge "$out/cs-a4.pdf")" 39.64 0.5
+fi
+if [ -f "$out/csc-a4.pdf" ] && [ -f "$out/csc.pdf" ]; then
+  check "A4 csc title"     "$(baseline "$out/csc-a4.pdf" 1 'Bare Demo')" "$(baseline "$out/csc.pdf" 1 'Bare Demo' | awk '{print $1 + 3}')"
+  check "A4 csc left edge" "$(edge "$out/csc-a4.pdf")" 54 0.5
 fi
 
 echo "horizontal centring"

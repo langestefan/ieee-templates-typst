@@ -17,10 +17,9 @@ can end up to a line short of its neighbour.
 ## Unverified
 
 **Computer Society on A4.** No A4 render of either compsoc mode exists. The
-port only swaps the sheet size, while the class also changes the journal top
-margin to 24.675mm and derives the conference text block from the paper
-(`IEEEtran.cls:1773-1796`), so A4 output in these two modes is not expected to
-match.
+geometry follows the class, which sets the journal margins to 24.675mm and
+derives the conference text block from the sheet (`IEEEtran.cls:1773-1796`),
+but nothing below the margins has been compared with a render.
 
 **Pages after the first.** Only the peer-review and one-column references run
 to a second page. Running heads and the page grid match there; nothing else on

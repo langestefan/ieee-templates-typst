@@ -35,14 +35,18 @@ device. Use it, not `pdftotext`: `pdftotext` only exposes ink bounding boxes, wh
 depending on whether a line contains descenders. That is the same magnitude as the spacing being
 verified, and early measurements taken that way were wrong.
 
+`scripts/diff-columns.sh <pdf> <ref-pdf> [page] [max-x] [tolerance] [min-x]` pairs every baseline in a
+column with the reference's, to a hundredth of a point, and fails if any differs by more than the
+tolerance. The two documents must carry the same text.
+
 `scripts/verify-geometry.sh` compares text-block extent and line counts between two PDFs.
 
 `scripts/check.sh` asserts hand-picked landmarks on page one, mostly the title block and the first
-section. Baselines are integers, so a match means within a point. Passing it does not show that a layout
-is right further down the page: the fixtures are not content-identical to the `bare_*.tex` files, so
-nothing below the first section is compared, except in `tests/conference.typ` and `tests/journal.typ`,
-which do match their references line for line. When changing spacing, diff a whole column against the
-reference rather than trusting the suite.
+section, at whole points. It also runs `diff-columns.sh` on the left column of the conference, journal
+and Magnetics fixtures. The other fixtures carry their reference's text too, but their columns are not
+compared yet because biographies and footnotes still differ, so passing the suite says little about
+those layouts further down the page. When changing spacing, diff a whole column against the reference
+rather than trusting the suite.
 
 Ghostscript reports whole points at its default 72dpi. Running `txtwrite` with `-r7200` gives baselines
 to a hundredth of a point, which is what the spacing constants were calibrated with. Whole-point
@@ -57,8 +61,8 @@ agreement hid errors of half a point for a long time.
   remedy for the first.
 - **`pt` other than 10pt** changes the page geometry and body text only. Headings, abstract and the
   title block stay on the 10pt ladder.
-- **Computer Society on A4** only swaps the sheet. The class also changes margins there
-  (`IEEEtran.cls:1773`), and no A4 compsoc reference render exists.
+- **Computer Society on A4** takes its margins from the class (`IEEEtran.cls:1773-1796`), but no A4
+  compsoc reference render exists to check it against.
 - `author-row-gap` in `conference.typ` rests on two documents, the 062824 wrapper and the nine-author
   probe.
 

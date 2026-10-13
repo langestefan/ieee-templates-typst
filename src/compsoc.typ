@@ -52,9 +52,7 @@
 #let line-advance = sizes.normal.at(1)
 
 // IEEEtran.cls:826-828. Computer Society conferences use a 10bp body on 11.2bp
-// rather than the journal's 9.5/11.54, and take their geometry from
-// IEEEtran.cls:1785-1796: a 0.25in gutter inside 0.75in side margins, with 1in
-// top and bottom quantised to whole lines.
+// rather than the journal's 9.5/11.54.
 #let conf-sizes = (
   normal: (10pt, 11.2pt),
   small: (9pt, 10pt),
@@ -64,46 +62,54 @@
   Large: (14pt, 17pt),
 )
 #let conf-line-advance = conf-sizes.normal.at(1)
-#let conf-gutter = 0.25in
-#let conf-text-width = 612pt - 2 * 0.75in
-#let conf-lines = 58
-#let conf-text-height = conf-lines * conf-line-advance
-#let conf-margin-top = 1in - (conf-text-height - (11in - 2in)) / 2
-
-// IEEEtran.cls:1753-1757. 7in of text plus one 12bp gutter, so each column is
-// 3.5in; the class notes the 6.875in in the CS spec disagrees with their proofs.
-#let column-gutter = 12pt
-#let text-width = 7in + column-gutter
-
-// IEEEtran.cls:1765-1768. 0.625in margins give 9.75in of text, quantised to 61
-// lines of 11.54bp, with the resulting error split between top and bottom.
-#let lines-per-column = 61
-#let text-height = lines-per-column * line-advance
-#let requested-height = 11in - 2 * 0.625in
-#let margin-top = 0.625in - (text-height - requested-height) / 2
+// The class derives the text block from the sheet rather than fixing it, so
+// both modes go through one calculation: a requested height, quantised to the
+// nearest whole number of lines, with the error split between top and bottom
+// (\IEEEquantizetextheight{c} and \IEEEsettopmargin{q}).
+//
+// Journal, IEEEtran.cls:1753-1776. 7in of text plus one 12bp gutter, so each
+// column is 3.5in; the class notes the 6.875in in the CS spec disagrees with
+// their proofs. The margins are 0.625in on US Letter and 24.675mm on A4, both
+// of which leave 9.75in, quantised to 61 lines of 11.54bp.
+//
+// Conference, IEEEtran.cls:1785-1796. A 0.25in gutter inside 0.75in side
+// margins, with 1in top and bottom, so the text block grows with the sheet:
+// 58 lines on US Letter and 62 on A4.
+#let geometry-for(paper, mode) = {
+  let sheet = papers.at(paper)
+  let conf = mode == "conference"
+  let advance = if conf { conf-line-advance } else { line-advance }
+  let margin = if conf { 1in } else if paper == "a4" { 24.675mm } else {
+    0.625in
+  }
+  let requested = sheet.height - 2 * margin
+  let height = calc.round(requested / advance) * advance
+  let top = margin - (height - requested) / 2
+  let gutter = if conf { 0.25in } else { 12pt }
+  let width = if conf { sheet.width - 2 * 0.75in } else { 7in + gutter }
+  (
+    top: top,
+    bottom: sheet.height - top - height,
+    side: (sheet.width - width) / 2,
+    width: width,
+    gutter: gutter,
+  )
+}
 
 #let page-setup(paper: "us-letter", mode: "journal", body) = {
-  let sheet = papers.at(paper)
   let conf = mode == "conference"
   let sz = if conf { conf-sizes } else { sizes }
   // Computer Society conferences are set in Times; only the journals use the
   // Palatino and Helvetica pairing.
   let family = if conf { times-font } else { body-font }
   let adv = if conf { conf-line-advance } else { line-advance }
-  let tw = if conf { conf-text-width } else { text-width }
-  let top = if conf { conf-margin-top } else { margin-top }
-  let th = if conf { conf-text-height } else { text-height }
+  let g = geometry-for(paper, mode)
   set page(
     paper: paper,
-    margin: (
-      top: top,
-      bottom: sheet.height - top - th,
-      left: (sheet.width - tw) / 2,
-      right: (sheet.width - tw) / 2,
-    ),
+    margin: (top: g.top, bottom: g.bottom, left: g.side, right: g.side),
     columns: 2,
   )
-  set std.columns(gutter: if conf { conf-gutter } else { column-gutter })
+  set std.columns(gutter: g.gutter)
   set text(
     font: family,
     size: sz.normal.at(0),
@@ -382,7 +388,7 @@
     v(conf-title-author-gap)
     author-rows(
       authors.map(conf-author-cell),
-      width: conf-text-width,
+      width: geometry-for(paper, "conference").width,
       gap: conf-author-row-gap,
     )
     v(conf-title-below)
