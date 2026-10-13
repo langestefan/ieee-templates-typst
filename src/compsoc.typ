@@ -423,10 +423,17 @@
 
 // The shared helpers default to the 10pt Times ladder, so Computer Society
 // papers pass their own metrics: 9.5bp body on 11.54bp.
+//
+// IEEEtran.cls:5789. The letter is regular weight here, not bold. 0.699em is
+// the height of a Palatino capital that gives the reference's 27.66pt letter.
+#let palatino-cap = 0.699
 #let parstart(body) = base-parstart(
   body,
   advance: line-advance,
   body-size: sizes.normal.at(0),
+  weight: "regular",
+  cap: palatino-cap,
+  letter-cap: palatino-cap,
 )
 #let biography(name: [], photo: none, body) = base-biography(
   name: name,

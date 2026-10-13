@@ -8,23 +8,40 @@
 // and its height is that depth plus the cap height of the body font.
 #let drop-lines = 2
 
-// Cap height as a fraction of em for Times. Used both to size the drop cap and
-// to convert the target height back into a font size.
+// IEEEtran.cls:5873-5874. The letter is to be as tall as a capital of the body
+// font plus the drop depth. This is that capital's height in em, for Times.
 #let cap-ratio = 0.662
 
-// Gap between the drop cap and the text beside it, as a fraction of its size.
-#let cap-gap-ratio = 0.08
+// IEEEtran.cls:5833 sets the letter in bold, and 5882-5905 scales it until the
+// bold letter reaches the height above. The class reads that letter's height
+// from the font metrics TeX carries, where Times Bold capitals come to 0.671em
+// by the size of the reference's letter; the outline itself is 0.676em.
+#let bold-cap-ratio = 0.671
+
+// IEEEtran.cls:5846. \IEEEPARstartSEP, the gap between the letter and the text
+// beside it, in em of the body font.
+#let cap-gap-em = 0.15
 
 // `advance` and `body-size` default to the ladder the layout was given.
 // Computer Society papers pass their own: 9.5bp Palatino on 11.54bp, where the
 // Times ladder would size the cap for the wrong body.
-#let parstart(body, advance: auto, body-size: auto) = context {
+//
+// `weight` is the letter's, `cap` the height of a body capital in em, and
+// `letter-cap` that of the letter in its own weight.
+#let parstart(
+  body,
+  advance: auto,
+  body-size: auto,
+  weight: "bold",
+  cap: cap-ratio,
+  letter-cap: bold-cap-ratio,
+) = context {
   let normal = ladder-state.get().normal
   let base = if body-size == auto { normal.at(0) } else { body-size }
   let advance = if advance == auto { normal.at(1) } else { advance }
   let drop-depth = 1.1 * advance
-  let cap-size = (drop-depth + cap-ratio * base) / cap-ratio
-  let cap-gap = cap-gap-ratio * cap-size
+  let cap-size = (drop-depth + cap * base) / letter-cap
+  let cap-gap = cap-gap-em * base
   let ws = words(body)
   // Only the first word is reduced to plain text, to take its first letter.
   let first = if ws.len() == 0 { "" } else { plain(ws.first().body) }
@@ -43,6 +60,7 @@
   // second.
   let cap = text(
     size: cap-size,
+    weight: weight,
     top-edge: 0.7 * cap-size,
     bottom-edge: -0.3 * cap-size,
     letter,
