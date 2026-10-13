@@ -5,7 +5,7 @@
 // side-by-side author blocks, and 58 lines per column instead of 56.
 
 #import "common/geometry.typ": (
-  leading-for, page-setup, quantize, sizes-for, slack-lines, vspace, with-size,
+  leading-for, page-setup, quantize, sizes-for, vspace, with-size,
 )
 #import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings
@@ -90,7 +90,7 @@
 })
 
 #let title-block(sz, title, authors) = quantize(
-  slack-lines.journal * sz.normal.at(1),
+  "journal",
   advance: sz.normal.at(1),
   {
     set align(center)
@@ -109,7 +109,7 @@
 // IEEEtran.cls:4941 sets the repeated title in \Huge, like a journal title,
 // and it spans both columns and is quantised the same way.
 #let peerreview-title(sz, title) = quantize(
-  slack-lines.journal * sz.normal.at(1),
+  "journal",
   advance: sz.normal.at(1),
   {
     set align(center)

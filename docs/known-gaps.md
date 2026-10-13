@@ -124,9 +124,10 @@ nine-author probe compiled for the purpose. 26pt satisfies the first and leaves
 the probe 1pt short; 27pt the reverse; 26.5 satisfies both. A third document
 would test it further.
 
-**The title quantisation slack is calibrated, not derived.** The class's
-`\@IEEENORMtitlevspace` sits below every valid range, short by roughly one line
-advance, which matches the `[-\topskip]` offset `\IEEEquantizevspace` applies.
-Adding exactly one advance fixes journal but leaves the bare conference demo
-0.66pt short, so the cause is narrowed rather than settled. Measured bounds for
-all three references are recorded in `geometry.typ`.
+**One constant in the title quantisation is calibrated.** The rounding itself
+is the class's (`IEEEtran.cls:5165-5188`). What TeX counts as the height of
+the title block differs from what Typst measures by a constant, `title-excess`
+in `geometry.typ`, and working that out from the class lands a third of a line
+from what the renders show. Seven renders bound it to within three quarters of
+a point. A title with no ascenders in its first line is 0.5pt shorter to TeX,
+which is most of that window, so such a title can land a line off.

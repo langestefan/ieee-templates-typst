@@ -73,13 +73,13 @@ agreement hid errors of half a point for a long time.
 
 A few spacing constants are calibrated against the reference renders rather than derived from the class,
 and are marked as such in the source: the title-internal gaps, which depend on TeX's `\topskip` rule for
-the first line of a box, and the per-mode `slack-lines` in `geometry.typ`.
+the first line of a box, and `title-excess` in `geometry.typ`.
 
-The slack is documented there with the measured bounds for all three references. The short version: the
-class's `\@IEEENORMtitlevspace` sits below every valid range, short by roughly one line advance in each
-case, which matches the `[-\topskip]` offset `\IEEEquantizevspace` applies. Adding exactly one advance
-fixes journal but leaves the bare conference demo 0.66pt short, so the cause is narrowed rather than
-settled. The three ranges do intersect, but in a window under a point wide, so per-mode values are kept.
+`quantize` follows `\IEEEquantizevspace` exactly: the space under the title block is the one nearest the
+nominal that makes the total a whole number of lines, and a line more if that is under the minimum. What
+is calibrated is `title-excess`, the constant by which TeX's measure of the block exceeds Typst's. Seven
+renders bound it to a window three quarters of a point wide, listed there. An earlier version added a
+per-mode slack and rounded up, which fitted the references and put a real paper one line low.
 
 Treat these as load-bearing: if a layout drifts after a change, check them first, and run
 `scripts/check.sh`.

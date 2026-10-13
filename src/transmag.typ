@@ -45,12 +45,10 @@
 #let index-terms-above = 16.49pt
 
 #let index-terms-label = "Index Terms"
-// Slack below the title block before quantising, as in geometry.typ's
-// slack-lines. transmag carries the abstract and index terms inside the title block,
-// so its natural height is larger and the journal's 3 advances overshoot by a
-// slot. Valid range measured against the reference is (1.5, 3.0); 2.25 is the
-// midpoint.
-#let title-slack = 2.25 * line-advance
+// The title block here ends in the abstract and index terms, which the class
+// closes with \vspace{-1\baselineskip} (IEEEtran.cls:4830), so TeX counts it a
+// line shorter than `quantize` assumes.
+#let title-offset = -1
 
 // The affiliation mark is a plain superscript number in transmag
 // (IEEEtran.cls:4540-4541), unlike the symbol sequence used elsewhere.
@@ -135,7 +133,7 @@
     scope: "parent",
     float: true,
     clearance: 0pt,
-    block(width: 100%, quantize(title-slack, title-block(
+    block(width: 100%, quantize("journal", offset: title-offset, title-block(
       title,
       authors,
       affiliations,

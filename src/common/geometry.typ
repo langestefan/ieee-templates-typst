@@ -193,31 +193,35 @@
   (lines: lines, height: height * tpt, top: top * tpt)
 }
 
-// `slack-lines` is the space added below the title block before quantising it
-// to a whole number of body lines, in line advances.
+// The space below the title block, in body lines, as (nominal, minimum).
+// IEEEtran.cls:4969-4978: journals ask for 2.5 lines and accept no less than 2,
+// conferences and technotes ask for 1 and accept no less than 0.75.
+#let title-space = (
+  conference: (nominal: 1, minimum: 0.75),
+  journal: (nominal: 2.5, minimum: 2),
+)
+
+// What TeX counts as the height of the title block, less what `quantize`
+// measures, in body lines. The class measures a vbox that ends in half a line
+// of space and whose first line counts from its ink, then takes off \topskip
+// (IEEEtran.cls:4772 and 5123-5152). None of that depends on the document, so
+// it comes to a constant. Working it out from the class lands a third of a
+// line away from what the renders show, so it is calibrated instead. Each
+// render bounds it by the number of lines its title block takes:
 //
-// IEEEtran.cls:4772 wraps the title in \IEEEquantizevspace with a nominal
-// spacing of \@IEEENORMtitlevspace: 1 baselineskip for conference, 2.5 for
-// journal (4969-4974). Neither reproduces the reference renders; both land the
-// columns one slot high.
+//   bare_conf            12.00 lines natural, 15 taken   (1.254, 2.254]
+//   062824               17.21, 20                       (1.039, 2.039]
+//   nine-author probe    12.82, 15                       (0.435, 1.435]
+//   a PowerTech paper     9.93, 12                       (0.316, 1.316]
+//   bare_jrnl             6.18, 10                       [0.822, 1.822)
+//   peerreview            4.55,  8                       [0.447, 1.447)
+//   bare_jrnl_transmag   14.36, 17                       [0.640, 1.640)
 //
-// Measuring the title block against each reference gives the slack that does
-// reproduce it, as multiples of the line advance:
-//
-//   bare_conf   natural 142.81pt   valid (2.055, 3.055]
-//   062824      natural 205.32pt   valid (1.826, 2.826]
-//   bare_jrnl   natural  74.76pt   valid (2.747, 3.747]
-//
-// The class values sit below every range, short by roughly one advance in each
-// case. That matches the [-\topskip] offset \IEEEquantizevspace applies to
-// account for the first line of the following column, but adding exactly one
-// advance still leaves bare_conf 0.66pt below its threshold, so the cause is
-// not fully pinned down.
-//
-// All three ranges do intersect, at (2.747, 2.826], but that window is under a
-// point wide and a fourth document could easily fall outside it. Per-mode
-// values with margin on both sides are the safer choice.
-#let slack-lines = (conference: 2.5, journal: 3)
+// Together they leave (1.254, 1.316], three quarters of a point, and this is
+// its middle. The first line's ink is the part that can move: every title
+// above has ascenders, and one set in capitals alone would be 0.5pt shorter
+// to TeX.
+#let title-excess = 1.285
 
 // Typst derives line height from font metrics, so an exact baseline grid needs
 // the em box pinned to 1em first. Leading then makes up the rest of the advance.
@@ -238,13 +242,22 @@
   body
 }
 
-// IEEEtran.cls:4772 wraps the title in \IEEEquantizevspace, which rounds the
-// whole block to a whole number of body lines so the columns below start on the
+// IEEEtran.cls:4772 wraps the title in \IEEEquantizevspace, which pads the
+// block to a whole number of body lines so the columns below start on the
 // baseline grid. Without this the abstract sits off-grid and every following
-// line inherits the error. `slack` is the space added before rounding.
-#let quantize(slack, body, advance: line-advance) = context {
+// line inherits the error.
+//
+// The padding is the one nearest the nominal space that makes the total whole,
+// and a line more if that falls below the minimum (5165-5188). `offset` is for
+// a title block that TeX measures differently, in lines.
+#let quantize(mode, body, advance: line-advance, offset: 0) = context {
   let natural = measure(block(width: text-width, body)).height
-  let slots = calc.ceil((natural + slack) / advance)
+  let (nominal, minimum) = title-space.at(mode)
+  let height = natural / advance + title-excess + offset
+  let over = calc.fract(height + nominal)
+  let space = if over < 1 - over { nominal - over } else { nominal + 1 - over }
+  if space < minimum { space += 1 }
+  let slots = calc.round(height + space)
   // width must be explicit: without it the block shrinks to its content and
   // `set align(center)` inside then centres against that narrower box rather
   // than the full text width.

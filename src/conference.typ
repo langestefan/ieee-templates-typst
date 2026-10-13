@@ -1,7 +1,7 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  ex-ratio, line-advance, page-setup, quantize, sizes-for, slack-lines,
+  ex-ratio, leading-for, line-advance, page-setup, quantize, sizes-for,
   text-width, with-size,
 )
 #import "common/authorblocks.typ": as-lines, author-rows
@@ -58,7 +58,7 @@
 #let author-row-gap = 26.5pt - line-advance
 
 #let title-block(sz, title, authors) = quantize(
-  slack-lines.conference * sz.normal.at(1),
+  "conference",
   advance: sz.normal.at(1),
   {
     set align(center)
@@ -118,6 +118,9 @@
   }
   if index-terms != none {
     let lead = if placed { [] } else { note }
+    // \endabstract adds no space in conference mode (IEEEtran.cls:5283), so the
+    // index terms follow at the abstract's own advance, not the body's.
+    if placed { v(leading-for(sz.small) - leading-for(sz.normal)) }
     runin-section(index-terms-label, [#lead#index-terms], size: sz.small)
     placed = true
   }
