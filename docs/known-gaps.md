@@ -21,6 +21,13 @@ geometry follows the class, which sets the journal margins to 24.675mm and
 derives the conference text block from the sheet (`IEEEtran.cls:1773-1796`),
 but nothing below the margins has been compared with a render.
 
+**Point sizes other than 10pt.** `ieee-conference` and `ieee-journal` take
+`pt`, which selects the font ladder. Page geometry, body text, headings,
+abstract, captions, footnotes and the reference list all follow it. The gaps
+inside the title block are calibrated at 10pt and carried over as they are, and
+no reference render exists at any other size, so none of it has been compared
+with the class's output.
+
 **Pages after the first.** Only the peer-review and one-column references run
 to a second page. Running heads and the page grid match there; nothing else on
 later pages has a reference.
@@ -38,8 +45,8 @@ footnotes. What remains:
 
 - **Running heads are uppercased whole**, including an "et al." that
   `bare_jrnl.tex` keeps lowercase with `\MakeLowercase`.
-- **Superscript marks** on the Magnetics author line sit 0.3pt low, and the
-  second conference author row is out by 0.2pt in one of its two references.
+- **The second conference author row** is out by 0.2pt in one of its two
+  references.
 - **Biographies that move to a new column.** LaTeX discards the stretchable
   skip above a biography at a column break; Typst leaves it behind, where it
   takes a share of the old column's free space. The biographies before the
@@ -79,13 +86,6 @@ and now match exactly. `\IEEEraisesectionheading` was investigated as the cause
 and ruled out: it raises content, while the reference sat lower than this port.
 
 ## Deliberately not done
-
-**Point sizes other than 10pt** are implemented but unverified. `ieee-conference` and `ieee-journal` take
-`pt`, which selects the font ladder. Page geometry, body text, headings,
-abstract, captions, footnotes and the reference list all follow it. The gaps
-inside the title block are calibrated at 10pt and carried over as they are, and
-no reference render exists at any other size, so none of it has been compared
-with the class's output.
 
 **`comsoc`.** Per the class changelog, V1.8b's Communications Society option
 only swaps in the newtxmath math fonts, leaving it geometrically identical to a

@@ -57,10 +57,19 @@
 // \textsuperscript{\footnotesize n}: raised, but still at footnotesize.
 // Typst's super() shrinks whatever it is given, so size must be pinned to 1em
 // of the surrounding footnote size or the mark comes out at 4.8pt instead of 8.
-#let mark(n) = text(
-  size: sizes.footnote.at(0),
-  super(typographic: false, size: 1em, baseline: -0.455em, [#n]),
-)
+//
+// TeX raises a superscript by an amount taken from the font around it, not
+// from the mark's own, so a mark on the 11pt author line sits higher than one
+// on a 10pt affiliation line. Measured at 0.363 of the surrounding size in
+// both places.
+#let mark-raise = 0.363
+#let mark(n) = context {
+  let raise = mark-raise * text.size
+  text(
+    size: sizes.footnote.at(0),
+    super(typographic: false, size: 1em, baseline: -raise, [#n]),
+  )
+}
 
 #let title-block(title, authors, affiliations, abstract, index-terms, note) = {
   set align(center)
