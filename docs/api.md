@@ -7,7 +7,7 @@ Five layout functions and five helpers, all exported from `src/lib.typ`.
 | Argument | Type | Default | Notes |
 |---|---|---|---|
 | `paper` | `"us-letter"` \| `"a4"` | `"us-letter"` | Both verified against IEEE renders |
-| `pt` | `"9pt"` … `"12pt"` | `"10pt"` | Only 10pt is verified; see [Status](../README.md#status) |
+| `pt` | `"9pt"` … `"12pt"` | `"10pt"` | Only 10pt is verified; see [known gaps](known-gaps.md) |
 | `title` | content | `[]` | Use `\` for a line break |
 | `authors` | array of dicts | `()` | See below |
 | `thanks` | content | `none` | Funding note; renders as an unmarked footnote on page 1 |

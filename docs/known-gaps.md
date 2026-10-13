@@ -10,15 +10,47 @@ offers no balancing; neither `set page(columns:)` nor the `columns()` function
 balances a final page, which was verified rather than assumed. `#colbreak()` is
 the manual remedy.
 
+**Flush column bottoms.** LaTeX stretches the space around headings so every
+column ends on the same line. Typst does not, so a column containing headings
+can end up to a line short of its neighbour.
+
 ## Unverified
 
-Nothing. Every mode now has a reference render to check against, including A4,
-`technote` and `peerreview`, whose renders were compiled specifically for it.
+**Computer Society on A4.** No A4 render of either compsoc mode exists. The
+port only swaps the sheet size, while the class also changes the journal top
+margin to 24.675mm and derives the conference text block from the paper
+(`IEEEtran.cls:1773-1796`), so A4 output in these two modes is not expected to
+match.
+
+**Pages after the first.** Only the peer-review and one-column references run
+to a second page. Running heads and the page grid match there; nothing else on
+later pages has a reference.
 
 ## Measured differences that remain
 
-None. Every landmark asserted by `scripts/check.sh` matches its reference
-exactly.
+Every landmark asserted by `scripts/check.sh` matches its reference to within a
+point, which is the resolution of the measurement. Two are a further point out:
+the first section in one-column mode and the technote author line.
+
+Comparing whole columns rather than landmarks shows more:
+
+- **Heading gaps.** In journal mode the space above a section after the first
+  is 29pt baseline to baseline where the reference has 25 to 26, and above a
+  subsection 29 against 28. The space below a subsection is 13 against 15 in
+  both Times modes. The space above the References heading is 3pt short in
+  both.
+- **The peer-review title overleaf** sits in the first column and wraps, where
+  the reference spans both columns.
+- **The footnote block** sits about 3pt lower than the reference.
+- **Running heads are uppercased whole**, including an "et al." that
+  `bare_jrnl.tex` keeps lowercase with `\MakeLowercase`.
+
+## Content the helpers do not preserve
+
+`parstart` and `biography` have to split a paragraph to set its opening beside
+the drop cap or photo, and they do it on plain text. Citations, math, emphasis
+and footnotes inside the body are lost, and a biography of several paragraphs
+is run together. Keep such content out of those two bodies for now.
 
 The journal drop cap was 1pt out for a long time. It turned out not to be the
 cap at all: the space below a level-one heading was 1pt short in both Times
@@ -37,12 +69,12 @@ and ruled out: it raises content, while the reference sat lower than this port.
 **Point sizes other than 10pt** are partly wired. `ieee-conference` and
 `ieee-journal` take `pt`, which selects the ladder and, through it, the page
 geometry and body text: an 11pt document gets a 13.33pt advance and 50 lines per
-column, matching what the class documents. `parstart`, `biography` and
-`headings` are all parameterised.
+column, matching what the class documents.
 
-What is *not* done is the title block. Its internal gaps and the heading skips
-are calibrated for 10pt, so another ladder gives correct page metrics and body
-text under a title block that has never been checked against anything. No
+What is *not* done is everything else. Headings, the abstract, captions,
+footnotes and the reference list stay on the 10pt ladder, and the title block
+is quantised to the 10pt advance, so the columns beneath it start off the body
+grid. No
 reference render exists at any other size, and IEEE papers are 10pt in practice,
 so this is deliberately left partial rather than finished blind.
 

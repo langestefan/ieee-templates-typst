@@ -4,19 +4,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository status
 
-Conference and journal layouts both render and are verified against the reference PDFs. Build either
-template with:
+Five layouts render and are checked against the reference PDFs: `ieee-conference`, `ieee-journal` with
+its `columns: 1`, `technote` and `peerreview` variants, `ieee-transmag`, `ieee-compsoc` and
+`ieee-compsoc-conference`. `tests/` holds a Typst port of each `bare_*.tex`, and `template/main.typ` is
+the starter that `typst init` copies.
 
 ```bash
-typst compile --root . template/main.typ out.pdf              # bare conference demo
-typst compile --root . template/conference-062824.typ out.pdf # IEEE's official wrapper, 6 authors
-typst compile --root . template/journal.typ out.pdf           # journal
-scripts/check.sh                                              # regression suite, 29 checks
+typst compile --root . tests/conference.typ out.pdf         # bare conference demo
+typst compile --root . tests/conference-062824.typ out.pdf  # IEEE's official wrapper, 6 authors
+typst compile --root . tests/journal.typ out.pdf            # journal
+scripts/check.sh                                            # regression suite
+scripts/update-previews.sh                                  # README previews and thumbnail.png
 ```
 
-Both modes take `paper: "us-letter"` or `paper: "a4"`. Beyond the layout functions, `src/lib.typ`
-exports `parstart` for the journal drop cap, `appendices`, `biography` and `biography-no-photo`, and
-`author-mark` for affiliation symbols.
+Every layout takes `paper: "us-letter"` or `paper: "a4"`. Beyond the layout functions, `src/lib.typ`
+exports `parstart` for the journal drop cap, `appendices`, `biography` and `biography-no-photo`,
+`author-mark` for affiliation symbols, and `subequations`.
+
+Helpers shared by the layouts live in `src/common/`. Check there before writing a new one in a layout
+file: title quantising is in `geometry.typ`, run-in sections and the `thanks` note in `elements.typ`,
+the reference list rule in `headings.typ`, and author-row packing in `authorblocks.typ`.
 
 Everything under `reference/` is third-party material and is the **specification to port from**, not code
 to modify or wrap.
@@ -30,27 +37,29 @@ verified, and early measurements taken that way were wrong.
 
 `scripts/verify-geometry.sh` compares text-block extent and line counts between two PDFs.
 
-Current agreement with the references, in points:
-
-| landmark | conference | 062824 | journal |
-|---|---|---|---|
-| title | exact | exact | exact |
-| authors | exact | row 1 exact, row 2 +1 | +1 |
-| abstract | exact | exact | exact |
-| index terms | — | — | exact |
-| first section | exact | — | exact |
-| drop cap | — | — | −1 |
+`scripts/check.sh` asserts hand-picked landmarks on page one, mostly the title block and the first
+section. Baselines are integers, so a match means within a point. Passing it does not show that a layout
+is right further down the page: the fixtures are not content-identical to the `bare_*.tex` files, so
+nothing below the first section is compared. When changing spacing, diff a whole column against the
+reference with `baselines.sh` rather than trusting the suite.
 
 ### Known gaps
 
-- **Last-page column balancing.** Typst fills page-level columns sequentially and offers no balancing,
-  so a final page leaves column one full and column two short. `#colbreak()` at the right point is the
-  manual remedy and works fine.
-- `IEEEeqnarray` multi-line equation layout has no Typst analogue and is not attempted.
-- `compsoc`, `comsoc`, `transmag`, `technote` and `peerreview` modes are untouched, as are point sizes
-  other than 10pt. Four of those modes already have reference renders in `reference/pdf/`.
-- `author-row-gap` in `conference.typ` rests on a single document: 062824 is the only reference render
-  with more than one author row.
+`docs/known-gaps.md` is the maintained list. The ones most likely to matter while working here:
+
+- **Heading skips are miscalibrated.** `ex` in `headings.typ` is em-relative and resolves inside the
+  heading show rule, where Typst has already scaled the text to 1.4em and 1.2em. Journal headings after
+  the first sit up to 4pt low. Fixing it moves the first section, so `index-terms-below` in `journal.typ`
+  has to be recalibrated with it.
+- **`parstart` and `biography` flatten their body to plain text**, losing citations, math and emphasis.
+- **Last-page column balancing and `\flushbottom`** have no Typst equivalent. `#colbreak()` is the manual
+  remedy for the first.
+- **`pt` other than 10pt** changes the page geometry and body text only. Headings, abstract and the
+  title block stay on the 10pt ladder.
+- **Computer Society on A4** only swaps the sheet. The class also changes margins there
+  (`IEEEtran.cls:1773`), and no A4 compsoc reference render exists.
+- `author-row-gap` in `conference.typ` rests on two documents, the 062824 wrapper and the nine-author
+  probe.
 
 ### Calibrated constants
 
@@ -130,6 +139,9 @@ Compiled 2026-07-27 with pdfTeX 1.40.27. US Letter unless the name says `_A4`.
 | `IEEE_Advanced_Demo_Template_for_Computer_Science_Journals.pdf` | `bare_adv.tex` |
 | `IEEE_Demo_Template_for_Computer_Society_Conferences.pdf` | `bare_conf_compsoc.tex` |
 | `IEEE_LaTeX_Template_for_Transactions_on_Magnetics.pdf` | `bare_jrnl_transmag.tex` |
+| `IEEE_Journal_Technote.pdf` | `bare_jrnl.tex` with `technote` |
+| `IEEE_Journal_Peerreview.pdf` | `bare_jrnl.tex` with `peerreview`, two pages |
+| `Author_Row_Spacing_Probe.pdf` | nine-author conference probe, two author rows |
 
 These were compiled by hand and are not reproducible by any command in this repo. They are the baseline
 every Typst layout gets diffed against.

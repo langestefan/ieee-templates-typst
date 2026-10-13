@@ -6,8 +6,9 @@ The point of this port is that it is checked, not eyeballed.
 scripts/check.sh
 ```
 
-Compiles every template and asserts 83 landmark baselines against IEEE's compiled reference PDFs in
-`reference/pdf/`. Every asserted landmark matches its reference exactly.
+Compiles every template and asserts landmark baselines against IEEE's compiled reference PDFs in
+`reference/pdf/`. Baselines are measured in whole points, so a match means within a point. Two landmarks
+are allowed a further point: the first section in one-column mode and the technote author line.
 
 `tests/` holds a Typst port of each `bare_*.tex`, one per mode, which is what `check.sh` measures. They
 are verification fixtures rather than things to start a paper from; `template/main.typ` is that.
@@ -24,8 +25,12 @@ are verification fixtures rather than things to start a paper from; `template/ma
 | `ieee-compsoc` | `bare_jrnl_compsoc.tex` |
 | `ieee-compsoc-conference` | `bare_conf_compsoc.tex` |
 
-All on US Letter and A4. The landmarks are title, author block, abstract, index terms, first section
-heading, the first body line after it, drop cap, running head, and column extent and line count.
+All on US Letter; conference and journal are checked on A4 as well. The landmarks are title, author
+block, abstract, index terms, first section heading, the first body line after it, drop cap, running
+head, and the reference list.
+
+The landmarks sit on page one and mostly in the title block. Spacing further down the page is not
+asserted, and [known-gaps.md](known-gaps.md) lists differences found there by comparing whole columns.
 
 `check.sh` also verifies that the preview images in `assets/` are current, by comparing a signature of
 the rendered pages against `assets/previews.txt`. Regenerate both with `scripts/update-previews.sh`.
