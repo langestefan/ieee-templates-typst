@@ -4,7 +4,9 @@
 // subsection reads "B." rather than "I-B". Styling and spacing come from
 // IEEEtran.cls:5467-5482, and the run-in behaviour from 5387 and 5416.
 
-#import "geometry.typ": ex-ratio, leading-for, sizes as default-sizes, with-size
+#import "geometry.typ": (
+  ex-ratio, leading-for, sizes as default-sizes, with-size, word-space,
+)
 
 // The ex-based skips below apply ex-ratio to the body size explicitly. Writing
 // them in em does not work: inside a heading show rule Typst has already scaled
@@ -22,8 +24,10 @@
 // IEEEtran.cls:5397. Gap between the number and the title.
 #let num-gap = 0.5em
 
-// IEEEtran.cls:5387. Punctuation closing a run-in heading.
-#let runin-punct = ": "
+// IEEEtran.cls:5387. A run-in heading closes with a colon, a word space and a
+// thin space. The spacing is weak so the space the source has after the
+// heading does not add to it.
+#let runin-punct = [:#h(word-space.times.regular + 1em / 6, weak: true)]
 
 #let numbering-fn(..nums) = {
   let n = nums.pos()

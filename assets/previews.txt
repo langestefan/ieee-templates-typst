@@ -82,7 +82,7 @@
 304.00 9.96pt Sections
 323.00 9.96pt A.Subsection
 338.00 7.97pt Subsections
-350.00 9.96pt 1)Subsubsection:
+350.00 9.96pt 1)Subsubsection:Subsubsections
 362.00 9.96pt as
 380.00 9.96pt II.Method
 395.00 9.96pt Reference
