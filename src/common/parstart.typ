@@ -66,7 +66,8 @@
     // contributing to the line height.
     let ascent = 0.7 * base
     let dy = ascent + drop-depth - 0.7 * cap-size
-    block(width: 100%, {
+    // Spaced like the paragraph it is, not like a block.
+    block(width: 100%, spacing: par.spacing, {
       place(top + left, box(height: 0pt, move(dy: dy, cap)))
       pad(left: cap-width + cap-gap, par(first-line-indent: 0pt, head))
     })

@@ -76,5 +76,10 @@
     } else { hi = mid - 1 }
   }
 
-  (words.slice(0, lo).join(" "), words.slice(lo).join(" "))
+  // join() of an empty array is none, not "", which callers would then set as
+  // an empty paragraph.
+  (
+    words.slice(0, lo).join(" ", default: ""),
+    words.slice(lo).join(" ", default: ""),
+  )
 }
