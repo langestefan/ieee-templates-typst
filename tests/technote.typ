@@ -3,7 +3,9 @@
 //
 // Matches bare_jrnl.tex compiled with the technote class option.
 
-#import "/src/journal.typ": ieee-journal
+#import "/src/journal.typ": (
+  appendices, biography, biography-no-photo, ieee-journal,
+)
 
 #show: ieee-journal.with(
   technote: true,
@@ -16,7 +18,8 @@
   header-right: [Shell #emph[et al.]: Bare Demo of IEEEtran.cls for IEEE Journals],
   thanks: [
     M. Shell was with the Department of Electrical and Computer Engineering,
-    Georgia Institute of Technology, Atlanta, GA, 30332 USA.
+    Georgia Institute of Technology, Atlanta, GA, 30332 USA e-mail: (see
+    http:\/\/www.michaelshell.org/contact.html).
     #linebreak() J. Doe and J. Doe are with Anonymous University.
     #linebreak() Manuscript received April 19, 2005; revised August 26, 2015.
   ],
@@ -26,15 +29,39 @@
 
 = Introduction
 This demo file is intended to serve as a "starter file" for IEEE journal papers
-produced under LaTeX using IEEEtran.cls version 1.8b and later.
+produced under LaTeX using IEEEtran.cls version 1.8b and later. I wish you the
+best of success.
+
+#align(right)[mds]
+
+#align(right)[August 26, 2015]
 
 == Subsection Heading Here
 Subsection text here.
 
+=== Subsubsection Heading Here
+Subsubsection text here.
+
 = Conclusion
 The conclusion goes here @kopka1999.
+
+#show: appendices
+= Proof of the First Zonklar Equation
+Appendix one text goes here.
+
+=
+Appendix two text goes here.
 
 #heading(numbering: none)[Acknowledgment]
 The authors would like to thank\u{2026}
 
+// IEEE orders a journal paper acknowledgment, references, then biographies, so
+// the reference list is placed here rather than passed as an argument.
 #bibliography("refs.bib")
+
+#biography(name: [Michael Shell])[Biography text here.]
+
+#biography-no-photo(name: [John Doe])[Biography text here.]
+
+#biography-no-photo(name: [Jane Doe])[Biography text here.]
+

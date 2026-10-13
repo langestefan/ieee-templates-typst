@@ -34,6 +34,22 @@ gap() {
   | awk -v a="$2" -v b="$3" '$0 ~ a {y=$1} $0 ~ b && y != "" {print $1 - y; exit}'
 }
 
+# column <label> <pdf> <ref-pdf> [tolerance] -> every baseline in the left
+# column of page one, to a hundredth of a point. Only for fixtures that carry
+# the same text as their reference.
+column() {
+  local label="$1" tol="${4:-0.25}" lines
+  if lines=$(./scripts/diff-columns.sh "$2" "$3" 1 300 "$tol"); then
+    printf '  ok    %-34s within %spt\n' "$label" \
+      "$(echo "$lines" | awk '{d = $3 < 0 ? -$3 : $3; if (d > m) m = d} END {printf "%.2f", m}')"
+    pass=$((pass + 1))
+  else
+    printf '  FAIL  %-34s lines differ by more than %spt:\n' "$label" "$tol"
+    echo "$lines" | awk -v t="$tol" 'NF < 4 || $3 > t || $3 < -t' | head -5 | sed 's/^/          /'
+    fail=$((fail + 1))
+  fi
+}
+
 # check <label> <got> <want> [tolerance]
 check() {
   local label="$1" got="$2" want="$3" tol="${4:-$TOL}"
@@ -73,6 +89,7 @@ if build tests/conference.typ conf; then
   # IEEEtran.cls:4492 puts 0.3\baselineskip between the References heading and
   # the list, and \IEEEbibitemsep is effectively zero so entries are one line
   # apart. The reference measures 15 then 9.
+  column "left column, every line" "$out/conf.pdf" reference/pdf/IEEE_Bare_Demo_Template_for_Conferences.pdf
   refh=$(baseline "$out/conf.pdf" 1 'References')
   ref1=$(./scripts/baselines.sh "$out/conf.pdf" 1 300 | grep -A1 'References' | tail -1 | awk '{print $1}')
   check "refs heading to entry 1" "$(awk -v a="$ref1" -v b="$refh" 'BEGIN{print a-b}')" 15
@@ -100,6 +117,11 @@ if build tests/journal.typ jrnl; then
   # The drop cap's baseline sits on the second body line. Catches the offset
   # conversion in parstart.typ silently breaking.
   check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266
+  column "left column, every line" "$out/jrnl.pdf" reference/pdf/IEEE_Journal_Paper_Template.pdf
+  # The biographies in the right column share out the space left in it.
+  ref=reference/pdf/IEEE_Journal_Paper_Template.pdf
+  check "biography 2" "$(baseline "$out/jrnl.pdf" 1 'John Doe Biography')" "$(baseline "$ref" 1 'JohnDoeBiography')"
+  check "biography 3" "$(baseline "$out/jrnl.pdf" 1 'Jane Doe Biography')" "$(baseline "$ref" 1 'JaneDoeBiography')"
   # Appendices letter their sections and title them "Appendix A" on a line of
   # their own. Presence is what matters here, not the exact baseline.
   if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'Appendix.*B'; then
@@ -134,6 +156,9 @@ if build tests/transmag.typ tmag; then
   check "tmag abstract"    "$(baseline "$out/tmag.pdf" 1 'abstract goes')"  "$(baseline "$ref" 1 'Theabstractgoes')"
   check "tmag index terms" "$(baseline "$out/tmag.pdf" 1 'Index Terms')"    "$(baseline "$ref" 1 'IndexTerms')"
   check "tmag section 1"   "$(baseline "$out/tmag.pdf" 1 'Introduction')"   "$(baseline "$ref" 1 'INTRODUCTION')"
+  # 0.5pt: the superscript marks on the author line are raised from an 11pt
+  # line in the class and from 8pt here.
+  column "tmag left column, every line" "$out/tmag.pdf" "$ref" 0.5
 fi
 
 echo "computer society journal"
@@ -151,8 +176,6 @@ if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
     check "cs subsection"  "$(baseline "$out/cs.pdf" 1 '1.1Subsection')" "$(baseline "$ref" 1 '1.1Subsection')"
     check "cs subsub"      "$(baseline "$out/cs.pdf" 1 '1.1.1Subsub')"   "$(baseline "$ref" 1 '1.1.1Subsub')"
     check "cs section 2"   "$(baseline "$out/cs.pdf" 1 '2CONCLUSION')"   "$(baseline "$ref" 1 '2CONCLUSION')"
-    # The reference list is footnotesize wherever the document places it.
-    check "cs refs to entry 1" "$(gap "$out/cs.pdf" 'REFERENCES' ' 8.00pt  \\[1\\]')" "$(gap "$ref" 'REFERENCES' ' 8.00pt  \\[1\\]')"
   fi
 else
   printf '  skip  %-34s no Palatino clone found\n' "compsoc"

@@ -31,13 +31,32 @@ later pages has a reference.
 Every landmark asserted by `scripts/check.sh` matches its reference to within a
 point, which is the resolution of that script.
 
-Measured at a hundredth of a point, the conference and journal fixtures agree
-with their references to 0.06pt on every line of the first column, from the
-title through headings, appendices and the reference list to the footnotes.
-The second author row is the exception at 0.2pt. What remains elsewhere:
+Measured at a hundredth of a point with `scripts/diff-columns.sh`, the
+conference, journal, Magnetics and Computer Society journal fixtures agree with
+their references to under 0.1pt on every body line of the first column, from
+the title through headings, appendices and the reference list to the
+footnotes. What remains:
 
 - **Running heads are uppercased whole**, including an "et al." that
   `bare_jrnl.tex` keeps lowercase with `\MakeLowercase`.
+- **Superscript marks** on the Magnetics author line sit 0.3pt low, and the
+  second conference author row is out by 0.2pt in one of its two references.
+- **Biographies that move to a new column.** LaTeX discards the stretchable
+  skip above a biography at a column break; Typst leaves it behind, where it
+  takes a share of the old column's free space. The biographies before the
+  break then sit higher than in the reference, by 28pt in the technote
+  fixture. Biographies that share one column match to 0.02pt.
+- **`\@IEEEtranneedspace` is not emulated.** The class starts a new column
+  unless a biography has room for its photo, the skip and a line to spare.
+  Typst only asks whether the block fits, so near the foot of a column a
+  biography can stay where LaTeX would have moved it. The one-column fixture
+  shows it.
+- **Computer Society biographies** start 20pt lower in the reference than
+  here when they open a column. The cause is not known.
+- **Computer Society `\thanks`** is an itemised list in the class, with
+  bullets and its own spacing. Here it is a plain footnote: the last line
+  matches and the lines above it sit 4.5pt high.
+- **The photo placeholder text** sits 1.1pt high inside its frame.
 
 ## Content the helpers do not preserve
 

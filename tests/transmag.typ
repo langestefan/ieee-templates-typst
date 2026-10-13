@@ -23,13 +23,27 @@
   ),
   header-left: [Journal of LaTeX Class Files, Vol. 14, No. 8, August 2015],
   header-right: [Shell #emph[et al.]: Bare Demo of IEEEtran.cls for IEEE Transactions on Magnetics],
-  thanks: [Manuscript received December 1, 2012; revised August 26, 2015.],
+  thanks: [
+    Manuscript received December 1, 2012; revised August 26, 2015.
+    Corresponding author: M. Shell (email:
+    http:\/\/www.michaelshell.org/contact.html).
+  ],
   abstract: [The abstract goes here.],
   index-terms: [IEEE, IEEEtran, IEEE Transactions on Magnetics, journal, LaTeX, magnetics, paper, template.],
 )
 
 = Introduction
-#parstart[This demo file is intended to serve as a starter file for IEEE Transactions on Magnetics papers produced under LaTeX using IEEEtran.cls version 1.8b and later.]
+#parstart[This demo file is intended to serve as a "starter file" for IEEE #smallcaps[Transactions on Magnetics] journal papers produced under LaTeX using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
+
+#align(right)[mds]
+
+#align(right)[August 26, 2015]
+
+== Subsection Heading Here
+Subsection text here.
+
+=== Subsubsection Heading Here
+Subsubsection text here.
 
 = Conclusion
 The conclusion goes here @kopka1999.
@@ -44,8 +58,13 @@ Appendix two text goes here.
 #heading(numbering: none)[Acknowledgment]
 The authors would like to thank\u{2026}
 
+// IEEE orders a journal paper acknowledgment, references, then biographies, so
+// the reference list is placed here rather than passed as an argument.
 #bibliography("refs.bib")
 
 #biography(name: [Michael Shell])[Biography text here.]
 
-#biography-no-photo(name: [Homer Simpson])[Biography text here.]
+#biography-no-photo(name: [John Doe])[Biography text here.]
+
+#biography-no-photo(name: [Jane Doe])[Biography text here.]
+
