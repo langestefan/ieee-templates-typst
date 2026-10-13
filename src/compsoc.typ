@@ -53,6 +53,9 @@
 
 #let line-advance = sizes.normal.at(1)
 
+// IEEEtran.cls:1709-1711. Computer Society paragraphs indent by 1.5em.
+#let par-indent-em = 1.5
+
 // IEEEtran.cls:826-828. Computer Society conferences use a 10bp body on 11.2bp
 // rather than the journal's 9.5/11.54.
 #let conf-sizes = (
@@ -122,7 +125,9 @@
     justify: true,
     leading: adv - sz.normal.at(0),
     spacing: adv - sz.normal.at(0),
-    first-line-indent: (amount: 1em, all: true),
+    // The journal's headings take a negative skip above, which is how LaTeX is
+    // told not to indent the paragraph after one (IEEEtran.cls:5498-5499).
+    first-line-indent: (amount: par-indent-em * sz.normal.at(0), all: conf),
   )
   show: word-spacing.with(face: if conf { "times" } else { "palatino" })
   body
@@ -154,7 +159,7 @@
 
 // IEEEtran.cls:5498-5507. Sans-serif throughout, bold small caps at the top
 // level. The negative before-skips in the class mark the following paragraph as
-// unindented, which is handled separately.
+// unindented, which `page-setup` does through the paragraph indent.
 #let heading-rules(body) = {
   set heading(numbering: numbering-fn)
 

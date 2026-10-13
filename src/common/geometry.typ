@@ -218,8 +218,9 @@
 // gaps measured 2pt long before this correction, and par.spacing is 1.99pt.
 #let vspace(x, body: sizes.normal) = x - leading-for(body)
 
-// IEEEtran indents every paragraph, including the first after a heading.
-#let par-indent = 1 * tpc
+// IEEEtran indents every paragraph, including the first after a heading, by
+// 1em of the body size (IEEEtran.cls:1708). This is the 10pt one.
+#let par-indent = sizes.normal.at(0)
 
 // `pt` selects the font ladder and, through it, the page geometry: the line
 // count and margins are derived, not tabulated. The gaps inside the title
@@ -253,7 +254,7 @@
     justify: true,
     leading: leading-for(body-size),
     spacing: leading-for(body-size),
-    first-line-indent: (amount: par-indent, all: true),
+    first-line-indent: (amount: body-size.at(0), all: true),
   )
   show: word-spacing
   body

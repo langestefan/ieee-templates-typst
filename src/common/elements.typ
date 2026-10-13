@@ -1,6 +1,6 @@
 // Equations and footnotes, ported from IEEEtran.cls V1.8b.
 
-#import "geometry.typ": leading-for, par-indent, sizes, with-size
+#import "geometry.typ": leading-for, sizes, with-size
 
 // TeX sets the last footnote line on the baseline of the column's last body
 // line. Typst sets the footnote's line box against the bottom of the text
@@ -28,16 +28,26 @@
   // Typst draws a separator line by default, so it has to be turned off. Only
   // compsoc uses a rule, and then only for \thanks.
   //
-  // Footnote text is footnotesize and indented by \parindent
-  // (IEEEtran.cls:2490).
+  // Footnote text is footnotesize, and \@makefntext sets \parindent to 1em of
+  // that size for every paragraph in the note (IEEEtran.cls:2490).
   set footnote.entry(
     separator: none,
-    indent: par-indent,
+    indent: 0pt,
     gap: leading-for(footnote-size) - footnote-drop,
   )
   show footnote.entry: it => pad(bottom: footnote-drop, with-size(
     footnote-size,
-    it,
+    {
+      set par(
+        first-line-indent: (amount: footnote-size.at(0), all: true),
+        spacing: leading-for(footnote-size),
+      )
+      // Typst follows the mark with a hair of space the class does not have.
+      show h.where(amount: 0.05em): h(0pt, weak: true)
+      // A note of one paragraph is not a paragraph to Typst and would go
+      // unindented; the break makes it one.
+      [#it#parbreak()]
+    },
   ))
 
   // IEEE refers to an equation by its bare parenthesised number, as in "as

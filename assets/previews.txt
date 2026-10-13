@@ -64,8 +64,8 @@
 590.00 7.97pt Addison-Wesley,
 616.00 7.97pt Jane
 710.00 7.97pt M.
-719.00 7.97pt ing,
-728.00 7.97pt http://www.michaelshell.org/contact.html).
+719.00 7.97pt Georgia
+728.00 7.97pt www.michaelshell.org/contact.html).
 737.00 7.97pt J.
 746.00 7.97pt Manuscript
 # thumbnail <- template/main.typ

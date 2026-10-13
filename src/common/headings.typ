@@ -4,18 +4,14 @@
 // subsection reads "B." rather than "I-B". Styling and spacing come from
 // IEEEtran.cls:5467-5482, and the run-in behaviour from 5387 and 5416.
 
-#import "geometry.typ": (
-  ex-ratio, leading-for, par-indent as default-indent, sizes as default-sizes,
-  with-size,
-)
+#import "geometry.typ": ex-ratio, leading-for, sizes as default-sizes, with-size
 
 // The ex-based skips below apply ex-ratio to the body size explicitly. Writing
 // them in em does not work: inside a heading show rule Typst has already scaled
 // the text to 1.4em or 1.2em, so an em there is not the body's.
 
-// The Times-based modes all share the 10pt ladder, so `body` and `indent`
-// default to it. They are arguments rather than fixed so a mode on a different
-// ladder can pass its own; this is what stops the module being tied to 10pt.
+// `body` is the ladder entry of the body text and defaults to the 10pt one.
+// `indent` is \parindent, 1em of the body unless a mode says otherwise.
 
 // LaTeX adds a heading skip to the baselineskip, so 1.5ex above a section is
 // 11.955 + 6.69 = 18.65pt baseline to baseline. A Typst block's `above` and
@@ -118,11 +114,11 @@
 #let rules(
   mode: "conference",
   body: default-sizes.normal,
-  indent: default-indent,
+  indent: auto,
   doc,
 ) = {
   let text-size = body.at(0)
-  let par-indent = indent
+  let par-indent = if indent == auto { text-size } else { indent }
   let ex = ex-ratio * text-size
   let leading = leading-for(body)
   let above = above-skip.at(mode).map(x => x * ex + leading)

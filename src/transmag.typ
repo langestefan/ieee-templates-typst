@@ -11,7 +11,7 @@
 //   - the abstract and index terms sit full width inside the title block via
 //     \IEEEtitleabstractindextext (5243), not in the first column
 //   - the abstract carries no "Abstract—" label; the class comment at 5331
-//     reads "no abstract name, use indentation" (1em, bold)
+//     reads "no abstract name, use indentation" (1em of the body size, bold)
 
 #import "common/geometry.typ": (
   ex, line-advance, page-setup, quantize, sizes, tpt, vspace, with-size,
@@ -95,19 +95,13 @@
   set align(left)
   if abstract != none {
     v(vspace(abstract-above))
-    with-size(sizes.small, {
-      set par(first-line-indent: (amount: 1em, all: true))
-      strong(abstract)
-    })
+    with-size(sizes.small, strong(abstract))
   }
   if index-terms != none {
     v(vspace(index-terms-above))
-    with-size(sizes.small, {
-      set par(first-line-indent: (amount: 1em, all: true))
-      strong[#text(
-          style: "italic",
-        )[#index-terms-label]---#index-terms]
-    })
+    with-size(sizes.small, strong[#text(
+        style: "italic",
+      )[#index-terms-label]---#index-terms])
   }
 }
 
