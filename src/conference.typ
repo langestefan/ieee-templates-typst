@@ -125,6 +125,9 @@
     runin-section(index-terms-label, [#lead#index-terms], size: sz.small)
     placed = true
   }
+  // IEEEtran.cls:5292. \endIEEEkeywords adds 0.67ex in the 9pt bold still in
+  // force, whose x-height is 0.461em. \endabstract adds nothing here (5283).
+  if index-terms != none { v(0.67 * 0.461 * sz.small.at(0)) }
   if placed { v(runin-depth(..runin)) } else { note }
 
   body
