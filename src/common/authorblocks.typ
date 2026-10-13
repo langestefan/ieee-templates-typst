@@ -36,13 +36,30 @@
   }
   if current.len() > 0 { rows.push(current) }
 
+  // IEEEtran.cls:4814 sets the blocks as one paragraph, \mbox{}\hfill before
+  // the first block and \hfill\mbox{} after the last, with \hfill between
+  // them. On a single row the free space is therefore shared evenly around
+  // every block. Where the paragraph breaks, TeX discards the \hfill at the
+  // break, so the row above ends on the right margin and the row below starts
+  // on the left one.
+  let last = rows.len() - 1
   stack(
     dir: ttb,
     spacing: gap,
-    ..rows.map(r => block(width: 100%, grid(
-      columns: (auto,) * r.len(),
-      column-gutter: 1fr,
-      ..r,
-    ))),
+    ..rows
+      .enumerate()
+      .map(((i, r)) => {
+        let cells = r.map(c => (c, [])).flatten().slice(0, -1)
+        let columns = ((auto, 1fr) * r.len()).slice(0, -1)
+        if i == 0 {
+          cells.insert(0, [])
+          columns.insert(0, 1fr)
+        }
+        if i == last {
+          cells.push([])
+          columns.push(1fr)
+        }
+        block(width: 100%, grid(columns: columns, ..cells))
+      }),
   )
 }
