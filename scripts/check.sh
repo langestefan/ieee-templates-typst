@@ -242,6 +242,9 @@ if build tests/peerreview.typ pr; then
   check "peerreview title"    "$(baseline "$out/pr.pdf" 1 'Bare Demo')" "$(baseline "$ref" 1 'BareDemo')"
   check "peerreview authors"  "$(baseline "$out/pr.pdf" 1 'Michael')"   "$(baseline "$ref" 1 'MichaelShell')"
   check "peerreview abstract" "$(baseline "$out/pr.pdf" 1 'Abstract')"  "$(baseline "$ref" 1 'Abstract')"
+  # Overleaf the title is repeated across both columns, without the authors.
+  check "peerreview p2 title"     "$(baseline "$out/pr.pdf" 2 'Bare Demo of IEEEtran')" "$(baseline "$ref" 2 'BareDemo')"
+  check "peerreview p2 section 1" "$(baseline "$out/pr.pdf" 2 'Introduction')"          "$(baseline "$ref" 2 'INTRODUCTION')"
   # The cover page carries no running head; the body overleaf does.
   if ./scripts/baselines.sh "$out/pr.pdf" 1 9999 | grep -q 'JOURNAL OF'; then
     printf '  FAIL  %-34s cover page should have no running head\n' "peerreview cover"; fail=$((fail + 1))

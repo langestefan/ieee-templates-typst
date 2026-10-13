@@ -36,8 +36,6 @@ with their references to 0.06pt on every line of the first column, from the
 title through headings, appendices and the reference list to the footnotes.
 The second author row is the exception at 0.2pt. What remains elsewhere:
 
-- **The peer-review title overleaf** sits in the first column and wraps, where
-  the reference spans both columns.
 - **Running heads are uppercased whole**, including an "et al." that
   `bare_jrnl.tex` keeps lowercase with `\MakeLowercase`.
 

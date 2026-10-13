@@ -106,13 +106,13 @@
 // the authors, at the head of the body. The point is double-blind review: the
 // cover carries the identifying material and can be removed.
 //
-// IEEEtran.cls:4941 sets the repeated title in \Huge, like a journal title.
-#let peerreview-title(title) = {
+// IEEEtran.cls:4941 sets the repeated title in \Huge, like a journal title,
+// and it spans both columns and is quantised the same way.
+#let peerreview-title(title) = quantize(vertical.journal.slack, {
   set align(center)
   v(title-top-space)
   with-size(sizes.huge, title)
-  v(title-author-gap)
-}
+})
 
 // IEEEtran.cls:4804-4806. A technote puts its title in the first column rather
 // than spanning both, and sets it \large bold rather than \Huge, with the
@@ -190,7 +190,13 @@
       }
       elements.placed-thanks-note(thanks)
     })
-    block(width: 100%, peerreview-title(title))
+    place(
+      top,
+      scope: "parent",
+      float: true,
+      clearance: 0pt,
+      block(width: 100%, peerreview-title(title)),
+    )
   } else if columns == 1 {
     block(width: 100%, {
       set align(center)
