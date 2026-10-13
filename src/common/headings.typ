@@ -4,7 +4,10 @@
 // subsection reads "B." rather than "I-B". Styling and spacing come from
 // IEEEtran.cls:5467-5482, and the run-in behaviour from 5387 and 5416.
 
-#import "geometry.typ": par-indent as default-indent, sizes as default-sizes
+#import "geometry.typ": (
+  leading-for, line-advance as default-advance, par-indent as default-indent,
+  sizes as default-sizes, with-size,
+)
 
 // Times has no ex unit in Typst; its x-height is 0.448em.
 #let ex = 0.448em
@@ -51,6 +54,32 @@
 // the list. The heading is emitted by the bibliography element itself, so the
 // space cannot be inserted around it from outside; callers raise this instead.
 #let heading-below-extra = state("ieee-heading-below-extra", 0pt)
+
+// The reference list is set at footnotesize under an unnumbered heading
+// (IEEEtran.cls:4489-4492). A show rule rather than styling a trailing
+// parameter, so the list can sit wherever the document puts it: journals need
+// it before the author biographies.
+//
+// `heading-gap` is the extra space below the heading. `item-gap` is
+// \IEEEbibitemsep, 0pt outside Computer Society conferences (4484-4486), so
+// entries sit one line apart like any other line.
+#let bibliography-rules(
+  size: default-sizes.footnote,
+  heading-gap: 0.25 * default-advance,
+  item-gap: 0pt,
+  body,
+) = {
+  set bibliography(title: [References], style: "ieee")
+  show bibliography: it => {
+    heading-below-extra.update(heading-gap)
+    with-size(size, {
+      set par(spacing: leading-for(size) + item-gap)
+      it
+    })
+    heading-below-extra.update(0pt)
+  }
+  body
+}
 
 #let appendices(body) = {
   appendix-state.update(true)

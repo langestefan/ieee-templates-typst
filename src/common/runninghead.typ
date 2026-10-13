@@ -10,8 +10,8 @@
 //   mark with the page number on the right, on every page (4261-4264). The
 //   right mark only ever appears under the twoside option.
 //
-//   Under twoside the page number sits on the outer edge: \@oddhead is
-//   "mark \hfil \thepage" while \@evenhead is "\thepage \hfil mark" (4246-4247).
+//   Under twoside the page number sits on the outer edge (4246-4247):
+//   \@oddhead is "mark \hfil \thepage", \@evenhead "\thepage \hfil mark".
 
 #import "geometry.typ": tpt
 

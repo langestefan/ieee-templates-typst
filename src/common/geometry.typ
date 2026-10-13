@@ -163,6 +163,19 @@
   body
 }
 
+// IEEEtran.cls:4772 wraps the title in \IEEEquantizevspace, which rounds the
+// whole block to a whole number of body lines so the columns below start on the
+// baseline grid. Without this the abstract sits off-grid and every following
+// line inherits the error. `slack` is the space added before rounding.
+#let quantize(slack, body) = context {
+  let natural = measure(block(width: text-width, body)).height
+  let slots = calc.ceil((natural + slack) / line-advance)
+  // width must be explicit: without it the block shrinks to its content and
+  // `set align(center)` inside then centres against that narrower box rather
+  // than the full text width.
+  block(height: slots * line-advance, width: 100%, body)
+}
+
 // IEEEtran indents every paragraph, including the first after a heading.
 #let par-indent = 1 * tpc
 

@@ -16,8 +16,12 @@
 // Sans are the free ones; pass --font-path if they are not installed system
 // wide.
 
+#import "common/geometry.typ": body-font as times-font, papers, with-size
+#import "common/authorblocks.typ": as-lines, author-rows
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
+#import "common/elements.typ": runin-section
+#import "common/headings.typ": bibliography-rules, heading-below-extra
 #import "common/runninghead.typ": running-head
 #import "common/textsplit.typ": plain
 #import "common/headings.typ": appendices, appendix-name, appendix-state
@@ -32,7 +36,6 @@
   "Palatino Linotype",
 )
 #let heading-font = ("Helvetica", "Nimbus Sans", "TeX Gyre Heros", "Arial")
-#let conf-body-font = ("Times New Roman", "TeX Gyre Termes", "Nimbus Roman")
 
 // IEEEtran.cls:744-765 and 875. All big points, unlike every other mode.
 // Each entry is (size, baseline-to-baseline advance).
@@ -79,21 +82,13 @@
 #let requested-height = 11in - 2 * 0.625in
 #let margin-top = 0.625in - (text-height - requested-height) / 2
 
-#let with-size(entry, body) = {
-  let size = entry.at(0)
-  set text(size: size, top-edge: 0.7 * size, bottom-edge: -0.3 * size)
-  set par(leading: entry.at(1) - size)
-  body
-}
-
 #let page-setup(paper: "us-letter", mode: "journal", body) = {
-  let sheet-height = if paper == "a4" { 841.89pt } else { 792pt }
-  let sheet-width = if paper == "a4" { 595.28pt } else { 612pt }
+  let sheet = papers.at(paper)
   let conf = mode == "conference"
   let sz = if conf { conf-sizes } else { sizes }
   // Computer Society conferences are set in Times; only the journals use the
   // Palatino and Helvetica pairing.
-  let family = if conf { conf-body-font } else { body-font }
+  let family = if conf { times-font } else { body-font }
   let adv = if conf { conf-line-advance } else { line-advance }
   let tw = if conf { conf-text-width } else { text-width }
   let top = if conf { conf-margin-top } else { margin-top }
@@ -102,9 +97,9 @@
     paper: paper,
     margin: (
       top: top,
-      bottom: sheet-height - top - th,
-      left: (sheet-width - tw) / 2,
-      right: (sheet-width - tw) / 2,
+      bottom: sheet.height - top - th,
+      left: (sheet.width - tw) / 2,
+      right: (sheet.width - tw) / 2,
     ),
     columns: 2,
   )
@@ -179,14 +174,20 @@
     let above = if it.level == 1 { 19.25pt } else if it.level == 2 {
       17.9pt
     } else { 13.6pt }
-    let below = if it.level == 1 { 11.05pt } else { 4.5pt }
+    let below = if it.level == 1 {
+      11.05pt + heading-below-extra.at(it.location())
+    } else { 4.5pt }
 
     block(above: above, below: below, width: 100%)[
+      // The edges are pinned to the body's so the References heading, which
+      // is emitted inside the footnotesize reference list, sits like the rest.
       #set text(
         font: heading-font,
         size: style.size.at(0),
         weight: style.weight,
         style: style.style,
+        top-edge: 0.7 * sizes.normal.at(0),
+        bottom-edge: -0.3 * sizes.normal.at(0),
       )
       #if in-appendix and n != none {
         // As in the Times modes: only numbered headings take the label, so a
@@ -241,13 +242,6 @@
 #let abstract-label = "Abstract"
 #let index-terms-label = "Index Terms"
 
-// IEEEtran.cls:5269. compsoc sets the abstract and index terms at footnotesize,
-// and the label is bold italic as elsewhere.
-#let runin-section(label, body) = with-size(
-  sizes.footnote,
-  text(weight: "bold")[#text(style: "italic")[#label]---#body],
-)
-
 #let title-block(title, authors, abstract, index-terms) = {
   set align(center)
   v(title-top-space)
@@ -257,11 +251,13 @@
   set align(left)
   if abstract != none {
     v(abstract-above)
-    runin-section(abstract-label, abstract)
+    // IEEEtran.cls:5269. compsoc sets the abstract and index terms at
+    // footnotesize, and the label is bold italic as elsewhere.
+    runin-section(abstract-label, abstract, size: sizes.footnote)
   }
   if index-terms != none {
     v(index-terms-above)
-    runin-section(index-terms-label, index-terms)
+    runin-section(index-terms-label, index-terms, size: sizes.footnote)
   }
   v(diamond-above)
   diamond-line
@@ -280,6 +276,12 @@
 // journals use the Palatino and Helvetica pairing. Sizes are still big points.
 // IEEEtran.cls:2573-2577 numbers them "1.", "1.1.", with trailing periods, and
 // 5490-5496 sets the headings in bold roman, flush left.
+// Space below the References heading, on top of the normal heading skip.
+// Calibrated against the references, which measure 14pt from heading to first
+// entry in the journal and 23pt in the conference.
+#let refs-heading-gap = -5.5pt
+#let conf-refs-heading-gap = 10.5pt
+
 #let conf-numbering(..nums) = numbering("1.1.1.", ..nums.pos())
 
 // IEEEtran.cls:5490-5492 puts 1\baselineskip above a compsoc conference
@@ -297,18 +299,19 @@
       conf-sizes.sublarge
     } else { conf-sizes.normal }
     let own-ex = ex-of(size)
-    block(above: conf-heading-above, below: 0.7 * own-ex, width: 100%)[
-      #set text(size: size.at(0), weight: "bold")
+    let extra = heading-below-extra.at(it.location())
+    block(above: conf-heading-above, below: 0.7 * own-ex + extra, width: 100%)[
+      #set text(
+        size: size.at(0),
+        weight: "bold",
+        top-edge: 0.7 * conf-sizes.normal.at(0),
+        bottom-edge: -0.3 * conf-sizes.normal.at(0),
+      )
       #if n != none [#n#h(0.5em)]#it.body
     ]
   }
   body
 }
-
-#let conf-runin-section(label, body) = with-size(
-  conf-sizes.small,
-  text(weight: "bold")[#text(style: "italic")[#label]---#body],
-)
 
 // IEEEtran.cls:4808. \Large bold under two baselineskips of space.
 #let conf-title-top-space = 2 * conf-line-advance + 5pt
@@ -317,42 +320,10 @@
 #let conf-title-below = 37pt
 
 #let conf-author-cell(a) = align(center, {
-  with-size(conf-sizes.sublarge, if type(a.name) == array {
-    a.name.map(l => [#l]).join(linebreak())
-  } else { a.name })
+  with-size(conf-sizes.sublarge, as-lines(a.name))
   let aff = a.at("affiliation", default: none)
-  if aff != none {
-    with-size(conf-sizes.normal, if type(aff) == array {
-      aff.map(l => [#l]).join(linebreak())
-    } else { aff })
-  }
+  if aff != none { with-size(conf-sizes.normal, as-lines(aff)) }
 })
-
-#let conf-author-row(authors) = context {
-  let cells = authors.map(conf-author-cell)
-  let widths = cells.map(c => measure(c).width)
-  let rows = ()
-  let current = ()
-  let used = 0pt
-  for (i, c) in cells.enumerate() {
-    // \and is \hfill, which has zero natural width, so no gap is reserved: the
-    // blocks only have to fit the text width between them.
-    let needed = widths.at(i)
-    if current.len() > 0 and used + needed > conf-text-width {
-      rows.push(current)
-      current = (c,)
-      used = widths.at(i)
-    } else {
-      current.push(c)
-      used += needed
-    }
-  }
-  if current.len() > 0 { rows.push(current) }
-  stack(dir: ttb, spacing: conf-author-row-gap, ..rows.map(r => block(
-    width: 100%,
-    grid(columns: (auto,) * r.len(), column-gutter: 1fr, ..r),
-  )))
-}
 
 #let ieee-compsoc-conference(
   paper: "us-letter",
@@ -368,26 +339,37 @@
   show: conf-heading-rules
   show: floats.rules
   show: elements.rules
-
-  set std.bibliography(title: [References], style: "ieee")
+  show: bibliography-rules.with(
+    size: conf-sizes.footnote,
+    heading-gap: conf-refs-heading-gap,
+    item-gap: 0.5 * conf-sizes.footnote.at(1),
+  )
 
   place(top, scope: "parent", float: true, clearance: 0pt, block(width: 100%, {
     set align(center)
     v(conf-title-top-space)
     with-size(conf-sizes.Large, text(weight: "bold", title))
     v(conf-title-author-gap)
-    conf-author-row(authors)
+    author-rows(
+      authors.map(conf-author-cell),
+      width: conf-text-width,
+      gap: conf-author-row-gap,
+    )
     v(conf-title-below)
   }))
 
   elements.placed-thanks-note(thanks)
 
-  if abstract != none { conf-runin-section(abstract-label, abstract) }
-  if index-terms != none { conf-runin-section(index-terms-label, index-terms) }
+  if abstract != none {
+    runin-section(abstract-label, abstract, size: conf-sizes.small)
+  }
+  if index-terms != none {
+    runin-section(index-terms-label, index-terms, size: conf-sizes.small)
+  }
 
   body
 
-  if bibliography != none { with-size(conf-sizes.footnote, bibliography) }
+  if bibliography != none { bibliography }
 }
 
 // The shared helpers default to the 10pt Times ladder, so Computer Society
@@ -433,7 +415,10 @@
     header: running-head(header-left, header-right, twoside: twoside),
     header-ascent: header-ascent,
   )
-  set std.bibliography(title: [References], style: "ieee")
+  show: bibliography-rules.with(
+    size: sizes.footnote,
+    heading-gap: refs-heading-gap,
+  )
 
   place(
     top,
@@ -449,5 +434,5 @@
 
   body
 
-  if bibliography != none { with-size(sizes.footnote, bibliography) }
+  if bibliography != none { bibliography }
 }

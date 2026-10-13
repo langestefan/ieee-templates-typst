@@ -28,6 +28,12 @@ baseline() {
   ./scripts/baselines.sh "$1" "$2" 9999 | awk -v re="$3" '$0 ~ re {print $1; exit}'
 }
 
+# gap <pdf> <from-regex> <to-regex> -> distance between the two baselines
+gap() {
+  ./scripts/baselines.sh "$1" 1 9999 \
+  | awk -v a="$2" -v b="$3" '$0 ~ a {y=$1} $0 ~ b && y != "" {print $1 - y; exit}'
+}
+
 # check <label> <got> <want> [tolerance]
 check() {
   local label="$1" got="$2" want="$3" tol="${4:-$TOL}"
@@ -148,6 +154,8 @@ if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
     check "cs subsection"  "$(baseline "$out/cs.pdf" 1 '1.1Subsection')" "$(baseline "$ref" 1 '1.1Subsection')"
     check "cs subsub"      "$(baseline "$out/cs.pdf" 1 '1.1.1Subsub')"   "$(baseline "$ref" 1 '1.1.1Subsub')"
     check "cs section 2"   "$(baseline "$out/cs.pdf" 1 '2CONCLUSION')"   "$(baseline "$ref" 1 '2CONCLUSION')"
+    # The reference list is footnotesize wherever the document places it.
+    check "cs refs to entry 1" "$(gap "$out/cs.pdf" 'REFERENCES' ' 8.00pt  \\[1\\]')" "$(gap "$ref" 'REFERENCES' ' 8.00pt  \\[1\\]')"
   fi
 else
   printf '  skip  %-34s no Palatino clone found\n' "compsoc"
@@ -160,6 +168,7 @@ if build tests/compsoc-conference.typ csc; then
   check "csc authors"   "$(baseline "$out/csc.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
   check "csc abstract"  "$(baseline "$out/csc.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
   check "csc section 1" "$(baseline "$out/csc.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION|Introduction')"
+  check "csc refs to entry 1" "$(gap "$out/csc.pdf" 'References' ' 8.00pt  \\[1\\]')" "$(gap "$ref" 'References' ' 8.00pt  \\[1\\]')"
 fi
 
 echo "author row spacing probe"

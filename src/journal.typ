@@ -5,13 +5,14 @@
 // side-by-side author blocks, and 58 lines per column instead of 56.
 
 #import "common/geometry.typ": (
-  leading-for, line-advance, page-setup, sizes, text-width, vertical, with-size,
+  leading-for, line-advance, page-setup, quantize, sizes, vertical, with-size,
 )
 #import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings
-#import "common/headings.typ": appendices, heading-below-extra
+#import "common/headings.typ": appendices
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
+#import "common/elements.typ": runin-section
 #import "common/parstart.typ": parstart
 #import "common/runninghead.typ": running-head
 #import "common/biography.typ": biography, biography-no-photo
@@ -65,11 +66,6 @@
 // IEEEtran.cls:5292. \endIEEEkeywords adds 0.67ex below the index terms.
 #let index-terms-below = vspace(0.67 * ex)
 
-#let runin-section(label, body) = with-size(
-  sizes.small,
-  text(weight: "bold")[#text(style: "italic")[#label]---#body],
-)
-
 // IEEEtran.cls:5277-5281. In one-column mode the abstract is not run in: the
 // label is centred and bold on its own line, and the text follows inside a
 // \quotation, indented on both sides. Measured at 35pt in the reference.
@@ -83,17 +79,7 @@
   pad(left: quotation-indent, right: quotation-indent, body)
 })
 
-
-#let quantize(body) = context {
-  let natural = measure(block(width: text-width, body)).height
-  let slots = calc.ceil((natural + vertical.journal.slack) / line-advance)
-  // width must be explicit: without it the block shrinks to its content and
-  // `set align(center)` inside then centres against that narrower box rather
-  // than the full text width.
-  block(height: slots * line-advance, width: 100%, body)
-}
-
-#let title-block(title, authors) = quantize({
+#let title-block(title, authors) = quantize(vertical.journal.slack, {
   set align(center)
   v(title-top-space)
   with-size(sizes.huge, title)
@@ -151,27 +137,12 @@
   show: headings.rules.with(mode: "journal")
   show: floats.rules
   show: elements.rules
+  show: headings.bibliography-rules
 
   set page(
     header: running-head(header-left, header-right, twoside: twoside),
     header-ascent: 25pt,
   )
-
-  set std.bibliography(title: [References], style: "ieee")
-
-  // A show rule rather than styling a trailing parameter, so the reference list
-  // can sit wherever the document puts it. Journals need it before the author
-  // biographies, which the old "emit it last" arrangement made impossible.
-  show std.bibliography: it => {
-    heading-below-extra.update(0.25 * line-advance)
-    with-size(sizes.footnote, {
-      // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
-      // apart like any other line.
-      set par(spacing: leading-for(sizes.footnote))
-      it
-    })
-    heading-below-extra.update(0pt)
-  }
 
   // A technote keeps its title inside the first column, so like the one-column
   // case it needs neither the float nor the quantisation.
@@ -262,9 +233,7 @@
 
   body
 
-  // Emitting it here is a convenience for the common case. Documents that need
-  // it elsewhere, such as a journal placing it before the biographies, can drop
-  // the argument and write #bibliography(..) into the body instead; the show
-  // rule above styles it either way.
+  // A convenience for the common case. Documents that need the list elsewhere
+  // write #bibliography(..) into the body instead; it is styled either way.
   if bibliography != none { bibliography }
 }

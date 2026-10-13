@@ -35,6 +35,14 @@
   body
 }
 
+// IEEEtran.cls:5277. The abstract label is bold italic, but \bfseries is not
+// scoped, so the dash and the whole body are bold as well. The reference render
+// confirms it: NimbusRomNo9L-Medi throughout.
+#let runin-section(label, body, size: sizes.small) = with-size(
+  size,
+  text(weight: "bold")[#text(style: "italic")[#label]---#body],
+)
+
 // \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
 // \thefootnote and \@makefnmark so the funding note carries no superscript,
 // and 4784 resets the counter afterwards so the note does not use up number 1.

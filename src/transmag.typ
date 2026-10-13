@@ -14,11 +14,11 @@
 //     reads "no abstract name, use indentation" (1em, bold)
 
 #import "common/geometry.typ": (
-  leading-for, line-advance, page-setup, sizes, text-width, tpt, vertical,
-  with-size,
+  leading-for, line-advance, page-setup, quantize, sizes, tpt, with-size,
 )
+#import "common/authorblocks.typ": as-lines
 #import "common/headings.typ" as headings
-#import "common/headings.typ": appendices, heading-below-extra
+#import "common/headings.typ": appendices
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
 #import "common/parstart.typ": parstart
@@ -62,10 +62,6 @@
   super(typographic: false, size: 1em, baseline: -0.4em, [#n]),
 )
 
-#let as-lines(x) = {
-  if type(x) == array { x.map(l => [#l]).join(linebreak()) } else { x }
-}
-
 #let title-block(title, authors, affiliations, abstract, index-terms, note) = {
   set align(center)
   v(title-top-space)
@@ -106,15 +102,6 @@
 }
 
 
-#let quantize(body) = context {
-  let natural = measure(block(width: text-width, body)).height
-  let slots = calc.ceil((natural + title-slack) / line-advance)
-  // width must be explicit: without it the block shrinks to its content and
-  // `set align(center)` inside then centres against that narrower box rather
-  // than the full text width.
-  block(height: slots * line-advance, width: 100%, body)
-}
-
 #let ieee-transmag(
   paper: "us-letter",
   title: [],
@@ -133,33 +120,18 @@
   show: headings.rules.with(mode: "journal")
   show: floats.rules
   show: elements.rules
+  show: headings.bibliography-rules
 
   set page(
     header: running-head(header-left, header-right, twoside: twoside),
     header-ascent: 25pt,
   )
-  set std.bibliography(title: [References], style: "ieee")
-
-  // A show rule rather than styling a trailing parameter, so the reference list
-  // can sit wherever the document puts it. Journals need it before the author
-  // biographies, which the old "emit it last" arrangement made impossible.
-  show std.bibliography: it => {
-    heading-below-extra.update(0.25 * line-advance)
-    with-size(sizes.footnote, {
-      // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
-      // apart like any other line.
-      set par(spacing: leading-for(sizes.footnote))
-      it
-    })
-    heading-below-extra.update(0pt)
-  }
-
   place(
     top,
     scope: "parent",
     float: true,
     clearance: 0pt,
-    block(width: 100%, quantize(title-block(
+    block(width: 100%, quantize(title-slack, title-block(
       title,
       authors,
       affiliations,
@@ -175,9 +147,7 @@
 
   body
 
-  // Emitting it here is a convenience for the common case. Documents that need
-  // it elsewhere, such as a journal placing it before the biographies, can drop
-  // the argument and write #bibliography(..) into the body instead; the show
-  // rule above styles it either way.
+  // A convenience for the common case. Documents that need the list elsewhere
+  // write #bibliography(..) into the body instead; it is styled either way.
   if bibliography != none { bibliography }
 }
