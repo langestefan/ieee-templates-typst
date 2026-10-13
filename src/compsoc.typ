@@ -22,7 +22,7 @@
 #import "common/authorblocks.typ": as-lines, author-rows
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
-#import "common/elements.typ": runin-section
+#import "common/elements.typ": runin-depth, runin-section
 #import "common/headings.typ": bibliography-rules, heading-below-extra
 #import "common/runninghead.typ": running-head
 #import "common/textsplit.typ": plain
@@ -321,14 +321,27 @@
 // Calibrated against the references, which measure 14pt from heading to first
 // entry in the journal and 23pt in the conference.
 #let refs-heading-gap = 1.21pt
-#let conf-refs-heading-gap = 10.5pt
+#let conf-refs-heading-gap = 1.9pt
 
 #let conf-numbering(..nums) = numbering("1.1.1.", ..nums.pos())
 
-// IEEEtran.cls:5490-5492 puts 1\baselineskip above a compsoc conference
-// heading; measured against the reference it needs 5pt more, the same kind of
-// v() versus \vskip difference seen in the other modes.
-#let conf-heading-above = conf-line-advance + 5pt
+// IEEEtran.cls:5490-5496. A section, subsection and subsubsection each take
+// 1\baselineskip above. The first two take 1\baselineskip below as well; the
+// third takes none and so runs into its paragraph, closed with a full stop
+// and a space (5391-5393). All three are bold, and none is indented.
+//
+// TeX reaches a heading's baseline by the heading size's own baselineskip, so
+// a section sits 14 + 11.2bp below the text above it and a subsection 13.5 +
+// 11.2bp. Blocks here are spaced edge to edge, with the line box pinned to
+// the body's 10bp, which is what the last term takes off.
+#let conf-heading-size(level) = if level == 1 { conf-sizes.large } else if (
+  level == 2
+) { conf-sizes.sublarge } else { conf-sizes.normal }
+#let conf-heading-above(level) = (
+  conf-heading-size(level).at(1) + conf-line-advance - conf-sizes.normal.at(0)
+)
+#let conf-heading-below = 2 * conf-line-advance - conf-sizes.normal.at(0)
+#let conf-runin-punct = [.#h(word-space.times.bold, weak: true)]
 
 #let conf-heading-rules(body) = {
   set heading(numbering: conf-numbering)
@@ -336,12 +349,25 @@
     let n = if it.numbering != none {
       conf-numbering(..counter(heading).at(it.location()))
     } else { none }
-    let size = if it.level == 1 { conf-sizes.large } else if it.level == 2 {
-      conf-sizes.sublarge
-    } else { conf-sizes.normal }
-    let own-ex = ex-of(size)
+    let size = conf-heading-size(it.level)
+    let label = [#if n != none [#n#h(0.5em)]#it.body]
+    if it.level >= 3 {
+      // The parbreak closes the paragraph above. The paragraph this opens
+      // takes the indent like any other, which a subsubsection gives back and
+      // a paragraph heading doubles.
+      let indent = par-indent-em * conf-sizes.normal.at(0)
+      let head = if it.level == 3 { h(-indent) + strong(label) } else {
+        h(indent) + label
+      }
+      let above = if it.level == 3 { conf-line-advance } else { 0pt }
+      return [#parbreak()#v(above)#head#conf-runin-punct]
+    }
     let extra = heading-below-extra.at(it.location())
-    block(above: conf-heading-above, below: 0.7 * own-ex + extra, width: 100%)[
+    block(
+      above: conf-heading-above(it.level),
+      below: conf-heading-below + extra,
+      width: 100%,
+    )[
       #set text(
         size: size.at(0),
         weight: "bold",
@@ -349,22 +375,33 @@
         top-edge: 0.7 * conf-sizes.normal.at(0),
         bottom-edge: -0.3 * conf-sizes.normal.at(0),
       )
-      #if n != none [#n#h(0.5em)]#it.body
+      #label
     ]
   }
   body
 }
 
 // IEEEtran.cls:4808. \Large bold under two baselineskips of space.
-#let conf-title-top-space = 2 * conf-line-advance + 5pt
-#let conf-title-author-gap = 26pt
+#let conf-title-top-space = 2 * conf-line-advance + 4.1pt
+#let conf-title-author-gap = 27.7pt
 #let conf-author-row-gap = 12pt
-#let conf-title-below = 37pt
+#let conf-title-below = 33.25pt
+
+// IEEEtran.cls:4583-4584 spaces name lines by 2.6ex and affiliation lines by
+// 2.75ex, each in ex of its own font. For the 11bp names that is 12.87pt. The
+// reference measures 12.13pt between affiliation lines, a little under the
+// 12.38pt that gives, and 12.35pt from the name down to the first of them.
+#let conf-name-advance = 2.6 * 0.45 * conf-sizes.sublarge.at(0)
+#let conf-aff-advance = 12.13pt
+#let conf-name-aff-gap = 0.85pt
 
 #let conf-author-cell(a) = align(center, {
-  with-size(conf-sizes.sublarge, as-lines(a.name))
+  with-size((conf-sizes.sublarge.at(0), conf-name-advance), as-lines(a.name))
   let aff = a.at("affiliation", default: none)
-  if aff != none { with-size(conf-sizes.normal, as-lines(aff)) }
+  if aff != none {
+    v(conf-name-aff-gap)
+    with-size((conf-sizes.normal.at(0), conf-aff-advance), as-lines(aff))
+  }
 })
 
 #let ieee-compsoc-conference(
@@ -393,7 +430,9 @@
   place(top, scope: "parent", float: true, clearance: 0pt, block(width: 100%, {
     set align(center)
     v(conf-title-top-space)
-    with-size(conf-sizes.Large, strong(title))
+    // \Large is the one size the class leaves out when it widens the word
+    // space (IEEEtran.cls:1071-1084), so this title keeps the font's own.
+    with-size(conf-sizes.Large, text(weight: "bold", spacing: 100%, title))
     v(conf-title-author-gap)
     author-rows(
       authors.map(conf-author-cell),
@@ -405,12 +444,16 @@
 
   elements.placed-thanks-note(thanks)
 
-  if abstract != none {
-    runin-section(abstract-label, abstract, size: conf-sizes.small)
+  // IEEEtran.cls:5301 and 5307. Neither the abstract nor the index terms is
+  // indented here, unlike the other Times layouts.
+  let runin = (size: conf-sizes.small, body: conf-sizes.normal)
+  let section(label, body) = {
+    set par(first-line-indent: 0pt)
+    runin-section(label, body, size: conf-sizes.small)
   }
-  if index-terms != none {
-    runin-section(index-terms-label, index-terms, size: conf-sizes.small)
-  }
+  if abstract != none { section(abstract-label, abstract) }
+  if index-terms != none { section(index-terms-label, index-terms) }
+  if abstract != none or index-terms != none { v(runin-depth(..runin)) }
 
   body
 

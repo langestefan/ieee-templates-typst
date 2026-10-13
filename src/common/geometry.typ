@@ -209,7 +209,7 @@
 // line away from what the renders show, so it is calibrated instead. Each
 // render bounds it by the number of lines its title block takes:
 //
-//   bare_conf            12.00 lines natural, 15 taken   (1.254, 2.254]
+//   bare_conf            12.04 lines natural, 15 taken   (1.212, 2.212]
 //   062824               17.21, 20                       (1.039, 2.039]
 //   nine-author probe    12.82, 15                       (0.435, 1.435]
 //   a PowerTech paper     9.93, 12                       (0.316, 1.316]
@@ -217,11 +217,11 @@
 //   peerreview            4.55,  8                       [0.447, 1.447)
 //   bare_jrnl_transmag   14.36, 17                       [0.640, 1.640)
 //
-// Together they leave (1.254, 1.316], three quarters of a point, and this is
-// its middle. The first line's ink is the part that can move: every title
+// Together they leave (1.212, 1.316], a point and a quarter, and this is its
+// middle. The first line's ink is the part that can move: every title
 // above has ascenders, and one set in capitals alone would be 0.5pt shorter
 // to TeX.
-#let title-excess = 1.285
+#let title-excess = 1.264
 
 // Typst derives line height from font metrics, so an exact baseline grid needs
 // the em box pinned to 1em first. Leading then makes up the rest of the advance.

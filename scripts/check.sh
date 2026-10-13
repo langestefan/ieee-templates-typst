@@ -189,6 +189,7 @@ if build tests/compsoc-conference.typ csc; then
   check "csc abstract"  "$(baseline "$out/csc.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
   check "csc section 1" "$(baseline "$out/csc.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION|Introduction')"
   check "csc refs to entry 1" "$(gap "$out/csc.pdf" 'References' ' 8.00pt  \\[1\\]')" "$(gap "$ref" 'References' ' 8.00pt  \\[1\\]')"
+  column "csc left column, every line" "$out/csc.pdf" "$ref"
 fi
 
 echo "author row spacing probe"
@@ -244,7 +245,7 @@ if [ -f "$out/cs-a4.pdf" ] && [ -f "$out/cs.pdf" ]; then
   check "A4 cs left edge"  "$(edge "$out/cs-a4.pdf")" 39.64 0.5
 fi
 if [ -f "$out/csc-a4.pdf" ] && [ -f "$out/csc.pdf" ]; then
-  check "A4 csc title"     "$(baseline "$out/csc-a4.pdf" 1 'Bare Demo')" "$(baseline "$out/csc.pdf" 1 'Bare Demo' | awk '{print $1 + 3}')"
+  check "A4 csc title"     "$(baseline "$out/csc-a4.pdf" 1 'Bare Demo')" "$(baseline "$out/csc.pdf" 1 'Bare Demo' | awk '{print $1 + 3}')" 1
   check "A4 csc left edge" "$(edge "$out/csc-a4.pdf")" 54 0.5
 fi
 

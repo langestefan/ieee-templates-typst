@@ -44,8 +44,8 @@ the paragraph indent was 2pt off for as long as only baselines were compared.
 `scripts/verify-geometry.sh` compares text-block extent and line counts between two PDFs.
 
 `scripts/check.sh` asserts hand-picked landmarks on page one, mostly the title block and the first
-section, at whole points. It also runs `diff-columns.sh` on the left column of the conference, journal
-and Magnetics fixtures. The other fixtures carry their reference's text too, but their columns are not
+section, at whole points. It also runs `diff-columns.sh` on the left column of the conference, journal,
+Magnetics and Computer Society conference fixtures. The other fixtures carry their reference's text too, but their columns are not
 compared yet because biographies and footnotes still differ, so passing the suite says little about
 those layouts further down the page. When changing spacing, diff a whole column against the reference
 rather than trusting the suite.
@@ -78,7 +78,7 @@ the first line of a box, and `title-excess` in `geometry.typ`.
 `quantize` follows `\IEEEquantizevspace` exactly: the space under the title block is the one nearest the
 nominal that makes the total a whole number of lines, and a line more if that is under the minimum. What
 is calibrated is `title-excess`, the constant by which TeX's measure of the block exceeds Typst's. Seven
-renders bound it to a window three quarters of a point wide, listed there. An earlier version added a
+renders bound it to a window a point and a quarter wide, listed there. An earlier version added a
 per-mode slack and rounded up, which fitted the references and put a real paper one line low.
 
 Treat these as load-bearing: if a layout drifts after a change, check them first, and run

@@ -2,14 +2,13 @@
 71.00 23.91pt Bare
 99.00 23.91pt for
 131.00 10.96pt Michael
-142.00 10.96pt and
-143.00 9.96pt School
+143.00 10.96pt School
 155.00 9.96pt Computer
-167.00 9.96pt San
+156.00 9.96pt Starfleet
 168.00 9.96pt Georgia
-179.00 9.96pt Telephone:
 180.00 9.96pt Atlanta,
 192.00 9.96pt Email:
+193.00 9.96pt Fax:
 238.00 8.97pt Abstract&#x2014;The
 257.00 7.97pt I.INTRODUCTION
 272.00 9.96pt This

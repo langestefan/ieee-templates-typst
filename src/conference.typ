@@ -25,10 +25,11 @@
 
 // IEEEtran.cls:4583-4584. Author blocks set their own interline spacing rather
 // than inheriting the body advance: 2.6ex between name lines and 2.75ex between
-// affiliation lines. At 10pt Times, ex is 4.463pt, so affiliations advance
-// 12.27pt where the body advances 11.955pt. Over four affiliation lines that is
+// affiliation lines. At 10pt Times, ex is 4.483pt, so affiliations advance
+// 12.33pt where the body advances 11.955pt. Over four affiliation lines that is
 // most of a point and a half, which shows up as drift in the second author row.
-// Both in ex of the body size.
+// Each is in ex of its own font: names are set at sublargesize, so two name
+// lines in one block sit 12.82pt apart.
 #let name-advance = 2.6
 #let aff-advance = 2.75
 // Calibrated: the first affiliation line sits this much further below the
@@ -40,7 +41,7 @@
   {
     let ex = ex-ratio * sz.normal.at(0)
     with-size(
-      (sz.sublarge.at(0), name-advance * ex),
+      (sz.sublarge.at(0), name-advance * ex-ratio * sz.sublarge.at(0)),
       as-lines(a.at("name", default: [])),
     )
     let aff = a.at("affiliation", default: none)

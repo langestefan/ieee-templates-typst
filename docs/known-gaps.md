@@ -38,7 +38,7 @@ Every landmark asserted by `scripts/check.sh` matches its reference to within a
 point, which is the resolution of that script.
 
 Measured at a hundredth of a point with `scripts/diff-columns.sh`, the
-conference, journal, Magnetics and Computer Society journal fixtures agree with
+conference, journal, Magnetics and both Computer Society fixtures agree with
 their references to under 0.1pt on every body line of the first column, from
 the title through headings, appendices and the reference list to the
 footnotes. What remains:
@@ -128,6 +128,6 @@ would test it further.
 is the class's (`IEEEtran.cls:5165-5188`). What TeX counts as the height of
 the title block differs from what Typst measures by a constant, `title-excess`
 in `geometry.typ`, and working that out from the class lands a third of a line
-from what the renders show. Seven renders bound it to within three quarters of
-a point. A title with no ascenders in its first line is 0.5pt shorter to TeX,
-which is most of that window, so such a title can land a line off.
+from what the renders show. Seven renders bound it to a window a point and a
+quarter wide. A title with no ascenders in its first line is 0.5pt shorter to
+TeX, which the window only just has room for.

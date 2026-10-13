@@ -50,10 +50,13 @@ and later. I wish you the best of success.
 == Subsection Heading Here
 Subsection text here.
 
+=== Subsubsection Heading Here
+Subsubsection text here.
+
 = Conclusion
 The conclusion goes here @kopka1999.
 
-#heading(numbering: none)[Acknowledgment]
+#heading(numbering: none)[Acknowledgments]
 The authors would like to thank\.\.\.
 
 #bibliography("refs.bib")
