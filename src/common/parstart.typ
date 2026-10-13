@@ -1,7 +1,7 @@
 // \IEEEPARstart, the two-line drop cap opening a journal paper.
 // Ported from IEEEtran.cls:5815-5830.
 
-#import "geometry.typ": line-advance as default-advance, sizes as default-sizes
+#import "geometry.typ": ladder-state
 #import "textsplit.typ": plain, split-at-height, words
 
 // IEEEtran.cls:5824. The letter is lowered this far below the first baseline,
@@ -15,13 +15,13 @@
 // Gap between the drop cap and the text beside it, as a fraction of its size.
 #let cap-gap-ratio = 0.08
 
-// `advance` and `body-size` default to the 10pt Times ladder the Times-based
-// modes share. Computer Society papers pass their own: 9.5bp Palatino on
-// 11.54bp, where the defaults would size the cap for the wrong body.
-#let parstart(body, advance: default-advance, body-size: none) = context {
-  let base = if body-size == none { default-sizes.normal.at(0) } else {
-    body-size
-  }
+// `advance` and `body-size` default to the ladder the layout was given.
+// Computer Society papers pass their own: 9.5bp Palatino on 11.54bp, where the
+// Times ladder would size the cap for the wrong body.
+#let parstart(body, advance: auto, body-size: auto) = context {
+  let normal = ladder-state.get().normal
+  let base = if body-size == auto { normal.at(0) } else { body-size }
+  let advance = if advance == auto { normal.at(1) } else { advance }
   let drop-depth = 1.1 * advance
   let cap-size = (drop-depth + cap-ratio * base) / cap-ratio
   let cap-gap = cap-gap-ratio * cap-size

@@ -45,8 +45,8 @@
 #let index-terms-above = 16.49pt
 
 #let index-terms-label = "Index Terms"
-// Slack below the title block before quantising, as in geometry.typ's vertical
-// table. transmag carries the abstract and index terms inside the title block,
+// Slack below the title block before quantising, as in geometry.typ's
+// slack-lines. transmag carries the abstract and index terms inside the title block,
 // so its natural height is larger and the journal's 3 advances overshoot by a
 // slot. Valid range measured against the reference is (1.5, 3.0); 2.25 is the
 // midpoint.

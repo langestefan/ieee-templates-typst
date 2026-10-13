@@ -1,8 +1,8 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  ex, line-advance, page-setup, quantize, sizes, text-width, vertical,
-  with-size,
+  ex-ratio, line-advance, page-setup, quantize, sizes-for, slack-lines,
+  text-width, with-size,
 )
 #import "common/authorblocks.typ": as-lines, author-rows
 #import "common/authormark.typ": author-mark
@@ -28,23 +28,25 @@
 // affiliation lines. At 10pt Times, ex is 4.463pt, so affiliations advance
 // 12.27pt where the body advances 11.955pt. Over four affiliation lines that is
 // most of a point and a half, which shows up as drift in the second author row.
-#let name-advance = 2.6 * ex
-#let aff-advance = 2.75 * ex
+// Both in ex of the body size.
+#let name-advance = 2.6
+#let aff-advance = 2.75
 // Calibrated: the first affiliation line sits this much further below the
 // name than the paragraph spacing alone gives.
 #let name-aff-gap = 0.23pt
 
-#let author-cell(a) = align(
+#let author-cell(sz, a) = align(
   center,
   {
+    let ex = ex-ratio * sz.normal.at(0)
     with-size(
-      (sizes.sublarge.at(0), name-advance),
+      (sz.sublarge.at(0), name-advance * ex),
       as-lines(a.at("name", default: [])),
     )
     let aff = a.at("affiliation", default: none)
     if aff != none {
       v(name-aff-gap)
-      with-size((sizes.normal.at(0), aff-advance), as-lines(aff))
+      with-size((sz.normal.at(0), aff-advance * ex), as-lines(aff))
     }
   },
 )
@@ -55,13 +57,21 @@
 // satisfies the first but leaves the probe 1pt short, and 27pt the reverse.
 #let author-row-gap = 26.5pt - line-advance
 
-#let title-block(title, authors) = quantize(vertical.conference.slack, {
-  set align(center)
-  v(title-top-space)
-  with-size(sizes.huge, title)
-  v(title-author-gap)
-  author-rows(authors.map(author-cell), width: text-width, gap: author-row-gap)
-})
+#let title-block(sz, title, authors) = quantize(
+  slack-lines.conference * sz.normal.at(1),
+  advance: sz.normal.at(1),
+  {
+    set align(center)
+    v(title-top-space)
+    with-size(sz.huge, title)
+    v(title-author-gap)
+    author-rows(
+      authors.map(author-cell.with(sz)),
+      width: text-width,
+      gap: author-row-gap,
+    )
+  },
+)
 
 #let ieee-conference(
   paper: "us-letter",
@@ -74,11 +84,16 @@
   bibliography: none,
   body,
 ) = {
+  let sz = sizes-for(pt)
   show: page-setup.with(mode: "conference", paper: paper, pt: pt)
-  show: headings.rules.with(mode: "conference")
-  show: floats.rules
-  show: elements.rules
-  show: headings.bibliography-rules
+  show: headings.rules.with(mode: "conference", body: sz.normal)
+  show: floats.rules.with(size: sz.footnote, advance: sz.normal.at(1))
+  show: elements.rules.with(
+    footnote-size: sz.footnote,
+    footnote-drop: elements.footnote-drop-for(sz),
+  )
+  show: headings.bibliography-rules.with(size: sz.footnote, body: sz.normal)
+  let runin = (size: sz.small, body: sz.normal)
 
   // The title spans both columns; everything after it flows in the columns.
   // clearance must be zero: the quantised block height is what puts the columns
@@ -88,7 +103,7 @@
     scope: "parent",
     float: true,
     clearance: 0pt,
-    block(width: 100%, title-block(title, authors)),
+    block(width: 100%, title-block(sz, title, authors)),
   )
 
   // The note must ride inside the first paragraph rather than stand alone, or
@@ -96,17 +111,17 @@
   let note = elements.thanks-note(thanks)
   let placed = false
 
-  if abstract != none or index-terms != none { v(runin-height()) }
+  if abstract != none or index-terms != none { v(runin-height(..runin)) }
   if abstract != none {
-    runin-section(abstract-label, [#note#abstract])
+    runin-section(abstract-label, [#note#abstract], size: sz.small)
     placed = true
   }
   if index-terms != none {
     let lead = if placed { [] } else { note }
-    runin-section(index-terms-label, [#lead#index-terms])
+    runin-section(index-terms-label, [#lead#index-terms], size: sz.small)
     placed = true
   }
-  if placed { v(runin-depth()) } else { note }
+  if placed { v(runin-depth(..runin)) } else { note }
 
   body
 

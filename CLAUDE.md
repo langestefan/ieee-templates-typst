@@ -60,8 +60,8 @@ agreement hid errors of half a point for a long time.
   inside becomes a line break and an indent, and the first word of a `parstart` body is plain text.
 - **Last-page column balancing and `\flushbottom`** have no Typst equivalent. `#colbreak()` is the manual
   remedy for the first.
-- **`pt` other than 10pt** changes the page geometry and body text only. Headings, abstract and the
-  title block stay on the 10pt ladder.
+- **`pt` other than 10pt** is wired through but unverified: no reference render exists at another size,
+  and the calibrated title-block gaps are the 10pt ones.
 - **Computer Society on A4** takes its margins from the class (`IEEEtran.cls:1773-1796`), but no A4
   compsoc reference render exists to check it against.
 - `author-row-gap` in `conference.typ` rests on two documents, the 062824 wrapper and the nine-author
@@ -71,7 +71,7 @@ agreement hid errors of half a point for a long time.
 
 A few spacing constants are calibrated against the reference renders rather than derived from the class,
 and are marked as such in the source: the title-internal gaps, which depend on TeX's `\topskip` rule for
-the first line of a box, and the per-mode `slack` in `geometry.typ`'s `vertical` table.
+the first line of a box, and the per-mode `slack-lines` in `geometry.typ`.
 
 The slack is documented there with the measured bounds for all three references. The short version: the
 class's `\@IEEENORMtitlevspace` sits below every valid range, short by roughly one line advance in each

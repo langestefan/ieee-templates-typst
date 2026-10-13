@@ -110,7 +110,7 @@ Variants of a template can be supplied as arguments:
 identical to `ieee-journal`. Every argument is listed in [docs/api.md](docs/api.md).
 
 Notes:
-- Only 10pt is verified against IEEE's references. The other sizes change the page geometry and body text only; headings, abstract and the title block stay at their 10pt sizes.
+- Only 10pt is verified against IEEE's references. The other sizes follow the class's font ladders, but there is no reference render to check them against.
 - A4 is verified for `ieee-conference` and `ieee-journal`. The other templates accept it but have no A4 reference to check against.
 - Last-page column balancing is not implemented because Typst cannot do it natively; `#colbreak()` can be applied manually. Further details are in [docs/known-gaps.md](docs/known-gaps.md).
 

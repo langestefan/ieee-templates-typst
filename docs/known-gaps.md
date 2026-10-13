@@ -80,17 +80,12 @@ and ruled out: it raises content, while the reference sat lower than this port.
 
 ## Deliberately not done
 
-**Point sizes other than 10pt** are partly wired. `ieee-conference` and
-`ieee-journal` take `pt`, which selects the ladder and, through it, the page
-geometry and body text: an 11pt document gets a 13.33pt advance and 50 lines per
-column, matching what the class documents.
-
-What is *not* done is everything else. Headings, the abstract, captions,
-footnotes and the reference list stay on the 10pt ladder, and the title block
-is quantised to the 10pt advance, so the columns beneath it start off the body
-grid. No
-reference render exists at any other size, and IEEE papers are 10pt in practice,
-so this is deliberately left partial rather than finished blind.
+**Point sizes other than 10pt** are implemented but unverified. `ieee-conference` and `ieee-journal` take
+`pt`, which selects the font ladder. Page geometry, body text, headings,
+abstract, captions, footnotes and the reference list all follow it. The gaps
+inside the title block are calibrated at 10pt and carried over as they are, and
+no reference render exists at any other size, so none of it has been compared
+with the class's output.
 
 **`comsoc`.** Per the class changelog, V1.8b's Communications Society option
 only swaps in the newtxmath math fonts, leaving it geometrically identical to a

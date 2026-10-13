@@ -5,8 +5,7 @@
 // side-by-side author blocks, and 58 lines per column instead of 56.
 
 #import "common/geometry.typ": (
-  leading-for, line-advance, page-setup, quantize, sizes, vertical, vspace,
-  with-size,
+  leading-for, page-setup, quantize, sizes-for, slack-lines, vspace, with-size,
 )
 #import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings
@@ -40,12 +39,12 @@
 
 // The peerreview cover sets its abstract closer to the author line than the
 // one-column journal does. Calibrated to the reference's 146pt.
-#let peerreview-body-gap = 1.5 * line-advance + 0.38pt
+#let peerreview-body-gap(sz) = 1.5 * sz.normal.at(1) + 0.38pt
 
 // IEEEtran.cls:4955-4959. One-column journal puts 2.5\baselineskip between the
 // title block and the text, and \abstract adds a further 0.5 above its centred
 // label (5279).
-#let title-body-gap = 3 * line-advance + 0.38pt
+#let title-body-gap(sz) = 3 * sz.normal.at(1) + 0.38pt
 // Space above the centred Index Terms label in one-column mode. The class has
 // \addvspace{0.5\baselineskip} here (IEEEtran.cls:5279) but that lands 8pt
 // short against the reference, so this is calibrated like the other one-column
@@ -59,19 +58,22 @@
 
 // The skips around the abstract are taken in the font in force there, 9pt
 // Times Bold, whose x-height is 0.461em.
-#let ex-abstract = 0.461 * sizes.small.at(0)
+#let ex-abstract(sz) = 0.461 * sz.small.at(0)
 
 // IEEEtran.cls:5283. The journal branch of \endabstract adds 1.34ex; the
 // conference branch adds nothing. The index terms that follow are set on the
 // 9pt advance, so the leading that vspace() takes out is put back at that size.
-#let abstract-below = vspace(1.34 * ex-abstract) + leading-for(sizes.small)
+#let abstract-below(sz) = (
+  vspace(1.34 * ex-abstract(sz), body: sz.normal) + leading-for(sz.small)
+)
 
 // IEEEtran.cls:5292. \endIEEEkeywords adds 0.67ex below the index terms, or
-// 1.34ex in a technote, in the 9pt font still in force there. Not passed through vspace(): what follows
-// is normally a heading, whose own space above already stands in for the
-// paragraph spacing.
-#let index-terms-below(technote) = (
-  (if technote { 1.34 } else { 0.67 }) * ex-abstract + runin-depth()
+// 1.34ex in a technote, in the 9pt font still in force there. Not passed
+// through vspace(): what follows is normally a heading, whose own space above
+// already stands in for the paragraph spacing.
+#let index-terms-below(sz, technote) = (
+  (if technote { 1.34 } else { 0.67 }) * ex-abstract(sz)
+    + runin-depth(size: sz.small, body: sz.normal)
 )
 
 // IEEEtran.cls:5277-5281. In one-column mode the abstract is not run in: the
@@ -79,21 +81,25 @@
 // \quotation, indented on both sides. Measured at 35pt in the reference.
 #let quotation-indent = 35pt
 
-#let block-section(label, body, above: 0pt) = with-size(sizes.small, {
-  block(above: above, below: 0.5 * line-advance, width: 100%)[
+#let block-section(sz, label, body, above: 0pt) = with-size(sz.small, {
+  block(above: above, below: 0.5 * sz.normal.at(1), width: 100%)[
     #set align(center)
     #text(weight: "bold", label)
   ]
   pad(left: quotation-indent, right: quotation-indent, body)
 })
 
-#let title-block(title, authors) = quantize(vertical.journal.slack, {
-  set align(center)
-  v(title-top-space)
-  with-size(sizes.huge, title)
-  v(title-author-gap)
-  with-size(sizes.sublarge, authors)
-})
+#let title-block(sz, title, authors) = quantize(
+  slack-lines.journal * sz.normal.at(1),
+  advance: sz.normal.at(1),
+  {
+    set align(center)
+    v(title-top-space)
+    with-size(sz.huge, title)
+    v(title-author-gap)
+    with-size(sz.sublarge, authors)
+  },
+)
 
 // IEEEtran.cls:4922-4926. Under peerreview the title block becomes a cover
 // page of its own and \IEEEpeerreviewmaketitle then repeats the title, without
@@ -102,25 +108,29 @@
 //
 // IEEEtran.cls:4941 sets the repeated title in \Huge, like a journal title,
 // and it spans both columns and is quantised the same way.
-#let peerreview-title(title) = quantize(vertical.journal.slack, {
-  set align(center)
-  v(title-top-space)
-  with-size(sizes.huge, title)
-})
+#let peerreview-title(sz, title) = quantize(
+  slack-lines.journal * sz.normal.at(1),
+  advance: sz.normal.at(1),
+  {
+    set align(center)
+    v(title-top-space)
+    with-size(sz.huge, title)
+  },
+)
 
 // IEEEtran.cls:4804-4806. A technote puts its title in the first column rather
 // than spanning both, and sets it \large bold rather than \Huge, with the
 // author line following at body size after 1.3em.
-#let technote-title(title, authors) = {
+#let technote-title(sz, title, authors) = {
   set align(center)
   v(technote-title-top)
-  with-size(sizes.large, text(weight: "bold", title))
+  with-size(sz.large, text(weight: "bold", title))
   v(technote-title-author-gap)
   // \@IEEEauthordefaulttextstyle is \normalfont\sublargesize
   // (IEEEtran.cls:4555), so the author line is 11pt. Its advance stays at the
   // body's 12 TeX pt though, not sublargesize's 13.4: the reference measures
   // 12 between the two author lines.
-  with-size((sizes.sublarge.at(0), sizes.normal.at(1)), authors)
+  with-size((sz.sublarge.at(0), sz.normal.at(1)), authors)
   v(technote-body-gap)
 }
 
@@ -141,11 +151,15 @@
   bibliography: none,
   body,
 ) = {
+  let sz = sizes-for(pt)
   show: page-setup.with(mode: "journal", paper: paper, columns: columns, pt: pt)
-  show: headings.rules.with(mode: "journal")
-  show: floats.rules
-  show: elements.rules
-  show: headings.bibliography-rules
+  show: headings.rules.with(mode: "journal", body: sz.normal)
+  show: floats.rules.with(size: sz.footnote, advance: sz.normal.at(1))
+  show: elements.rules.with(
+    footnote-size: sz.footnote,
+    footnote-drop: elements.footnote-drop-for(sz),
+  )
+  show: headings.bibliography-rules.with(size: sz.footnote, body: sz.normal)
 
   set page(
     header: running-head(header-left, header-right, twoside: twoside),
@@ -155,7 +169,7 @@
   // A technote keeps its title inside the first column, so like the one-column
   // case it needs neither the float nor the quantisation.
   if technote {
-    technote-title(title, authors)
+    technote-title(sz, title, authors)
   } else if peerreview {
     // IEEEtran.cls:4766 does not wrap the peerreview title in \twocolumn, so
     // the cover page is single column, and it carries no running head. The
@@ -167,20 +181,26 @@
       counter(page).update(0)
       set align(center)
       v(title-top-space-onecolumn)
-      with-size(sizes.huge, title)
+      with-size(sz.huge, title)
       v(title-author-gap)
-      with-size(sizes.sublarge, authors)
+      with-size(sz.sublarge, authors)
       set align(left)
       if abstract != none {
         block-section(
+          sz,
           abstract-label,
           abstract,
-          above: vspace(peerreview-body-gap),
+          above: vspace(peerreview-body-gap(sz), body: sz.normal),
         )
-        v(abstract-below)
+        v(abstract-below(sz))
       }
       if index-terms != none {
-        block-section(index-terms-label, index-terms, above: index-terms-above)
+        block-section(
+          sz,
+          index-terms-label,
+          index-terms,
+          above: index-terms-above,
+        )
       }
       elements.placed-thanks-note(thanks)
     })
@@ -189,15 +209,15 @@
       scope: "parent",
       float: true,
       clearance: 0pt,
-      block(width: 100%, peerreview-title(title)),
+      block(width: 100%, peerreview-title(sz, title)),
     )
   } else if columns == 1 {
     block(width: 100%, {
       set align(center)
       v(title-top-space-onecolumn)
-      with-size(sizes.huge, title)
+      with-size(sz.huge, title)
       v(title-author-gap)
-      with-size(sizes.sublarge, authors)
+      with-size(sz.sublarge, authors)
     })
   } else {
     place(
@@ -205,7 +225,7 @@
       scope: "parent",
       float: true,
       clearance: 0pt,
-      block(width: 100%, title-block(title, authors)),
+      block(width: 100%, title-block(sz, title, authors)),
     )
   }
 
@@ -224,19 +244,19 @@
   if (
     not one-col and not technote and (abstract != none or index-terms != none)
   ) {
-    v(runin-height())
+    v(runin-height(size: sz.small, body: sz.normal))
   }
   let section-form(label, body, above: 0pt) = if one-col {
-    block-section(label, body, above: above)
-  } else { runin-section(label, body) }
+    block-section(sz, label, body, above: above)
+  } else { runin-section(label, body, size: sz.small) }
 
   if abstract != none {
     section-form(
       abstract-label,
       [#note#abstract],
-      above: vspace(title-body-gap),
+      above: vspace(title-body-gap(sz), body: sz.normal),
     )
-    v(abstract-below)
+    v(abstract-below(sz))
     placed = true
   }
   if index-terms != none {
@@ -246,7 +266,7 @@
       [#lead#index-terms],
       above: index-terms-above,
     )
-    v(index-terms-below(technote))
+    v(index-terms-below(sz, technote))
     placed = true
   }
   if not placed { note }

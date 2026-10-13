@@ -4,7 +4,7 @@
 // leading the first line in bold. Without a photo the text simply runs full
 // width under a bold name.
 
-#import "geometry.typ": leading-for, sizes as default-sizes, with-size
+#import "geometry.typ": ladder-state, leading-for, with-size
 #import "textsplit.typ": split-at-height, words
 
 // IEEEtran.cls:5982-5983 and 5989.
@@ -82,15 +82,18 @@
   }),
 )
 
-// `text-size` and `body` default to the 10pt Times ladder; Computer Society
-// papers pass their own.
+// `text-size` and `body` default to the ladder the layout was given; Computer
+// Society papers pass their own.
 #let biography(
   name: [],
   photo: none,
-  text-size: default-sizes.footnote,
-  body: default-sizes.normal,
+  text-size: auto,
+  body: auto,
   content,
-) = {
+) = context {
+  let ladder = ladder-state.get()
+  let text-size = if text-size == auto { ladder.footnote } else { text-size }
+  let body = if body == auto { ladder.normal } else { body }
   bio-skip(text-size, body)
   with-size(text-size, layout(size => {
     let lead = text(weight: "bold", name)
@@ -132,10 +135,13 @@
 // IEEEtran.cls:6065. Same thing without the photo area.
 #let biography-no-photo(
   name: [],
-  text-size: default-sizes.footnote,
-  body: default-sizes.normal,
+  text-size: auto,
+  body: auto,
   content,
-) = {
+) = context {
+  let ladder = ladder-state.get()
+  let text-size = if text-size == auto { ladder.footnote } else { text-size }
+  let body = if body == auto { ladder.normal } else { body }
   bio-skip(text-size, body)
   with-size(text-size, pad(
     top: bio-rise(text-size, body),

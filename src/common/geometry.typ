@@ -13,11 +13,9 @@
 // Font ladders, IEEEtran.cls:625-711. Each entry is (size, baseline-to-baseline
 // advance) in TeX points; convert with tpt at the point of use.
 //
-// Only the 10pt ladder is wired through the layouts. The others are recorded
-// because the line counts below derive from them, and because supporting other
-// point sizes is otherwise just a matter of threading a ladder through the
-// modules. IEEE papers are 10pt in practice and there is no reference render at
-// any other size to verify against.
+// The layouts take the ladder `pt` names and size everything from it. IEEE
+// papers are 10pt in practice and there is no reference render at any other
+// size, so only that ladder is verified.
 #let ladders = (
   "9pt": (
     normal: (9, 11.0476),
@@ -55,7 +53,16 @@
 
 #let scale(entry) = entry.map(x => x * tpt)
 
-#let sizes = ladders.at("10pt").pairs().map(((k, e)) => (k, scale(e))).to-dict()
+#let sizes-for(pt) = (
+  ladders.at(pt).pairs().map(((k, e)) => (k, scale(e))).to-dict()
+)
+
+// The 10pt ladder, which is what every default below refers to.
+#let sizes = sizes-for("10pt")
+
+// The ladder of the document being set, for helpers the author calls from the
+// body, which have no other way to learn it.
+#let ladder-state = state("ieee-ladder", sizes)
 
 #let line-advance = sizes.normal.at(1)
 
@@ -118,8 +125,8 @@
   (lines: lines, height: height * tpt, top: top * tpt)
 }
 
-// `slack` is the space added below the title block before quantising it to a
-// whole number of body lines.
+// `slack-lines` is the space added below the title block before quantising it
+// to a whole number of body lines, in line advances.
 //
 // IEEEtran.cls:4772 wraps the title in \IEEEquantizevspace with a nominal
 // spacing of \@IEEENORMtitlevspace: 1 baselineskip for conference, 2.5 for
@@ -142,11 +149,7 @@
 // All three ranges do intersect, at (2.747, 2.826], but that window is under a
 // point wide and a fourth document could easily fall outside it. Per-mode
 // values with margin on both sides are the safer choice.
-#let vertical = (
-  conference: vertical-for("conference", "10pt")
-    + (slack: 2.5 * sizes.normal.at(1)),
-  journal: vertical-for("journal", "10pt") + (slack: 3 * sizes.normal.at(1)),
-)
+#let slack-lines = (conference: 2.5, journal: 3)
 
 // Typst derives line height from font metrics, so an exact baseline grid needs
 // the em box pinned to 1em first. Leading then makes up the rest of the advance.
@@ -171,13 +174,13 @@
 // whole block to a whole number of body lines so the columns below start on the
 // baseline grid. Without this the abstract sits off-grid and every following
 // line inherits the error. `slack` is the space added before rounding.
-#let quantize(slack, body) = context {
+#let quantize(slack, body, advance: line-advance) = context {
   let natural = measure(block(width: text-width, body)).height
-  let slots = calc.ceil((natural + slack) / line-advance)
+  let slots = calc.ceil((natural + slack) / advance)
   // width must be explicit: without it the block shrinks to its content and
   // `set align(center)` inside then centres against that narrower box rather
   // than the full text width.
-  block(height: slots * line-advance, width: 100%, body)
+  block(height: slots * advance, width: 100%, body)
 }
 
 // Typst has no ex unit. TeX takes it from the font metrics, where Times has an
@@ -189,16 +192,15 @@
 // line gap. Typst's v() adds on top of par.spacing instead, so a class value
 // carried over directly overshoots by exactly that spacing. Every one of these
 // gaps measured 2pt long before this correction, and par.spacing is 1.99pt.
-#let vspace(x) = x - leading-for(sizes.normal)
+#let vspace(x, body: sizes.normal) = x - leading-for(body)
 
 // IEEEtran indents every paragraph, including the first after a heading.
 #let par-indent = 1 * tpc
 
 // `pt` selects the font ladder and, through it, the page geometry: the line
-// count and margins are derived, not tabulated. Sizes above the body — the
-// title block gaps and heading skips — are still calibrated for 10pt, so a
-// different ladder gives correct page metrics and body text but a title block
-// that has not been checked against anything.
+// count and margins are derived, not tabulated. The gaps inside the title
+// block are calibrated at 10pt and carried over unchanged, so at another size
+// the title block has not been checked against anything.
 #let page-setup(
   mode: "conference",
   paper: "us-letter",
@@ -221,6 +223,7 @@
     columns: columns,
   )
   set std.columns(gutter: column-gutter)
+  ladder-state.update(sizes-for(pt))
   set text(font: body-font, size: body-size.at(0), ..em-box)
   set par(
     justify: true,

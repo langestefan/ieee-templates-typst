@@ -66,13 +66,13 @@
 // apart like any other line.
 #let bibliography-rules(
   size: default-sizes.footnote,
+  body: default-sizes.normal,
   heading-extra: auto,
   item-gap: 0pt,
   doc,
 ) = {
   set bibliography(title: [References], style: "ieee")
   show bibliography: it => {
-    let body = default-sizes.normal
     heading-below-extra.update(if heading-extra != auto { heading-extra } else {
       (
         0.3 * size.at(1)

@@ -8,9 +8,10 @@
 // and a footnote line plus the body leading. Each entry is padded by that much
 // and the gap between entries taken in by the same, so consecutive notes still
 // advance one footnote line.
-#let default-footnote-drop = (
-  0.3 * (sizes.normal.at(0) - sizes.footnote.at(0)) + leading-for(sizes.normal)
+#let footnote-drop-for(sz) = (
+  0.3 * (sz.normal.at(0) - sz.footnote.at(0)) + leading-for(sz.normal)
 )
+#let default-footnote-drop = footnote-drop-for(sizes)
 
 // IEEEtran.cls:2544 and 2592. Equations are numbered in arabic and displayed
 // parenthesised, set flush right, which is Typst's default position.
@@ -67,12 +68,16 @@
 // A line set at `size` reaches less far below its baseline than a body line
 // does, so whatever follows a run-in section sits that much too close. Adding
 // this after the last one keeps the next line a full body advance away.
-#let runin-depth(size: sizes.small) = 0.3 * (sizes.normal.at(0) - size.at(0))
+#let runin-depth(size: sizes.small, body: sizes.normal) = (
+  0.3 * (body.at(0) - size.at(0))
+)
 
 // The same above the baseline. TeX puts the first baseline of a column on the
 // body grid whatever the size of the line, where Typst places the line box, so
 // a run-in section opening a column needs this much above it.
-#let runin-height(size: sizes.small) = 0.7 * (sizes.normal.at(0) - size.at(0))
+#let runin-height(size: sizes.small, body: sizes.normal) = (
+  0.7 * (body.at(0) - size.at(0))
+)
 
 // \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
 // \thefootnote and \@makefnmark so the funding note carries no superscript,
