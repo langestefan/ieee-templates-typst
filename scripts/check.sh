@@ -34,13 +34,14 @@ gap() {
   | awk -v a="$2" -v b="$3" '$0 ~ a {y=$1} $0 ~ b && y != "" {print $1 - y; exit}'
 }
 
-# column <label> <pdf> <ref-pdf> [tolerance] [skip] -> every baseline in the
-# left column of page one, to a hundredth of a point. Only for fixtures that
-# carry the same text as their reference. Lines whose text matches the skip
-# pattern are not held to the tolerance.
+# column <label> <pdf> <ref-pdf> [tolerance] [skip] [page] [max-x] [min-x] ->
+# every baseline in a column, to a hundredth of a point. The left column of
+# page one unless told otherwise. Only for fixtures that carry the same text as
+# their reference. Lines whose text matches the skip pattern are not held to
+# the tolerance.
 column() {
   local label="$1" tol="${4:-0.25}" skip="${5:-^$}" lines bad
-  lines=$(./scripts/diff-columns.sh "$2" "$3" 1 300 "$tol")
+  lines=$(./scripts/diff-columns.sh "$2" "$3" "${6:-1}" "${7:-300}" "$tol" "${8:-0}" 2>/dev/null)
   bad=$(echo "$lines" | awk -v t="$tol" -v skip="$skip" '$4 !~ skip && (NF < 4 || $3 > t || $3 < -t)')
   if [ -n "$lines" ] && [ -z "$bad" ]; then
     printf '  ok    %-34s within %spt\n' "$label" \
@@ -121,6 +122,7 @@ if build tests/journal.typ jrnl; then
   # conversion in parstart.typ silently breaking.
   check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266
   column "left column, every line" "$out/jrnl.pdf" reference/pdf/IEEE_Journal_Paper_Template.pdf
+  column "right column, every line" "$out/jrnl.pdf" reference/pdf/IEEE_Journal_Paper_Template.pdf 0.25 '^$' 1 9999 310
   # The biographies in the right column share out the space left in it.
   ref=reference/pdf/IEEE_Journal_Paper_Template.pdf
   check "biography 2" "$(baseline "$out/jrnl.pdf" 1 'John Doe Biography')" "$(baseline "$ref" 1 'JohnDoeBiography')"
@@ -148,6 +150,8 @@ if build tests/journal-onecolumn.typ jrnl1; then
   check "1col abstract"   "$(baseline "$out/jrnl1.pdf" 1 'Abstract')"    "$(baseline "$ref" 1 'Abstract')"
   check "1col index terms" "$(baseline "$out/jrnl1.pdf" 1 'Index Terms')" "$(baseline "$ref" 1 'IndexTerms')"
   check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'INTRODUCTION')" "$(baseline "$ref" 1 'INTRODUCTION')"
+  column "1col page 1, every line" "$out/jrnl1.pdf" "$ref" 0.25 '^$' 1 9999
+  column "1col page 2, every line" "$out/jrnl1.pdf" "$ref" 0.25 '^$' 2 9999
 fi
 
 echo "transactions on magnetics"
@@ -162,6 +166,7 @@ if build tests/transmag.typ tmag; then
   # 0.5pt: the superscript marks on the author line are raised from an 11pt
   # line in the class and from 8pt here.
   column "tmag left column, every line" "$out/tmag.pdf" "$ref" 0.5
+  column "tmag right column, every line" "$out/tmag.pdf" "$ref" 0.25 '^$' 1 9999 310
 fi
 
 echo "computer society journal"
@@ -282,6 +287,8 @@ if build tests/technote.typ tn; then
   check "technote title"    "$(baseline "$out/tn.pdf" 1 'Bare Demo')"  "$(baseline "$ref" 1 'BareDemo')"
   check "technote authors"  "$(baseline "$out/tn.pdf" 1 'Michael')"    "$(baseline "$ref" 1 'MichaelShell')"
   check "technote abstract" "$(baseline "$out/tn.pdf" 1 'Abstract')"   "$(baseline "$ref" 1 'Abstract')"
+  column "technote left column" "$out/tn.pdf" "$ref"
+  column "technote right column" "$out/tn.pdf" "$ref" 0.25 '^$' 1 9999 310
 fi
 if build tests/peerreview.typ pr; then
   ref=reference/pdf/IEEE_Journal_Peerreview.pdf
@@ -291,6 +298,8 @@ if build tests/peerreview.typ pr; then
   # Overleaf the title is repeated across both columns, without the authors.
   check "peerreview p2 title"     "$(baseline "$out/pr.pdf" 2 'Bare Demo of IEEEtran')" "$(baseline "$ref" 2 'BareDemo')"
   check "peerreview p2 section 1" "$(baseline "$out/pr.pdf" 2 'INTRODUCTION')"          "$(baseline "$ref" 2 'INTRODUCTION')"
+  column "peerreview p2 left column" "$out/pr.pdf" "$ref" 0.25 '^$' 2
+  column "peerreview p2 right column" "$out/pr.pdf" "$ref" 0.25 '^$' 2 9999 310
   # The cover page carries no running head; the body overleaf does.
   if ./scripts/baselines.sh "$out/pr.pdf" 1 9999 | grep -q 'JOURNAL OF'; then
     printf '  FAIL  %-34s cover page should have no running head\n' "peerreview cover"; fail=$((fail + 1))

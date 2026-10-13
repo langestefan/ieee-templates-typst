@@ -44,11 +44,15 @@ the paragraph indent was 2pt off for as long as only baselines were compared.
 `scripts/verify-geometry.sh` compares text-block extent and line counts between two PDFs.
 
 `scripts/check.sh` asserts hand-picked landmarks on page one, mostly the title block and the first
-section, at whole points. It also runs `diff-columns.sh` on the left column of the conference, journal,
-Magnetics and both Computer Society fixtures. The one-column, technote and peer review fixtures carry
-their reference's text too, but their columns are not compared yet because biographies still differ, so
-passing the suite says little about those layouts further down the page. When changing spacing, diff a whole column against the reference
-rather than trusting the suite.
+section, at whole points. It also runs `diff-columns.sh` on every column whose fixture carries its
+reference's text: both columns of the journal, Magnetics and technote fixtures, both pages of the
+one-column and peer review fixtures, and the left column of the conference and both Computer Society
+fixtures. When changing spacing, diff a whole column against the reference rather than trusting the
+landmarks.
+
+`diff-columns.sh` marks a line whose text differs from the reference's with `!=`. Read those marks:
+a paragraph that breaks at other words keeps its line count and its baselines, and for a long time
+nothing showed it.
 
 Ghostscript reports whole points at its default 72dpi. Running `txtwrite` with `-r7200` gives baselines
 to a hundredth of a point, which is what the spacing constants were calibrated with. Whole-point

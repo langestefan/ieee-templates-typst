@@ -12,7 +12,9 @@
 238.00 8.97pt Abstract&#x2014;The
 257.00 7.97pt I.INTRODUCTION
 272.00 9.96pt This
+282.00 6.97pt A
 284.00 9.96pt IEEE
+286.00 9.96pt E
 296.00 9.96pt tran.cls
 308.00 9.96pt mds
 320.00 9.96pt August
@@ -32,15 +34,19 @@
 105.00 23.91pt for
 128.00 10.96pt Michael
 184.00 7.97pt Abstract&#x2014;The
+198.00 6.28pt A
 199.00 8.97pt Index
+202.00 8.97pt E
 209.00 8.97pt plate.
-216.00 7.97pt PLACE
-225.00 7.97pt PHOTO
-234.00 7.97pt HERE
+217.00 7.97pt PLACE
+226.00 7.97pt PHOTO
+235.00 7.97pt HERE
 238.00 7.97pt I.INTRODUCTION
 253.00 9.96pt HIS
+263.00 6.97pt A
 265.00 9.96pt for
 266.00 29.43pt T
+267.00 9.96pt E
 277.00 9.96pt IEEEtran.cls
 289.00 9.96pt success.
 300.00 9.96pt mds
@@ -64,7 +70,7 @@
 616.00 7.97pt Jane
 710.00 7.97pt M.
 719.00 7.97pt Georgia
-728.00 7.97pt www.michaelshell.org/contact.html).
+728.00 7.97pt http://www.michaelshell.org/contact.html).
 737.00 7.97pt J.
 746.00 7.97pt Manuscript
 # thumbnail <- template/main.typ

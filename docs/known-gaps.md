@@ -41,26 +41,27 @@ later pages has a reference.
 Every landmark asserted by `scripts/check.sh` matches its reference to within a
 point, which is the resolution of that script.
 
-Measured at a hundredth of a point with `scripts/diff-columns.sh`, the
-conference, journal, Magnetics and both Computer Society fixtures agree with
-their references to under 0.1pt on every body line of the first column, from
-the title through headings, appendices and the reference list to the
-footnotes. The suite asserts it for all five. What remains:
+Measured at a hundredth of a point with `scripts/diff-columns.sh`, every
+fixture that carries its reference's text agrees with it to about 0.1pt on
+every line: both columns of the journal, Magnetics and technote fixtures, both
+pages of the one-column and peer review fixtures, and the left column of the
+conference and both Computer Society fixtures. That runs from the title
+through headings, appendices, the reference list and biographies to the
+footnotes, and the suite asserts it. What remains:
 
 - **Running heads are uppercased whole**, including an "et al." that
   `bare_jrnl.tex` keeps lowercase with `\MakeLowercase`.
 - **The second conference author row** is out by 0.2pt in one of its two
   references.
-- **Biographies that move to a new column.** LaTeX discards the stretchable
-  skip above a biography at a column break; Typst leaves it behind, where it
-  takes a share of the old column's free space. The biographies before the
-  break then sit higher than in the reference, by 28pt in the technote
-  fixture. Biographies that share one column match to 0.02pt.
-- **`\@IEEEtranneedspace` is not emulated.** The class starts a new column
-  unless a biography has room for its photo, the skip and a line to spare.
-  Typst only asks whether the block fits, so near the foot of a column a
-  biography can stay where LaTeX would have moved it. The one-column fixture
-  shows it.
+- **A biography moves to the next column a little sooner on a page without
+  footnotes.** The class asks for room for the photo, the skip and a line
+  (`IEEEtran.cls:5997-6001`), and TeX measures that room against a page goal
+  that counts the depth of the last footnote line. The port allows for that
+  depth on every page, so without notes it is cautious by 2.7pt.
+- **The first biography is taken to follow the reference list.** Its skip
+  includes the 2pt a list ends with. After anything else it is 2pt too large.
+- **Computer Society biographies** after the first sit 0.3pt and 0.7pt high
+  in the journal fixture's right column.
 - **Computer Society `\thanks`.** The reference sets the plain note half a
   line below the last `\IEEEcompsocitemizethanks` item, over it, because the
   class takes a line back after the list (`IEEEtran.cls:4903`). Here the note
@@ -68,7 +69,6 @@ footnotes. The suite asserts it for all five. What remains:
   reference and the rule above them with them.
 - **The Computer Society journal title block is not quantised.** Its gaps are
   calibrated to the one reference render.
-- **The photo placeholder text** sits 0.9pt high inside its frame.
 - **A word with punctuation inside it is not hyphenated.** TeX breaks
   `IEEEtran.cls` after `IEEE`; Typst leaves it whole and sets the lines around
   it looser. The conference fixture carries a soft hyphen there to follow its
@@ -79,7 +79,16 @@ footnotes. The suite asserts it for all five. What remains:
   no setting for either limit. From the regular 0.35em that is 0.233em, close
   enough. From the bold 0.375em it is 0.25em, so a bold abstract cannot be
   set as tightly as TeX sets it and can break at different words. In one
-  published paper TeX closed an abstract line to 0.235em.
+  published paper TeX closed an abstract line to 0.235em. Palatino goes the
+  other way: the class stops at 0.21em and Typst closes its 0.28em to 0.187em,
+  so the Computer Society journal fixture fits a word into a thanks item that
+  TeX hyphenates.
+- **A URL written as text breaks after a slash.** TeX keeps it whole. The
+  fixtures box theirs to follow their references; a real paper is better off
+  with the break.
+- **The LaTeX logo is not provided.** The fixtures draw it themselves in
+  `tests/logo.typ`, because the word in plain letters is 5.7pt wider and
+  moved a line break.
 - **Line breaks follow TeX closely, not exactly.** The hyphenation cost is
   calibrated on the first page of one published conference paper, where the
   regular text then breaks as TeX broke it in all but three lines. Typst has

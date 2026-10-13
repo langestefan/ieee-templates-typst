@@ -13,6 +13,14 @@
 )
 #let default-footnote-drop = footnote-drop-for(sizes)
 
+// IEEEtran.cls:2466. \skip\footins, the space above the notes, is 0.9 of the
+// body advance, measured to a strut above the first note's baseline, where
+// Typst's clearance is measured to the note's line box. Carried over that way
+// it comes to 6.5pt and leaves the technote fixture's biography, which fills
+// its column down to the notes, 1.4pt low. Calibrated to that fixture. Body
+// lines sit on a grid and do not show the difference.
+#let footnote-clearance = 7.89pt
+
 // IEEEtran.cls:2544 and 2592. Equations are numbered in arabic and displayed
 // parenthesised, set flush right, which is Typst's default position.
 #let equation-numbering = "(1)"
@@ -32,6 +40,7 @@
   // that size for every paragraph in the note (IEEEtran.cls:2490).
   set footnote.entry(
     separator: none,
+    clearance: footnote-clearance,
     indent: 0pt,
     gap: leading-for(footnote-size) - footnote-drop,
   )
