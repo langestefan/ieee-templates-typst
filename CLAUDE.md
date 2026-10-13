@@ -35,9 +35,11 @@ device. Use it, not `pdftotext`: `pdftotext` only exposes ink bounding boxes, wh
 depending on whether a line contains descenders. That is the same magnitude as the spacing being
 verified, and early measurements taken that way were wrong.
 
-`scripts/diff-columns.sh <pdf> <ref-pdf> [page] [max-x] [tolerance] [min-x]` pairs every baseline in a
-column with the reference's, to a hundredth of a point, and fails if any differs by more than the
-tolerance. The two documents must carry the same text.
+`scripts/diff-columns.sh <pdf> <ref-pdf> [page] [max-x] [tolerance] [min-x] [x-tolerance]` pairs every
+baseline in a column with the reference's, to a hundredth of a point, and fails if any differs by more
+than the tolerance. The two documents must carry the same text. It also prints how far each line's left
+and right edges are from the reference's. Read those columns: the suite does not assert them yet, and
+the paragraph indent was 2pt off for as long as only baselines were compared.
 
 `scripts/verify-geometry.sh` compares text-block extent and line counts between two PDFs.
 

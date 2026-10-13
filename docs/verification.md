@@ -43,10 +43,11 @@ installed; a missing font fails the job rather than silently skipping the checks
   Use this rather than `pdftotext`, which only exposes ink bounding boxes; those shift by up to 2pt
   depending on whether a line happens to contain descenders, which is the same magnitude as the spacing
   being measured. Early measurements taken that way were wrong.
-- `scripts/diff-columns.sh <pdf> <ref-pdf> [page] [max-x] [tolerance] [min-x]` pairs every baseline in a
-  column with the reference's, to a hundredth of a point, and exits non-zero if the line counts differ
-  or any line is off by more than the tolerance, 0.25pt by default. The two documents must carry the
-  same text in that column.
+- `scripts/diff-columns.sh <pdf> <ref-pdf> [page] [max-x] [tolerance] [min-x] [x-tolerance]` pairs every
+  baseline in a column with the reference's, to a hundredth of a point, and exits non-zero if the line
+  counts differ or any line is off by more than the tolerance, 0.25pt by default. The two documents
+  must carry the same text in that column. Its last two columns are how far each line's left and right
+  edges are from the reference's; they fail the run only when an x-tolerance is given.
 - `scripts/verify-geometry.sh <pdf> <page> [ref] [page]` reports text-block extent, line count and modal
   advance.
 
