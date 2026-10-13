@@ -21,6 +21,10 @@ geometry follows the class, which sets the journal margins to 24.675mm and
 derives the conference text block from the sheet (`IEEEtran.cls:1773-1796`),
 but nothing below the margins has been compared with a render.
 
+**Computer Society conference index terms.** The space above and below
+them follows the class (`IEEEtran.cls:5292` and 5307). `bare_conf_compsoc.tex`
+has none, so no render shows them.
+
 **Point sizes other than 10pt.** `ieee-conference` and `ieee-journal` take
 `pt`, which selects the font ladder. Page geometry, body text, headings,
 abstract, captions, footnotes and the reference list all follow it. The gaps

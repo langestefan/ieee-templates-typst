@@ -483,7 +483,15 @@
     runin-section(label, body, size: conf-sizes.small)
   }
   if abstract != none { section(abstract-label, abstract) }
-  if index-terms != none { section(index-terms-label, index-terms) }
+  // IEEEtran.cls:5307 puts half a line above the index terms and 5292 adds
+  // 0.67ex below them, in the bold then in force, whose x-height is 0.461em.
+  // bare_conf_compsoc.tex has no index terms, so neither is checked against a
+  // render.
+  if index-terms != none {
+    if abstract != none { v(0.5 * conf-sizes.small.at(1)) }
+    section(index-terms-label, index-terms)
+    v(0.67 * 0.461 * conf-sizes.small.at(0))
+  }
   if abstract != none or index-terms != none { v(runin-depth(..runin)) }
 
   body
