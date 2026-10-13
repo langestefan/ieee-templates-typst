@@ -5,15 +5,13 @@
 // IEEEtran.cls:5467-5482, and the run-in behaviour from 5387 and 5416.
 
 #import "geometry.typ": (
-  leading-for, par-indent as default-indent, sizes as default-sizes, with-size,
+  ex-ratio, leading-for, par-indent as default-indent, sizes as default-sizes,
+  with-size,
 )
 
-// Typst has no ex unit. TeX takes it from the font metrics, where Times has
-// an x-height of 0.45em. This is a ratio of the body size and is applied to it
-// explicitly below. Writing it as 0.448em
-// does not work: inside a heading show rule Typst has already scaled the text
-// to 1.4em or 1.2em, so an em there is not the body's.
-#let ex-ratio = 0.45
+// The ex-based skips below apply ex-ratio to the body size explicitly. Writing
+// them in em does not work: inside a heading show rule Typst has already scaled
+// the text to 1.4em or 1.2em, so an em there is not the body's.
 
 // The Times-based modes all share the 10pt ladder, so `body` and `indent`
 // default to it. They are arguments rather than fixed so a mode on a different

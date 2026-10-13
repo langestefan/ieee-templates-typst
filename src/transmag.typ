@@ -14,7 +14,7 @@
 //     reads "no abstract name, use indentation" (1em, bold)
 
 #import "common/geometry.typ": (
-  leading-for, line-advance, page-setup, quantize, sizes, tpt, with-size,
+  ex, line-advance, page-setup, quantize, sizes, tpt, vspace, with-size,
 )
 #import "common/authorblocks.typ": as-lines
 #import "common/headings.typ" as headings
@@ -24,9 +24,6 @@
 #import "common/parstart.typ": parstart
 #import "common/runninghead.typ": head-ascent, running-head
 #import "common/biography.typ": biography, biography-no-photo
-
-#let ex = 0.45 * sizes.normal.at(0)
-#let vspace(x) = x - leading-for(sizes.normal)
 
 // IEEEtran.cls:4808. \LARGE bold, where plain journal uses \Huge.
 #let title-size = (17 * tpt, 20 * tpt)

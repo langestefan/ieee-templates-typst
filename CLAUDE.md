@@ -101,7 +101,7 @@ baseline, which `elements.typ` reproduces.
 
 **`\vspace` and `v()` are not the same.** LaTeX's `\vspace` adds to the baselineskip, which already
 contains the interline gap. Typst's `v()` adds on top of `par.spacing`. A class value carried over
-directly overshoots by exactly that spacing, 1.99pt at 10pt. `journal.typ` has a `vspace()` helper that
+directly overshoots by exactly that spacing, 1.99pt at 10pt. `geometry.typ` has a `vspace()` helper that
 does the conversion.
 
 ## Critical context: upstream is frozen

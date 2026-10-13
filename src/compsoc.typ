@@ -148,7 +148,6 @@
 // heading, not the body. A level-one compsoc heading is set at sublargesize, so
 // its 3.5ex is 17.3pt rather than the 14.9pt the body size would give.
 #let ex-of(entry) = 0.448 * entry.at(0)
-#let ex = ex-of(sizes.normal)
 
 // IEEEtran.cls:5498-5507. Sans-serif throughout, bold small caps at the top
 // level. The negative before-skips in the class mark the following paragraph as

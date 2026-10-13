@@ -180,6 +180,17 @@
   block(height: slots * line-advance, width: 100%, body)
 }
 
+// Typst has no ex unit. TeX takes it from the font metrics, where Times has an
+// x-height of 0.45em. `ex` is that at the 10pt body size.
+#let ex-ratio = 0.45
+#let ex = ex-ratio * sizes.normal.at(0)
+
+// LaTeX's \vspace adds to the baselineskip, which already contains the inter-
+// line gap. Typst's v() adds on top of par.spacing instead, so a class value
+// carried over directly overshoots by exactly that spacing. Every one of these
+// gaps measured 2pt long before this correction, and par.spacing is 1.99pt.
+#let vspace(x) = x - leading-for(sizes.normal)
+
 // IEEEtran indents every paragraph, including the first after a heading.
 #let par-indent = 1 * tpc
 

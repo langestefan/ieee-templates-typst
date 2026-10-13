@@ -1,7 +1,8 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  line-advance, page-setup, quantize, sizes, text-width, vertical, with-size,
+  ex, line-advance, page-setup, quantize, sizes, text-width, vertical,
+  with-size,
 )
 #import "common/authorblocks.typ": as-lines, author-rows
 #import "common/authormark.typ": author-mark
@@ -27,7 +28,6 @@
 // affiliation lines. At 10pt Times, ex is 4.463pt, so affiliations advance
 // 12.27pt where the body advances 11.955pt. Over four affiliation lines that is
 // most of a point and a half, which shows up as drift in the second author row.
-#let ex = 0.45 * sizes.normal.at(0)
 #let name-advance = 2.6 * ex
 #let aff-advance = 2.75 * ex
 // Calibrated: the first affiliation line sits this much further below the

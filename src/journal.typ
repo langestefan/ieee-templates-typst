@@ -5,7 +5,8 @@
 // side-by-side author blocks, and 58 lines per column instead of 56.
 
 #import "common/geometry.typ": (
-  leading-for, line-advance, page-setup, quantize, sizes, vertical, with-size,
+  leading-for, line-advance, page-setup, quantize, sizes, vertical, vspace,
+  with-size,
 )
 #import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings
@@ -55,13 +56,6 @@
 // branch adds 1.34ex below the abstract where conference adds nothing.
 #let abstract-label = "Abstract"
 #let index-terms-label = "Index Terms"
-#let ex = 0.448 * sizes.normal.at(0)
-
-// LaTeX's \vspace adds to the baselineskip, which already contains the inter-
-// line gap. Typst's v() adds on top of par.spacing instead, so a class value
-// carried over directly overshoots by exactly that spacing. Every one of these
-// gaps measured 2pt long before this correction, and par.spacing is 1.99pt.
-#let vspace(x) = x - leading-for(sizes.normal)
 
 // The skips around the abstract are taken in the font in force there, 9pt
 // Times Bold, whose x-height is 0.461em.
