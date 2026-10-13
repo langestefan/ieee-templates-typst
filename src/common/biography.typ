@@ -26,11 +26,11 @@
 #let bio-drop(text-size, body) = (
   0.3 * (body.at(0) - text-size.at(0)) + leading-for(body)
 )
-#let bio-skip-fixed(text-size, body) = (
+#let bio-skip-fixed(text-size, body, drop) = (
   bio-skip-lines * text-size.at(1)
     + leading-for(text-size)
     - bio-rise(text-size, body)
-    - bio-drop(text-size, body)
+    - drop
 )
 
 // The fixed part allows for the `drop` under a biography before it. The first
@@ -58,19 +58,19 @@
 //
 // Without a photo the class breaks where TeX would anyway and leaves nothing
 // behind, so the fractional space is weak and goes with the break.
-#let bio-skip(text-size, body, need: none) = {
+#let bio-skip(text-size, body, drop, need: none) = {
   let (size, advance) = text-size
   let first = not after-bio.get()
   let fixed = (
-    bio-skip-fixed(text-size, body)
-      + if first { bio-drop(text-size, body) + list-topsep } else { 0pt }
+    bio-skip-fixed(text-size, body, drop)
+      + if first { drop + list-topsep } else { 0pt }
   )
   let room = if need == none { fixed + advance } else {
     (
       need
         + 0.3 * advance
         + if first {
-          bio-drop(text-size, body) + list-topsep + descent * size
+          drop + list-topsep + descent * size
         } else { 0pt }
     )
   }
@@ -151,20 +151,24 @@
 )
 
 // `text-size` and `body` default to the ladder the layout was given; Computer
-// Society papers pass their own.
+// Society papers pass their own, and their own `drop`, which is calibrated
+// there as their footnote drop is.
 #let biography(
   name: [],
   photo: none,
   text-size: auto,
   body: auto,
+  drop: auto,
   content,
 ) = context {
   let ladder = ladder-state.get()
   let text-size = if text-size == auto { ladder.footnote } else { text-size }
   let body = if body == auto { ladder.normal } else { body }
+  let drop = if drop == auto { bio-drop(text-size, body) } else { drop }
   bio-skip(
     text-size,
     body,
+    drop,
     need: photo-depth + (bio-skip-lines + 1) * text-size.at(1),
   )
   with-size(text-size, layout(size => {
@@ -186,7 +190,7 @@
     // next one does not run over the frame.
     pad(
       top: bio-rise(text-size, body),
-      bottom: if rest == none { bio-drop(text-size, body) } else { 0pt },
+      bottom: if rest == none { drop } else { 0pt },
       grid(
         columns: (photo-width, 1fr),
         column-gutter: photo-gap,
@@ -195,7 +199,7 @@
       ),
     )
     if rest != none {
-      pad(bottom: bio-drop(text-size, body), par(
+      pad(bottom: drop, par(
         first-line-indent: 0pt,
         justify: true,
         rest,
@@ -209,15 +213,17 @@
   name: [],
   text-size: auto,
   body: auto,
+  drop: auto,
   content,
 ) = context {
   let ladder = ladder-state.get()
   let text-size = if text-size == auto { ladder.footnote } else { text-size }
   let body = if body == auto { ladder.normal } else { body }
-  bio-skip(text-size, body)
+  let drop = if drop == auto { bio-drop(text-size, body) } else { drop }
+  bio-skip(text-size, body, drop)
   with-size(text-size, pad(
     top: bio-rise(text-size, body),
-    bottom: bio-drop(text-size, body),
+    bottom: drop,
     par(
       first-line-indent: 0pt,
       justify: true,

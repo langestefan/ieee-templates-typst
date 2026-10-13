@@ -187,6 +187,7 @@ if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
     # The itemised thanks are skipped: the reference sets the plain note half
     # a line below the last item, over it, and here it takes a line of its own.
     column "cs left column, every line" "$out/cs.pdf" "$ref" 0.25 '^(&#x2022;|Georgia|E-mail)'
+    column "cs right column, every line" "$out/cs.pdf" "$ref" 0.25 '^$' 1 9999 310
   fi
 else
   printf '  skip  %-34s no Palatino clone found\n' "compsoc"

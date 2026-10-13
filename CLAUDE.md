@@ -45,9 +45,9 @@ the paragraph indent was 2pt off for as long as only baselines were compared.
 
 `scripts/check.sh` asserts hand-picked landmarks on page one, mostly the title block and the first
 section, at whole points. It also runs `diff-columns.sh` on every column whose fixture carries its
-reference's text: both columns of the journal, Magnetics and technote fixtures, both pages of the
-one-column and peer review fixtures, and the left column of the conference and both Computer Society
-fixtures. When changing spacing, diff a whole column against the reference rather than trusting the
+reference's text: both columns of the journal, Magnetics, technote and Computer Society journal
+fixtures, both pages of the one-column and peer review fixtures, and the left column of the two
+conference fixtures. When changing spacing, diff a whole column against the reference rather than trusting the
 landmarks.
 
 `diff-columns.sh` marks a line whose text differs from the reference's with `!=`. Read those marks:

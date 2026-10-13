@@ -530,12 +530,14 @@
   photo: photo,
   text-size: sizes.footnote,
   body: sizes.normal,
+  drop: footnote-drop,
   body,
 ))
 #let biography-no-photo(name: [], body) = sans(base-biography-no-photo(
   name: name,
   text-size: sizes.footnote,
   body: sizes.normal,
+  drop: footnote-drop,
   body,
 ))
 

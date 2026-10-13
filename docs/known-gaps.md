@@ -43,9 +43,9 @@ point, which is the resolution of that script.
 
 Measured at a hundredth of a point with `scripts/diff-columns.sh`, every
 fixture that carries its reference's text agrees with it to about 0.1pt on
-every line: both columns of the journal, Magnetics and technote fixtures, both
-pages of the one-column and peer review fixtures, and the left column of the
-conference and both Computer Society fixtures. That runs from the title
+every line: both columns of the journal, Magnetics, technote and Computer
+Society journal fixtures, both pages of the one-column and peer review
+fixtures, and the left column of the two conference fixtures. That runs from the title
 through headings, appendices, the reference list and biographies to the
 footnotes, and the suite asserts it. What remains:
 
@@ -60,8 +60,11 @@ footnotes, and the suite asserts it. What remains:
   depth on every page, so without notes it is cautious by 2.7pt.
 - **The first biography is taken to follow the reference list.** Its skip
   includes the 2pt a list ends with. After anything else it is 2pt too large.
-- **Computer Society biographies** after the first sit 0.3pt and 0.7pt high
-  in the journal fixture's right column.
+- **The reference list's label gap and justification are Typst's.** The
+  list is laid out natively and no show rule reaches inside it. The gap after
+  a label is 0.65em of the list's size where the class has 0.5em, so entries
+  start 0.2pt further right, and a list of one entry that runs to two lines
+  is not justified.
 - **Computer Society `\thanks`.** The reference sets the plain note half a
   line below the last `\IEEEcompsocitemizethanks` item, over it, because the
   class takes a line back after the list (`IEEEtran.cls:4903`). Here the note
