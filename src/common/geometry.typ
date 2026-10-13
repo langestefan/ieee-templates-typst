@@ -303,6 +303,7 @@
   paper: "us-letter",
   columns: 2,
   pt: "10pt",
+  font: body-font,
   body,
 ) = {
   let body-size = scale(ladders.at(pt).normal)
@@ -321,7 +322,7 @@
   )
   set std.columns(gutter: column-gutter)
   ladder-state.update(sizes-for(pt))
-  set text(font: body-font, size: body-size.at(0), ..em-box)
+  set text(font: font, size: body-size.at(0), ..em-box)
   set par(
     justify: true,
     leading: leading-for(body-size),

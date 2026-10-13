@@ -14,7 +14,8 @@
 //     reads "no abstract name, use indentation" (1em of the body size, bold)
 
 #import "common/geometry.typ": (
-  ex, line-advance, page-setup, quantize, sizes, tpt, vspace, with-size,
+  body-font, ex, line-advance, page-setup, quantize, sizes, tpt, vspace,
+  with-size,
 )
 #import "common/authorblocks.typ": as-lines
 #import "common/headings.typ" as headings
@@ -106,6 +107,7 @@
 
 #let ieee-transmag(
   paper: "us-letter",
+  font: body-font,
   title: [],
   authors: [],
   affiliations: (),
@@ -118,7 +120,7 @@
   bibliography: none,
   body,
 ) = {
-  show: page-setup.with(mode: "journal", paper: paper)
+  show: page-setup.with(mode: "journal", paper: paper, font: font)
   show: headings.rules.with(mode: "transmag")
   show: floats.rules
   show: elements.rules

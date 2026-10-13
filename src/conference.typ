@@ -1,8 +1,8 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  ex-ratio, leading-for, line-advance, page-setup, quantize, sizes-for,
-  text-width, with-size,
+  body-font, ex-ratio, leading-for, line-advance, page-setup, quantize,
+  sizes-for, text-width, with-size,
 )
 #import "common/authorblocks.typ": as-lines, author-rows
 #import "common/authormark.typ": author-mark
@@ -77,6 +77,7 @@
 #let ieee-conference(
   paper: "us-letter",
   pt: "10pt",
+  font: body-font,
   title: [],
   authors: (),
   thanks: none,
@@ -86,7 +87,7 @@
   body,
 ) = {
   let sz = sizes-for(pt)
-  show: page-setup.with(mode: "conference", paper: paper, pt: pt)
+  show: page-setup.with(mode: "conference", paper: paper, pt: pt, font: font)
   show: headings.rules.with(mode: "conference", body: sz.normal)
   show: floats.rules.with(size: sz.footnote, advance: sz.normal.at(1))
   show: elements.rules.with(

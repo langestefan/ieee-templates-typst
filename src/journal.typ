@@ -5,7 +5,7 @@
 // side-by-side author blocks, and 58 lines per column instead of 56.
 
 #import "common/geometry.typ": (
-  leading-for, page-setup, quantize, sizes-for, vspace, with-size,
+  body-font, leading-for, page-setup, quantize, sizes-for, vspace, with-size,
 )
 #import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings
@@ -137,6 +137,7 @@
 #let ieee-journal(
   paper: "us-letter",
   pt: "10pt",
+  font: body-font,
   columns: 2,
   peerreview: false,
   technote: false,
@@ -152,7 +153,13 @@
   body,
 ) = {
   let sz = sizes-for(pt)
-  show: page-setup.with(mode: "journal", paper: paper, columns: columns, pt: pt)
+  show: page-setup.with(
+    mode: "journal",
+    paper: paper,
+    columns: columns,
+    pt: pt,
+    font: font,
+  )
   show: headings.rules.with(mode: "journal", body: sz.normal)
   show: floats.rules.with(size: sz.footnote, advance: sz.normal.at(1))
   show: elements.rules.with(

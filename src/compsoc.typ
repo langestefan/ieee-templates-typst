@@ -102,12 +102,14 @@
   )
 }
 
-#let page-setup(paper: "us-letter", mode: "journal", body) = {
+#let page-setup(paper: "us-letter", mode: "journal", font: auto, body) = {
   let conf = mode == "conference"
   let sz = if conf { conf-sizes } else { sizes }
   // Computer Society conferences are set in Times; only the journals use the
   // Palatino and Helvetica pairing.
-  let family = if conf { times-font } else { body-font }
+  let family = if font != auto { font } else if conf { times-font } else {
+    body-font
+  }
   let adv = if conf { conf-line-advance } else { line-advance }
   let g = geometry-for(paper, mode)
   set page(
@@ -141,7 +143,11 @@
 
 // Helvetica keeps its own word space: the class only retunes the roman family
 // (IEEEtran.cls:1070-1072).
-#let sans = text.with(font: heading-font, spacing: 100%)
+//
+// The face is held in a state so that `biography`, which the document calls
+// itself, follows the layout's `sans-font` argument.
+#let sans-family = state("ieee-compsoc-sans", heading-font)
+#let sans(body) = context text(font: sans-family.get(), spacing: 100%, body)
 
 // IEEEtran.cls:2548-2551 and 2579-2582. Arabic and hierarchical: 1, 1.1, 1.1.1.
 #let numbering-fn(..nums) = numbering("1.1.1.1", ..nums.pos())
@@ -225,7 +231,7 @@
       // A heading of two lines advances at its own size's baselineskip.
       #set par(leading: style.size.at(1) - sizes.normal.at(0))
       #set text(
-        font: heading-font,
+        font: sans-family.get(),
         size: style.size.at(0),
         weight: style.weight,
         style: style.style,
@@ -437,6 +443,7 @@
 
 #let ieee-compsoc-conference(
   paper: "us-letter",
+  font: times-font,
   title: [],
   authors: (),
   thanks: none,
@@ -445,7 +452,7 @@
   bibliography: none,
   body,
 ) = {
-  show: page-setup.with(paper: paper, mode: "conference")
+  show: page-setup.with(paper: paper, mode: "conference", font: font)
   show: conf-heading-rules
   show: floats.rules
   show: elements.rules.with(
@@ -560,6 +567,8 @@
 
 #let ieee-compsoc(
   paper: "us-letter",
+  font: body-font,
+  sans-font: heading-font,
   title: [],
   authors: [],
   header-left: [],
@@ -572,7 +581,8 @@
   bibliography: none,
   body,
 ) = {
-  show: page-setup.with(paper: paper)
+  sans-family.update(sans-font)
+  show: page-setup.with(paper: paper, font: font)
   show: heading-rules
   show: floats.rules
   show: elements.rules.with(

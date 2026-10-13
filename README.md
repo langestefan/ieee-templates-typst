@@ -76,8 +76,7 @@ typst compile --root . paper.typ
 The following points are important about fonts in IEEE papers:
 
 - IEEE requires Times. The templates ask for `Times New Roman`, then `TeX Gyre Termes`, then `Nimbus Roman`. All three are metric-compatible, meaning identical character widths, so which one you have changes no measurement in the output. At least one is present on most systems, and the latter two ship with most TeX distributions and Linux desktops.
-- Typst warns about the first missing family even when a
-fallback is used, so `unknown font family: times new roman` on a machine without it is only a warning.
+- Typst warns about every missing family even when a fallback is used, so `unknown font family: times new roman` on a machine without it is only a warning. To silence it, name the face you have: `#show: ieee-conference.with(font: "TeX Gyre Termes", ..)`. Every template takes `font`, and `ieee-compsoc` takes `sans-font` as well.
 - `ieee-compsoc` additionally needs Palatino and Helvetica, for which [TeX Gyre Pagella](https://ctan.org/pkg/tex-gyre-pagella) and Nimbus Sans are free choices.
 
 ## Choosing a template

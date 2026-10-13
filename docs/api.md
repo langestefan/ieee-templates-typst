@@ -8,6 +8,7 @@ Five layout functions and five helpers, all exported from `src/lib.typ`.
 |---|---|---|---|
 | `paper` | `"us-letter"` \| `"a4"` | `"us-letter"` | Both verified against IEEE renders |
 | `pt` | `"9pt"` … `"12pt"` | `"10pt"` | Only 10pt is verified; see [known gaps](known-gaps.md) |
+| `font` | string or array | the Times list | Body face. Name the one you have to silence Typst's warning about the others |
 | `title` | content | `[]` | Use `\` for a line break |
 | `authors` | array of dicts | `()` | See below |
 | `thanks` | content | `none` | Funding note; renders as an unmarked footnote on page 1 |
@@ -53,7 +54,7 @@ lines: `Michael Shell, _Member, IEEE,_ John Doe, _Fellow, OSA_`.
 
 ## `ieee-transmag`
 
-Transactions on Magnetics. Takes `paper`, `title`, `authors`, `header-left`, `header-right`, `twoside`,
+Transactions on Magnetics. Takes `paper`, `font`, `title`, `authors`, `header-left`, `header-right`, `twoside`,
 `thanks`, `abstract`, `index-terms` and `bibliography` as `ieee-journal` does, and adds one of its own:
 
 | Argument | Type | Notes |
@@ -67,11 +68,12 @@ There is no `pt`, `columns`, `technote` or `peerreview`: the class fixes all fou
 Both take the same arguments as `ieee-transmag` minus `affiliations`, and likewise have no `pt` or
 `columns`.
 
-`ieee-compsoc` adds one:
+`ieee-compsoc` adds two:
 
 | Argument | Type | Notes |
 |---|---|---|
 | `thanks-items` | array of content | `\IEEEcompsocitemizethanks`: bulleted affiliation notes set above `thanks`, under a rule |
+| `sans-font` | string or array | The Helvetica face of the front matter, headings and biographies. `font` is the Palatino body here |
 
 `ieee-compsoc` is a different design rather than a variant of the others: Palatino body at 9.5pt on
 11.54pt leading, 61 lines per column, Helvetica for the title, authors, abstract, running head and
