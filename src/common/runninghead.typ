@@ -17,6 +17,10 @@
 
 #let head-size = 7 * tpt
 
+// Distance from the text block up to the head, for `page.header-ascent`.
+// Calibrated to put the head's baseline at 31.2pt, as the references have it.
+#let head-ascent = 24.09pt
+
 #let running-head(
   left-text,
   right-text,

@@ -263,7 +263,18 @@
   diamond-line
 }
 
-#let header-ascent = 7pt
+#let header-ascent = 7.62pt
+
+// How far the footnote block is raised off the bottom of the text area; see
+// elements.typ. The journal value is calibrated to the reference, whose last
+// footnote baseline is at 744.2pt. No conference reference carries a footnote,
+// so that one is derived the same way as in the Times modes.
+#let footnote-drop = 1.4pt
+#let conf-footnote-drop = (
+  0.3 * (conf-sizes.normal.at(0) - conf-sizes.footnote.at(0))
+    + conf-line-advance
+    - conf-sizes.normal.at(0)
+)
 
 // Unlike the other modes, the compsoc title block is not quantised to the body
 // grid: no slot count reproduces the reference's first section position, and the
@@ -338,10 +349,10 @@
   show: page-setup.with(paper: paper, mode: "conference")
   show: conf-heading-rules
   show: floats.rules
-  show: elements.rules
+  show: elements.rules.with(footnote-drop: conf-footnote-drop)
   show: bibliography-rules.with(
     size: conf-sizes.footnote,
-    heading-gap: conf-refs-heading-gap,
+    heading-extra: conf-refs-heading-gap,
     item-gap: 0.5 * conf-sizes.footnote.at(1),
   )
 
@@ -409,7 +420,7 @@
   show: page-setup.with(paper: paper)
   show: heading-rules
   show: floats.rules
-  show: elements.rules
+  show: elements.rules.with(footnote-drop: footnote-drop)
 
   set page(
     header: running-head(header-left, header-right, twoside: twoside),
@@ -417,7 +428,7 @@
   )
   show: bibliography-rules.with(
     size: sizes.footnote,
-    heading-gap: refs-heading-gap,
+    heading-extra: refs-heading-gap,
   )
 
   place(

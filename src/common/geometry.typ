@@ -102,16 +102,20 @@
 // hardcoding reproduces every line count the class documents in its comments:
 // conference 9pt/61, 10pt/56, 11pt/50, 12pt/48, and journal 9pt/63, 10pt/58,
 // 11pt/52, 12pt/50.
+//
+// The class measures the top margin to the top of the ink, not to the top of a
+// line box: \IEEEsettopmargin subtracts the height of the sample text "gT"
+// (IEEEtran.cls:1104 and 1424-1427), so the first baseline sits one cap height
+// below the margin. Typst puts it 0.7em below, so the margin is raised by the
+// difference to land the baseline grid where the class has it.
+#let cap-height = 0.662
 #let vertical-for(mode, pt) = {
-  let advance = ladders.at(pt).normal.at(1)
+  let (size, advance) = ladders.at(pt).normal
   let want = requested.at(mode)
   let lines = calc.round(want.height / advance)
   let height = lines * advance
-  (
-    lines: lines,
-    height: height * tpt,
-    top: (want.top - (height - want.height) / 2) * tpt,
-  )
+  let top = want.top - (height - want.height) / 2 - (0.7 - cap-height) * size
+  (lines: lines, height: height * tpt, top: top * tpt)
 }
 
 // `slack` is the space added below the title block before quantising it to a

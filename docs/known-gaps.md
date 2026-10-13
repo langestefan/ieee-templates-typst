@@ -29,19 +29,15 @@ later pages has a reference.
 ## Measured differences that remain
 
 Every landmark asserted by `scripts/check.sh` matches its reference to within a
-point, which is the resolution of the measurement. Two are a further point out:
-the first section in one-column mode and the technote author line.
+point, which is the resolution of that script.
 
-Comparing whole columns rather than landmarks shows more:
+Measured at a hundredth of a point, the conference and journal fixtures agree
+with their references to 0.06pt on every line of the first column, from the
+title through headings, appendices and the reference list to the footnotes.
+The second author row is the exception at 0.2pt. What remains elsewhere:
 
-- **Heading gaps.** In journal mode the space above a section after the first
-  is 29pt baseline to baseline where the reference has 25 to 26, and above a
-  subsection 29 against 28. The space below a subsection is 13 against 15 in
-  both Times modes. The space above the References heading is 3pt short in
-  both.
 - **The peer-review title overleaf** sits in the first column and wraps, where
   the reference spans both columns.
-- **The footnote block** sits about 3pt lower than the reference.
 - **Running heads are uppercased whole**, including an "et al." that
   `bare_jrnl.tex` keeps lowercase with `\MakeLowercase`.
 
@@ -51,12 +47,6 @@ Comparing whole columns rather than landmarks shows more:
 the drop cap or photo, and they do it on plain text. Citations, math, emphasis
 and footnotes inside the body are lost, and a biography of several paragraphs
 is run together. Keep such content out of those two bodies for now.
-
-The journal drop cap was 1pt out for a long time. It turned out not to be the
-cap at all: the space below a level-one heading was 1pt short in both Times
-modes, so the whole first paragraph sat high and the cap with it. The class says
-0.7ex; 0.8ex matches. The checks had asserted where headings sit but not where
-the text after them starts, which is why it survived so long.
 
 Computer Society heading spacing was previously off by 8pt after the first
 section and about 3pt per heading after that. The class's stated skips carried

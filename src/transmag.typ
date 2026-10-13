@@ -22,10 +22,10 @@
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
 #import "common/parstart.typ": parstart
-#import "common/runninghead.typ": running-head
+#import "common/runninghead.typ": head-ascent, running-head
 #import "common/biography.typ": biography, biography-no-photo
 
-#let ex = 0.448 * sizes.normal.at(0)
+#let ex = 0.45 * sizes.normal.at(0)
 #let vspace(x) = x - leading-for(sizes.normal)
 
 // IEEEtran.cls:4808. \LARGE bold, where plain journal uses \Huge.
@@ -33,16 +33,19 @@
 
 // Calibrated the same way as the other title-internal gaps, to put the title
 // baseline at 72pt and the author names at 123pt.
-#let title-top-space = 2pt
-#let title-author-gap = 17pt
+#let title-top-space = 2.86pt
+#let title-author-gap = 16.64pt
 
 // IEEEtran.cls:4584. Affiliation lines advance 2.75ex, as in conference mode.
 #let affiliation-advance = 2.75 * ex
+// Calibrated, as in conference mode: the first affiliation line sits this much
+// further below the author line than the paragraph spacing alone gives.
+#let author-aff-gap = 0.23pt
 
 // Space from the last affiliation to the abstract, and from the abstract to the
 // index terms. Calibrated against the reference.
-#let abstract-above = 19pt
-#let index-terms-above = 16pt
+#let abstract-above = 18.77pt
+#let index-terms-above = 16.49pt
 
 #let index-terms-label = "Index Terms"
 // Slack below the title block before quantising, as in geometry.typ's vertical
@@ -73,6 +76,7 @@
   with-size(sizes.sublarge, [#as-lines(authors)#note])
 
   // Affiliations are numbered lines, one per organisation.
+  v(author-aff-gap)
   with-size((sizes.normal.at(0), affiliation-advance), {
     for (i, a) in affiliations.enumerate() {
       [#mark(i + 1)#a]
@@ -124,7 +128,7 @@
 
   set page(
     header: running-head(header-left, header-right, twoside: twoside),
-    header-ascent: 25pt,
+    header-ascent: head-ascent,
   )
   place(
     top,

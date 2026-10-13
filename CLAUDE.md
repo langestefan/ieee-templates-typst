@@ -40,17 +40,18 @@ verified, and early measurements taken that way were wrong.
 `scripts/check.sh` asserts hand-picked landmarks on page one, mostly the title block and the first
 section. Baselines are integers, so a match means within a point. Passing it does not show that a layout
 is right further down the page: the fixtures are not content-identical to the `bare_*.tex` files, so
-nothing below the first section is compared. When changing spacing, diff a whole column against the
-reference with `baselines.sh` rather than trusting the suite.
+nothing below the first section is compared, except in `tests/conference.typ` and `tests/journal.typ`,
+which do match their references line for line. When changing spacing, diff a whole column against the
+reference rather than trusting the suite.
+
+Ghostscript reports whole points at its default 72dpi. Running `txtwrite` with `-r7200` gives baselines
+to a hundredth of a point, which is what the spacing constants were calibrated with. Whole-point
+agreement hid errors of half a point for a long time.
 
 ### Known gaps
 
 `docs/known-gaps.md` is the maintained list. The ones most likely to matter while working here:
 
-- **Heading skips are miscalibrated.** `ex` in `headings.typ` is em-relative and resolves inside the
-  heading show rule, where Typst has already scaled the text to 1.4em and 1.2em. Journal headings after
-  the first sit up to 4pt low. Fixing it moves the first section, so `index-terms-below` in `journal.typ`
-  has to be recalibrated with it.
 - **`parstart` and `biography` flatten their body to plain text**, losing citations, math and emphasis.
 - **Last-page column balancing and `\flushbottom`** have no Typst equivalent. `#colbreak()` is the manual
   remedy for the first.
@@ -83,6 +84,16 @@ Both caused real, hard-to-spot errors here.
 **Heading skips differ by mode.** Conference uses 1.5ex above sections and subsections; journal uses
 3.0ex and 3.5ex (`IEEEtran.cls:5466-5476`). Applying one mode's values to the other is silent and shifts
 everything below.
+
+**`em` inside a heading show rule is not the body's.** Typst has already scaled the text to 1.4em or
+1.2em there, so a skip written in `em` comes out that much too large. `headings.typ` computes `ex` from
+the body size instead. A block's `above` and `below` also replace the paragraph leading rather than add
+to it, so the leading is added back.
+
+**The top margin is measured to the ink.** `\IEEEsettopmargin` subtracts the height of a capital, so the
+first baseline sits one cap height below the margin, where Typst puts it 0.7em below. `vertical-for`
+raises the margin by the difference. The same reasoning puts the last footnote line on the last body
+baseline, which `elements.typ` reproduces.
 
 **`\vspace` and `v()` are not the same.** LaTeX's `\vspace` adds to the baselineskip, which already
 contains the interline gap. Typst's `v()` adds on top of `par.spacing`. A class value carried over

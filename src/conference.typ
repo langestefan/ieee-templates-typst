@@ -9,15 +9,15 @@
 #import "common/headings.typ": appendices
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
-#import "common/elements.typ": runin-section
+#import "common/elements.typ": runin-depth, runin-height, runin-section
 
 // Space above the title and between the title and the author blocks. The class
 // specifies 0.5\baselineskip (IEEEtran.cls:4748) and \vskip1.0em (4809), but
 // those are measured against TeX's \topskip rule for the first line of a box,
 // which Typst has no equivalent of. These are calibrated to put the title
 // baseline at 71pt and the author names at 131pt, matching the reference.
-#let title-top-space = 2pt
-#let title-author-gap = 15pt
+#let title-top-space = 2.62pt
+#let title-author-gap = 14.54pt
 
 #let abstract-label = "Abstract"
 #let index-terms-label = "Index Terms"
@@ -27,9 +27,12 @@
 // affiliation lines. At 10pt Times, ex is 4.463pt, so affiliations advance
 // 12.27pt where the body advances 11.955pt. Over four affiliation lines that is
 // most of a point and a half, which shows up as drift in the second author row.
-#let ex = 0.448 * sizes.normal.at(0)
+#let ex = 0.45 * sizes.normal.at(0)
 #let name-advance = 2.6 * ex
 #let aff-advance = 2.75 * ex
+// Calibrated: the first affiliation line sits this much further below the
+// name than the paragraph spacing alone gives.
+#let name-aff-gap = 0.23pt
 
 #let author-cell(a) = align(
   center,
@@ -40,6 +43,7 @@
     )
     let aff = a.at("affiliation", default: none)
     if aff != none {
+      v(name-aff-gap)
       with-size((sizes.normal.at(0), aff-advance), as-lines(aff))
     }
   },
@@ -92,6 +96,7 @@
   let note = elements.thanks-note(thanks)
   let placed = false
 
+  if abstract != none or index-terms != none { v(runin-height()) }
   if abstract != none {
     runin-section(abstract-label, [#note#abstract])
     placed = true
@@ -101,7 +106,7 @@
     runin-section(index-terms-label, [#lead#index-terms])
     placed = true
   }
-  if not placed { note }
+  if placed { v(runin-depth()) } else { note }
 
   body
 

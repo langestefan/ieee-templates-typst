@@ -12,40 +12,44 @@
 #import "common/headings.typ": appendices
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
-#import "common/elements.typ": runin-section
+#import "common/elements.typ": runin-depth, runin-height, runin-section
 #import "common/parstart.typ": parstart
-#import "common/runninghead.typ": running-head
+#import "common/runninghead.typ": head-ascent, running-head
 #import "common/biography.typ": biography, biography-no-photo
 
 // Calibrated against IEEE_Journal_Paper_Template.pdf the same way as the
 // conference constants: these put the title baseline at 77pt and the author
 // line at 128pt.
-#let title-top-space = 2pt
-#let title-author-gap = 7pt
+#let title-top-space = 2.62pt
+#let title-author-gap = 6.48pt
 
 // One column places the title without the float and quantisation the two-column
 // path needs, and the reference sits it 8pt higher than the two-column title
 // despite an identical top margin, verified from page two's body start. The
 // cause is in LaTeX's \@maketitle path for single-column mode and is not
 // pinned down, so this is calibrated like the other title-internal gaps.
-#let title-top-space-onecolumn = -6pt
+#let title-top-space-onecolumn = -5.35pt
 
 // Calibrated to put the technote title baseline at 78pt, as the reference does.
-#let technote-title-top = -2pt
+#let technote-title-top = -1.33pt
+// IEEEtran.cls:4804-4806 has \vskip 1.3em under the title and nothing explicit
+// under the authors; both are calibrated to the reference.
+#let technote-title-author-gap = 11.65pt
+#let technote-body-gap = 16.34pt
 
 // The peerreview cover sets its abstract closer to the author line than the
 // one-column journal does. Calibrated to the reference's 146pt.
-#let peerreview-body-gap = 1.5 * line-advance
+#let peerreview-body-gap = 1.5 * line-advance + 0.38pt
 
 // IEEEtran.cls:4955-4959. One-column journal puts 2.5\baselineskip between the
 // title block and the text, and \abstract adds a further 0.5 above its centred
 // label (5279).
-#let title-body-gap = 3 * line-advance
+#let title-body-gap = 3 * line-advance + 0.38pt
 // Space above the centred Index Terms label in one-column mode. The class has
 // \addvspace{0.5\baselineskip} here (IEEEtran.cls:5279) but that lands 8pt
 // short against the reference, so this is calibrated like the other one-column
 // title gaps.
-#let index-terms-above = 8pt
+#let index-terms-above = 7.84pt
 
 // IEEEtran.cls:5277 and 5283. Both label and body are bold, and the journal
 // branch adds 1.34ex below the abstract where conference adds nothing.
@@ -59,12 +63,22 @@
 // gaps measured 2pt long before this correction, and par.spacing is 1.99pt.
 #let vspace(x) = x - leading-for(sizes.normal)
 
-// IEEEtran.cls:5283. The journal branch of \endabstract adds 1.34ex; the
-// conference branch adds nothing.
-#let abstract-below = vspace(1.34 * ex)
+// The skips around the abstract are taken in the font in force there, 9pt
+// Times Bold, whose x-height is 0.461em.
+#let ex-abstract = 0.461 * sizes.small.at(0)
 
-// IEEEtran.cls:5292. \endIEEEkeywords adds 0.67ex below the index terms.
-#let index-terms-below = vspace(0.67 * ex)
+// IEEEtran.cls:5283. The journal branch of \endabstract adds 1.34ex; the
+// conference branch adds nothing. The index terms that follow are set on the
+// 9pt advance, so the leading that vspace() takes out is put back at that size.
+#let abstract-below = vspace(1.34 * ex-abstract) + leading-for(sizes.small)
+
+// IEEEtran.cls:5292. \endIEEEkeywords adds 0.67ex below the index terms, or
+// 1.34ex in a technote, in the 9pt font still in force there. Not passed through vspace(): what follows
+// is normally a heading, whose own space above already stands in for the
+// paragraph spacing.
+#let index-terms-below(technote) = (
+  (if technote { 1.34 } else { 0.67 }) * ex-abstract + runin-depth()
+)
 
 // IEEEtran.cls:5277-5281. In one-column mode the abstract is not run in: the
 // label is centred and bold on its own line, and the text follows inside a
@@ -107,13 +121,13 @@
   set align(center)
   v(technote-title-top)
   with-size(sizes.large, text(weight: "bold", title))
-  v(1.3em)
+  v(technote-title-author-gap)
   // \@IEEEauthordefaulttextstyle is \normalfont\sublargesize
   // (IEEEtran.cls:4555), so the author line is 11pt. Its advance stays at the
   // body's 12 TeX pt though, not sublargesize's 13.4: the reference measures
   // 12 between the two author lines.
   with-size((sizes.sublarge.at(0), sizes.normal.at(1)), authors)
-  v(vspace(1.4 * line-advance))
+  v(technote-body-gap)
 }
 
 #let ieee-journal(
@@ -141,7 +155,7 @@
 
   set page(
     header: running-head(header-left, header-right, twoside: twoside),
-    header-ascent: 25pt,
+    header-ascent: head-ascent,
   )
 
   // A technote keeps its title inside the first column, so like the one-column
@@ -206,6 +220,12 @@
   let placed = false
 
   let one-col = columns == 1
+  // Only where the run-in sections open a column, under the spanning title.
+  if (
+    not one-col and not technote and (abstract != none or index-terms != none)
+  ) {
+    v(runin-height())
+  }
   let section-form(label, body, above: 0pt) = if one-col {
     block-section(label, body, above: above)
   } else { runin-section(label, body) }
@@ -226,7 +246,7 @@
       [#lead#index-terms],
       above: index-terms-above,
     )
-    v(index-terms-below)
+    v(index-terms-below(technote))
     placed = true
   }
   if not placed { note }
