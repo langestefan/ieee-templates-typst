@@ -5,8 +5,7 @@
 // IEEEtran.cls:5467-5482, and the run-in behaviour from 5387 and 5416.
 
 #import "geometry.typ": (
-  leading-for, line-advance as default-advance, par-indent as default-indent,
-  sizes as default-sizes, with-size,
+  leading-for, par-indent as default-indent, sizes as default-sizes, with-size,
 )
 
 // Typst has no ex unit. TeX takes it from the font metrics, where Times has

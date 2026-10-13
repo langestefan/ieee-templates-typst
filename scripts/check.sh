@@ -122,8 +122,7 @@ if build tests/journal-onecolumn.typ jrnl1; then
   check "1col authors"    "$(baseline "$out/jrnl1.pdf" 1 'Michael')"     "$(baseline "$ref" 1 'Michael')"
   check "1col abstract"   "$(baseline "$out/jrnl1.pdf" 1 'Abstract')"    "$(baseline "$ref" 1 'Abstract')"
   check "1col index terms" "$(baseline "$out/jrnl1.pdf" 1 'Index Terms')" "$(baseline "$ref" 1 'IndexTerms')"
-  # 1pt: see the one-column calibration note in journal.typ.
-  check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')" 1
+  check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')"
 fi
 
 echo "transactions on magnetics"
@@ -235,7 +234,7 @@ if build tests/technote.typ tn; then
   ref=reference/pdf/IEEE_Journal_Technote.pdf
   check "technote head"     "$(baseline "$out/tn.pdf" 1 'JOURNAL OF')" "$(baseline "$ref" 1 'JOURNALOF')"
   check "technote title"    "$(baseline "$out/tn.pdf" 1 'Bare Demo')"  "$(baseline "$ref" 1 'BareDemo')"
-  check "technote authors"  "$(baseline "$out/tn.pdf" 1 'Michael')"    "$(baseline "$ref" 1 'MichaelShell')" 1
+  check "technote authors"  "$(baseline "$out/tn.pdf" 1 'Michael')"    "$(baseline "$ref" 1 'MichaelShell')"
   check "technote abstract" "$(baseline "$out/tn.pdf" 1 'Abstract')"   "$(baseline "$ref" 1 'Abstract')"
 fi
 if build tests/peerreview.typ pr; then

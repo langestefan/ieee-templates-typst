@@ -7,8 +7,7 @@ scripts/check.sh
 ```
 
 Compiles every template and asserts landmark baselines against IEEE's compiled reference PDFs in
-`reference/pdf/`. Baselines are measured in whole points, so a match means within a point. Two landmarks
-are allowed a further point: the first section in one-column mode and the technote author line.
+`reference/pdf/`. Baselines are measured in whole points, so a match means within a point.
 
 `tests/` holds a Typst port of each `bare_*.tex`, one per mode, which is what `check.sh` measures. They
 are verification fixtures rather than things to start a paper from; `template/main.typ` is that.
