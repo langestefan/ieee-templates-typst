@@ -56,7 +56,8 @@ agreement hid errors of half a point for a long time.
 
 `docs/known-gaps.md` is the maintained list. The ones most likely to matter while working here:
 
-- **`parstart` and `biography` flatten their body to plain text**, losing citations, math and emphasis.
+- **`parstart` and `biography` split their body between words.** Markup survives, but a paragraph break
+  inside becomes a line break and an indent, and the first word of a `parstart` body is plain text.
 - **Last-page column balancing and `\flushbottom`** have no Typst equivalent. `#colbreak()` is the manual
   remedy for the first.
 - **`pt` other than 10pt** changes the page geometry and body text only. Headings, abstract and the

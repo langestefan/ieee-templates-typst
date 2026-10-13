@@ -2,7 +2,7 @@
 // Ported from IEEEtran.cls:5815-5830.
 
 #import "geometry.typ": line-advance as default-advance, sizes as default-sizes
-#import "textsplit.typ": as-text, split-at-height
+#import "textsplit.typ": plain, split-at-height, words
 
 // IEEEtran.cls:5824. The letter is lowered this far below the first baseline,
 // and its height is that depth plus the cap height of the body font.
@@ -25,18 +25,17 @@
   let drop-depth = 1.1 * advance
   let cap-size = (drop-depth + cap-ratio * base) / cap-ratio
   let cap-gap = cap-gap-ratio * cap-size
-  let full = as-text(body)
-  if full == "" { return body }
+  let ws = words(body)
+  // Only the first word is reduced to plain text, to take its first letter.
+  let first = if ws.len() == 0 { "" } else { plain(ws.first().body) }
+  if first == "" { return body }
 
-  let letter = full.first()
-  let after = full.slice(letter.len())
-
+  let letter = first.clusters().first()
   // IEEEtran renders the remainder of the first word in upper case.
-  let space-at = after.position(" ")
-  let word-rest = if space-at == none { after } else {
-    after.slice(0, space-at)
+  let word-rest = upper(first.slice(letter.len()))
+  let opening = if word-rest == "" { ws.slice(1) } else {
+    ((sep: "", body: word-rest),) + ws.slice(1)
   }
-  let tail = if space-at == none { "" } else { after.slice(space-at + 1) }
 
   // The cap must carry its own edges. Modes that pin top-edge as an absolute
   // length, as the Computer Society layouts do, would otherwise give this 28pt
@@ -52,11 +51,14 @@
 
   layout(size => {
     let indent-width = size.width - cap-width - cap-gap
-    let opening = upper(word-rest) + " " + tail
-
     let line-h = measure(block(width: indent-width, "M")).height
     let limit = line-h + (drop-lines - 1) * advance + 0.5pt
-    let (head, rest) = split-at-height(opening, indent-width, limit)
+    let (head, rest) = split-at-height(
+      opening,
+      indent-width,
+      limit,
+      indent: par.first-line-indent.amount,
+    )
 
     // The cap's baseline sits drop-depth below the first line's baseline, which
     // lands it on the second. place() measures from the top of the block rather
@@ -71,6 +73,6 @@
       place(top + left, box(height: 0pt, move(dy: dy, cap)))
       pad(left: cap-width + cap-gap, par(first-line-indent: 0pt, head))
     })
-    if rest != "" { par(first-line-indent: 0pt, rest) }
+    if rest != none { par(first-line-indent: 0pt, rest) }
   })
 }

@@ -5,7 +5,7 @@
 // width under a bold name.
 
 #import "geometry.typ": leading-for, sizes as default-sizes, with-size
-#import "textsplit.typ": as-text, split-at-height
+#import "textsplit.typ": split-at-height, words
 
 // IEEEtran.cls:5982-5983 and 5989.
 #let photo-width = 1.0in
@@ -94,16 +94,16 @@
   bio-skip(text-size, body)
   with-size(text-size, layout(size => {
     let lead = text(weight: "bold", name)
-    let full = as-text(content)
     let indent-width = size.width - photo-width - photo-gap
 
     // The name leads the same paragraph, so it is measured with each candidate
     // split rather than after the fact.
     let (head, rest) = split-at-height(
-      full,
+      words(content),
       indent-width,
       text-size.at(0) + (hang-lines(text-size) - 1) * text-size.at(1) + 0.5pt,
       prefix: lead,
+      indent: par.first-line-indent.amount,
     )
 
     // A grid rather than a placed box: the row takes the height of whichever is
@@ -111,7 +111,7 @@
     // next one does not run over the frame.
     pad(
       top: bio-rise(text-size, body),
-      bottom: if rest == "" { bio-drop(text-size, body) } else { 0pt },
+      bottom: if rest == none { bio-drop(text-size, body) } else { 0pt },
       grid(
         columns: (photo-width, 1fr),
         column-gutter: photo-gap,
@@ -119,7 +119,7 @@
         par(first-line-indent: 0pt, justify: true)[#lead #head],
       ),
     )
-    if rest != "" {
+    if rest != none {
       pad(bottom: bio-drop(text-size, body), par(
         first-line-indent: 0pt,
         justify: true,

@@ -57,12 +57,20 @@ footnotes. What remains:
   matches and the lines above it sit 4.5pt high.
 - **The photo placeholder text** sits 1.1pt high inside its frame.
 
-## Content the helpers do not preserve
+## Content the helpers split
 
 `parstart` and `biography` have to split a paragraph to set its opening beside
-the drop cap or photo, and they do it on plain text. Citations, math, emphasis
-and footnotes inside the body are lost, and a biography of several paragraphs
-is run together. Keep such content out of those two bodies for now.
+the drop cap or photo. They cut it between words and keep what each word
+carries, so citations, math, emphasis and footnotes survive. Three limits
+remain:
+
+- The first word of a `parstart` body is reduced to plain text, since the drop
+  cap takes its first letter.
+- Styling set with a function other than emphasis, strong, underline, overline,
+  strike, highlight, small caps or `text` moves as one piece and is not broken
+  across the split.
+- A paragraph break inside either body becomes a line break and an indent, as
+  the class does inside a biography (`IEEEtran.cls:6033`).
 
 Computer Society heading spacing was previously off by 8pt after the first
 section and about 3pt per heading after that. The class's stated skips carried

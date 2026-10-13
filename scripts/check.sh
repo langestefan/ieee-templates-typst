@@ -358,6 +358,30 @@ else
   fail=$((fail + 1))
 fi
 
+echo "markup in split bodies"
+# parstart and biography cut their body in two to set it beside the drop cap or
+# the photo. Whatever the body carries has to survive that.
+cat > "$out/markup.typ" <<'TYP'
+#import "/src/lib.typ": *
+#show: ieee-journal.with(title: [T], authors: [A])
+= Intro
+#parstart[Opening _word_ cites @eason1955 and sets $a^2 + b^2 = c^2$ before a note#footnote[Kept apart.] and enough further text to run past the two lines beside the drop cap.]
+
+#biography(name: [A. Author])[First with @eason1955 and $x^2$.
+
+Second paragraph.]
+#bibliography("/tests/refs.bib")
+TYP
+if build "$out/markup.typ" markup; then
+  text=$(pdftotext -layout "$out/markup.pdf" - | tr -s ' \n' ' ')
+  has() { case "$text" in *"$2"*) check "$1" 1 1 ;; *) check "$1" 0 1 ;; esac; }
+  has "parstart keeps a citation" "cites [1] and"
+  has "parstart keeps math"       "2 + "
+  has "parstart keeps a footnote" "1 Kept apart."
+  has "biography keeps a citation" "First with [1] and"
+  has "biography keeps paragraphs" "2 . Second paragraph."
+fi
+
 echo "geometry invariants"
 cols=$(./scripts/baselines.sh "$out/conf.pdf" 1 300 | wc -l)
 printf '  info  %-34s %s baselines in left column\n' "conference column" "$cols"
