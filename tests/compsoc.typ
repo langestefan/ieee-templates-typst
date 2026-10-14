@@ -8,6 +8,7 @@
 // wide:
 //   typst compile --root . --font-path <dir> template/compsoc.typ
 
+#import "/tests/logo.typ": latex
 #import "/src/compsoc.typ": (
   appendices, biography, biography-no-photo, ieee-compsoc, parstart,
 )
@@ -20,19 +21,23 @@
   ],
   header-left: [Journal of LaTeX Class Files, Vol. 14, No. 8, August 2015],
   header-right: [Shell #emph[et al.]: Bare Demo of IEEEtran.cls for IEEE Computer Society Journals],
-  thanks: [
-    M. Shell was with the Department of Electrical and Computer Engineering,
-    Georgia Institute of Technology, Atlanta, GA, 30332 USA.
-    #linebreak() Manuscript received April 19, 2005; revised August 26, 2015.
-  ],
+  thanks-items: (
+    [M. Shell was with the Department of Electrical and Computer Engineering,
+      Georgia Institute of Technology, Atlanta, GA, 30332. \
+      E-mail: see #box[http:\/\/www.michaelshell.org/contact.html]],
+    [J. Doe and J. Doe are with Anonymous University.],
+  ),
+  thanks: [Manuscript received April 19, 2005; revised August 26, 2015.],
   abstract: [The abstract goes here.],
-  index-terms: [Computer Society, IEEE, IEEEtran, journal, LaTeX, paper, template.],
+  index-terms: [Computer Society, IEEE, IEEEtran, journal, #latex, paper, template.],
 )
 
 = Introduction
-#parstart[This demo file is intended to serve as a "starter file" for IEEE Computer Society journal papers produced under LaTeX using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
+#parstart[This demo file is intended to serve as a "starter file" for IEEE Computer Society journal papers produced under #latex using IEEEtran.cls version 1.8b and later. I wish you the best of success.]
 
-#align(right)[mds \ August 26, 2015]
+#align(right)[mds]
+
+#align(right)[August 26, 2015]
 
 == Subsection Heading Here
 Subsection text here.
@@ -51,10 +56,12 @@ Appendix one text goes here.
 Appendix two text goes here.
 
 #heading(numbering: none)[Acknowledgments]
-The authors would like to thank\u{2026}
+The authors would like to thank\.\.\.
 
 #bibliography("refs.bib")
 
 #biography(name: [Michael Shell])[Biography text here.]
 
 #biography-no-photo(name: [John Doe])[Biography text here.]
+
+#biography-no-photo(name: [Jane Doe])[Biography text here.]

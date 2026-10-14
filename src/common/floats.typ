@@ -6,8 +6,8 @@
 
 #import "geometry.typ": line-advance, sizes, with-size
 
-// IEEEtran.cls:2697. Space between a float and its caption.
-#let caption-skip = 0.5 * line-advance
+// IEEEtran.cls:2697. Space between a float and its caption, in body lines.
+#let caption-skip = 0.5
 
 // IEEEtran.cls:2607-2608. These are the caption forms.
 #let figure-supplement = "Fig."
@@ -19,10 +19,9 @@
 // kept apart. IEEE's own 062824 wrapper asks for "Table I" and "Fig. 1" in text.
 #let table-reference-supplement = "Table"
 
-#let caption-text(body) = with-size(sizes.footnote, body)
-
-#let rules(body) = {
-  set figure(placement: auto, gap: caption-skip)
+#let rules(size: sizes.footnote, advance: line-advance, body) = {
+  let caption-text = with-size.with(size)
+  set figure(placement: auto, gap: caption-skip * advance)
 
   show figure.where(kind: image): set figure(
     supplement: figure-supplement,
@@ -63,7 +62,7 @@
       // fits on one line, otherwise wrapped flush left (IEEEtran.cls:2784-2792).
       let head = [#it.supplement~#num.]
       let full = [#head\u{00A0}\u{00A0}#it.body]
-      caption-text(layout(size => context {
+      caption-text(layout(size => {
         let fits = measure(full).width <= size.width
         align(if fits { center } else { left }, full)
       }))

@@ -4,19 +4,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository status
 
-Conference and journal layouts both render and are verified against the reference PDFs. Build either
-template with:
+Five layouts render and are checked against the reference PDFs: `ieee-conference`, `ieee-journal` with
+its `columns: 1`, `technote` and `peerreview` variants, `ieee-transmag`, `ieee-compsoc` and
+`ieee-compsoc-conference`. `tests/` holds a Typst port of each `bare_*.tex`, and `template/main.typ` is
+the starter that `typst init` copies.
 
 ```bash
-typst compile --root . template/main.typ out.pdf              # bare conference demo
-typst compile --root . template/conference-062824.typ out.pdf # IEEE's official wrapper, 6 authors
-typst compile --root . template/journal.typ out.pdf           # journal
-scripts/check.sh                                              # regression suite, 29 checks
+typst compile --root . tests/conference.typ out.pdf         # bare conference demo
+typst compile --root . tests/conference-062824.typ out.pdf  # IEEE's official wrapper, 6 authors
+typst compile --root . tests/journal.typ out.pdf            # journal
+scripts/check.sh                                            # regression suite
+scripts/update-previews.sh                                  # README previews and thumbnail.png
 ```
 
-Both modes take `paper: "us-letter"` or `paper: "a4"`. Beyond the layout functions, `src/lib.typ`
-exports `parstart` for the journal drop cap, `appendices`, `biography` and `biography-no-photo`, and
-`author-mark` for affiliation symbols.
+Every layout takes `paper: "us-letter"` or `paper: "a4"`. Beyond the layout functions, `src/lib.typ`
+exports `parstart` for the journal drop cap, `appendices`, `biography` and `biography-no-photo`,
+`author-mark` for affiliation symbols, and `subequations`.
+
+Helpers shared by the layouts live in `src/common/`. Check there before writing a new one in a layout
+file: title quantising is in `geometry.typ`, run-in sections and the `thanks` note in `elements.typ`,
+the reference list rule in `headings.typ`, and author-row packing in `authorblocks.typ`.
 
 Everything under `reference/` is third-party material and is the **specification to port from**, not code
 to modify or wrap.
@@ -28,41 +35,55 @@ device. Use it, not `pdftotext`: `pdftotext` only exposes ink bounding boxes, wh
 depending on whether a line contains descenders. That is the same magnitude as the spacing being
 verified, and early measurements taken that way were wrong.
 
+`scripts/diff-columns.sh <pdf> <ref-pdf> [page] [max-x] [tolerance] [min-x] [x-tolerance]` pairs every
+baseline in a column with the reference's, to a hundredth of a point, and fails if any differs by more
+than the tolerance. The two documents must carry the same text. It also prints how far each line's left
+and right edges are from the reference's. Read those columns: the suite does not assert them yet, and
+the paragraph indent was 2pt off for as long as only baselines were compared.
+
 `scripts/verify-geometry.sh` compares text-block extent and line counts between two PDFs.
 
-Current agreement with the references, in points:
+`scripts/check.sh` asserts hand-picked landmarks on page one, mostly the title block and the first
+section, at whole points. It also runs `diff-columns.sh` on every column whose fixture carries its
+reference's text: both columns of the journal, Magnetics, technote and Computer Society journal
+fixtures, both pages of the one-column and peer review fixtures, and the left column of the two
+conference fixtures. When changing spacing, diff a whole column against the reference rather than trusting the
+landmarks.
 
-| landmark | conference | 062824 | journal |
-|---|---|---|---|
-| title | exact | exact | exact |
-| authors | exact | row 1 exact, row 2 +1 | +1 |
-| abstract | exact | exact | exact |
-| index terms | — | — | exact |
-| first section | exact | — | exact |
-| drop cap | — | — | −1 |
+`diff-columns.sh` marks a line whose text differs from the reference's with `!=`. Read those marks:
+a paragraph that breaks at other words keeps its line count and its baselines, and for a long time
+nothing showed it.
+
+Ghostscript reports whole points at its default 72dpi. Running `txtwrite` with `-r7200` gives baselines
+to a hundredth of a point, which is what the spacing constants were calibrated with. Whole-point
+agreement hid errors of half a point for a long time.
 
 ### Known gaps
 
-- **Last-page column balancing.** Typst fills page-level columns sequentially and offers no balancing,
-  so a final page leaves column one full and column two short. `#colbreak()` at the right point is the
-  manual remedy and works fine.
-- `IEEEeqnarray` multi-line equation layout has no Typst analogue and is not attempted.
-- `compsoc`, `comsoc`, `transmag`, `technote` and `peerreview` modes are untouched, as are point sizes
-  other than 10pt. Four of those modes already have reference renders in `reference/pdf/`.
-- `author-row-gap` in `conference.typ` rests on a single document: 062824 is the only reference render
-  with more than one author row.
+`docs/known-gaps.md` is the maintained list. The ones most likely to matter while working here:
+
+- **`parstart` and `biography` split their body between words.** Markup survives, but a paragraph break
+  inside becomes a line break and an indent, and the first word of a `parstart` body is plain text.
+- **Last-page column balancing and `\flushbottom`** have no Typst equivalent. `#colbreak()` is the manual
+  remedy for the first.
+- **`pt` other than 10pt** is wired through but unverified: no reference render exists at another size,
+  and the calibrated title-block gaps are the 10pt ones.
+- **Computer Society on A4** takes its margins from the class (`IEEEtran.cls:1773-1796`), but no A4
+  compsoc reference render exists to check it against.
+- `author-row-gap` in `conference.typ` rests on two documents, the 062824 wrapper and the nine-author
+  probe.
 
 ### Calibrated constants
 
 A few spacing constants are calibrated against the reference renders rather than derived from the class,
 and are marked as such in the source: the title-internal gaps, which depend on TeX's `\topskip` rule for
-the first line of a box, and the per-mode `slack` in `geometry.typ`'s `vertical` table.
+the first line of a box, and `title-excess` in `geometry.typ`.
 
-The slack is documented there with the measured bounds for all three references. The short version: the
-class's `\@IEEENORMtitlevspace` sits below every valid range, short by roughly one line advance in each
-case, which matches the `[-\topskip]` offset `\IEEEquantizevspace` applies. Adding exactly one advance
-fixes journal but leaves the bare conference demo 0.66pt short, so the cause is narrowed rather than
-settled. The three ranges do intersect, but in a window under a point wide, so per-mode values are kept.
+`quantize` follows `\IEEEquantizevspace` exactly: the space under the title block is the one nearest the
+nominal that makes the total a whole number of lines, and a line more if that is under the minimum. What
+is calibrated is `title-excess`, the constant by which TeX's measure of the block exceeds Typst's. Seven
+renders bound it to a window a point and a quarter wide, listed there. An earlier version added a
+per-mode slack and rounded up, which fitted the references and put a real paper one line low.
 
 Treat these as load-bearing: if a layout drifts after a change, check them first, and run
 `scripts/check.sh`.
@@ -75,9 +96,19 @@ Both caused real, hard-to-spot errors here.
 3.0ex and 3.5ex (`IEEEtran.cls:5466-5476`). Applying one mode's values to the other is silent and shifts
 everything below.
 
+**`em` inside a heading show rule is not the body's.** Typst has already scaled the text to 1.4em or
+1.2em there, so a skip written in `em` comes out that much too large. `headings.typ` computes `ex` from
+the body size instead. A block's `above` and `below` also replace the paragraph leading rather than add
+to it, so the leading is added back.
+
+**The top margin is measured to the ink.** `\IEEEsettopmargin` subtracts the height of a capital, so the
+first baseline sits one cap height below the margin, where Typst puts it 0.7em below. `vertical-for`
+raises the margin by the difference. The same reasoning puts the last footnote line on the last body
+baseline, which `elements.typ` reproduces.
+
 **`\vspace` and `v()` are not the same.** LaTeX's `\vspace` adds to the baselineskip, which already
 contains the interline gap. Typst's `v()` adds on top of `par.spacing`. A class value carried over
-directly overshoots by exactly that spacing, 1.99pt at 10pt. `journal.typ` has a `vspace()` helper that
+directly overshoots by exactly that spacing, 1.99pt at 10pt. `geometry.typ` has a `vspace()` helper that
 does the conversion.
 
 ## Critical context: upstream is frozen
@@ -130,6 +161,9 @@ Compiled 2026-07-27 with pdfTeX 1.40.27. US Letter unless the name says `_A4`.
 | `IEEE_Advanced_Demo_Template_for_Computer_Science_Journals.pdf` | `bare_adv.tex` |
 | `IEEE_Demo_Template_for_Computer_Society_Conferences.pdf` | `bare_conf_compsoc.tex` |
 | `IEEE_LaTeX_Template_for_Transactions_on_Magnetics.pdf` | `bare_jrnl_transmag.tex` |
+| `IEEE_Journal_Technote.pdf` | `bare_jrnl.tex` with `technote` |
+| `IEEE_Journal_Peerreview.pdf` | `bare_jrnl.tex` with `peerreview`, two pages |
+| `Author_Row_Spacing_Probe.pdf` | nine-author conference probe, two author rows |
 
 These were compiled by hand and are not reproducible by any command in this repo. They are the baseline
 every Typst layout gets diffed against.

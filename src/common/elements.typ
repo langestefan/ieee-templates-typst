@@ -1,22 +1,63 @@
 // Equations and footnotes, ported from IEEEtran.cls V1.8b.
 
-#import "geometry.typ": par-indent, sizes, with-size
+#import "geometry.typ": leading-for, sizes, with-size
+
+// TeX sets the last footnote line on the baseline of the column's last body
+// line. Typst sets the footnote's line box against the bottom of the text
+// area, which leaves it lower by the difference in depth between a body line
+// and a footnote line plus the body leading. Each entry is padded by that much
+// and the gap between entries taken in by the same, so consecutive notes still
+// advance one footnote line.
+#let footnote-drop-for(sz) = (
+  0.3 * (sz.normal.at(0) - sz.footnote.at(0)) + leading-for(sz.normal)
+)
+#let default-footnote-drop = footnote-drop-for(sizes)
+
+// IEEEtran.cls:2466. \skip\footins, the space above the notes, is 0.9 of the
+// body advance, measured to a strut above the first note's baseline, where
+// Typst's clearance is measured to the note's line box. Carried over that way
+// it comes to 6.5pt and leaves the technote fixture's biography, which fills
+// its column down to the notes, 1.4pt low. Calibrated to that fixture. Body
+// lines sit on a grid and do not show the difference.
+#let footnote-clearance = 7.89pt
 
 // IEEEtran.cls:2544 and 2592. Equations are numbered in arabic and displayed
 // parenthesised, set flush right, which is Typst's default position.
 #let equation-numbering = "(1)"
 
-#let rules(body) = {
+#let rules(
+  footnote-size: sizes.footnote,
+  footnote-drop: default-footnote-drop,
+  body,
+) = {
   set math.equation(numbering: equation-numbering)
 
   // IEEEtran.cls:2498, with the comment "The IEEE does not use footnote rules".
   // Typst draws a separator line by default, so it has to be turned off. Only
   // compsoc uses a rule, and then only for \thanks.
   //
-  // Footnote text is footnotesize and indented by \parindent
-  // (IEEEtran.cls:2490).
-  set footnote.entry(separator: none, indent: par-indent)
-  show footnote.entry: it => with-size(sizes.footnote, it)
+  // Footnote text is footnotesize, and \@makefntext sets \parindent to 1em of
+  // that size for every paragraph in the note (IEEEtran.cls:2490).
+  set footnote.entry(
+    separator: none,
+    clearance: footnote-clearance,
+    indent: 0pt,
+    gap: leading-for(footnote-size) - footnote-drop,
+  )
+  show footnote.entry: it => pad(bottom: footnote-drop, with-size(
+    footnote-size,
+    {
+      set par(
+        first-line-indent: (amount: footnote-size.at(0), all: true),
+        spacing: leading-for(footnote-size),
+      )
+      // Typst follows the mark with a hair of space the class does not have.
+      show h.where(amount: 0.05em): h(0pt, weak: true)
+      // A note of one paragraph is not a paragraph to Typst and would go
+      // unindented; the break makes it one.
+      [#it#parbreak()]
+    },
+  ))
 
   // IEEE refers to an equation by its bare parenthesised number, as in "as
   // shown in (1)", never "Equation 1".
@@ -33,6 +74,44 @@
   }
 
   body
+}
+
+// IEEEtran.cls:5277. The abstract label is bold italic, but \bfseries is not
+// scoped, so the dash and the whole body are bold as well. The reference render
+// confirms it: NimbusRomNo9L-Medi throughout.
+#let runin-section(label, body, size: sizes.small) = with-size(
+  size,
+  strong[#text(style: "italic")[#label]---#body],
+)
+
+// A line set at `size` reaches less far below its baseline than a body line
+// does, so whatever follows a run-in section sits that much too close. Adding
+// this after the last one keeps the next line a full body advance away.
+#let runin-depth(size: sizes.small, body: sizes.normal) = (
+  0.3 * (body.at(0) - size.at(0))
+)
+
+// The same above the baseline. TeX puts the first baseline of a column on the
+// body grid whatever the size of the line, where Typst places the line box, so
+// a run-in section opening a column needs this much above it.
+#let runin-height(size: sizes.small, body: sizes.normal) = (
+  0.7 * (body.at(0) - size.at(0))
+)
+
+// \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
+// \thefootnote and \@makefnmark so the funding note carries no superscript,
+// and 4784 resets the counter afterwards so the note does not use up number 1.
+#let thanks-note(thanks) = if thanks == none { [] } else {
+  footnote(numbering: _ => "", thanks)
+  counter(footnote).update(0)
+}
+
+// For layouts whose title block is a float. A footnote inside
+// place(float: true) never registers, and emitting it in the column flow forms
+// an empty paragraph that pushes the first section down. A non-floating place()
+// registers the footnote while taking no flow space.
+#let placed-thanks-note(thanks) = if thanks != none {
+  place(top + left, box(thanks-note(thanks)))
 }
 
 // IEEEtran's IEEEeqnarray family exists because LaTeX's own multi-line equation

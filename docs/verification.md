@@ -6,8 +6,8 @@ The point of this port is that it is checked, not eyeballed.
 scripts/check.sh
 ```
 
-Compiles every template and asserts 83 landmark baselines against IEEE's compiled reference PDFs in
-`reference/pdf/`. Every asserted landmark matches its reference exactly.
+Compiles every template and asserts landmark baselines against IEEE's compiled reference PDFs in
+`reference/pdf/`. Baselines are measured in whole points, so a match means within a point.
 
 `tests/` holds a Typst port of each `bare_*.tex`, one per mode, which is what `check.sh` measures. They
 are verification fixtures rather than things to start a paper from; `template/main.typ` is that.
@@ -24,8 +24,12 @@ are verification fixtures rather than things to start a paper from; `template/ma
 | `ieee-compsoc` | `bare_jrnl_compsoc.tex` |
 | `ieee-compsoc-conference` | `bare_conf_compsoc.tex` |
 
-All on US Letter and A4. The landmarks are title, author block, abstract, index terms, first section
-heading, the first body line after it, drop cap, running head, and column extent and line count.
+All on US Letter; conference and journal are checked on A4 as well. The landmarks are title, author
+block, abstract, index terms, first section heading, the first body line after it, drop cap, running
+head, and the reference list.
+
+The landmarks sit on page one and mostly in the title block. Spacing further down the page is not
+asserted, and [known-gaps.md](known-gaps.md) lists differences found there by comparing whole columns.
 
 `check.sh` also verifies that the preview images in `assets/` are current, by comparing a signature of
 the rendered pages against `assets/previews.txt`. Regenerate both with `scripts/update-previews.sh`.
@@ -39,6 +43,11 @@ installed; a missing font fails the job rather than silently skipping the checks
   Use this rather than `pdftotext`, which only exposes ink bounding boxes; those shift by up to 2pt
   depending on whether a line happens to contain descenders, which is the same magnitude as the spacing
   being measured. Early measurements taken that way were wrong.
+- `scripts/diff-columns.sh <pdf> <ref-pdf> [page] [max-x] [tolerance] [min-x] [x-tolerance]` pairs every
+  baseline in a column with the reference's, to a hundredth of a point, and exits non-zero if the line
+  counts differ or any line is off by more than the tolerance, 0.25pt by default. The two documents
+  must carry the same text in that column. Its last two columns are how far each line's left and right
+  edges are from the reference's; they fail the run only when an x-tolerance is given.
 - `scripts/verify-geometry.sh <pdf> <page> [ref] [page]` reports text-block extent, line count and modal
   advance.
 

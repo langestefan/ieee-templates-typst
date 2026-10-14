@@ -1,3 +1,4 @@
+#import "/tests/logo.typ": latex
 #import "/src/conference.typ": ieee-conference
 
 #show: ieee-conference.with(
@@ -37,7 +38,12 @@
 
 = Introduction
 This demo file is intended to serve as a "starter file" for IEEE conference
-papers produced under LaTeX using IEEEtran.cls version 1.8b and later.
+papers produced under #latex using IEEE-?tran.cls version 1.8b and later.
+I wish you the best of success.
+
+#align(right)[mds]
+
+#align(right)[August 26, 2015]
 
 == Subsection Heading Here
 Subsection text here.
@@ -46,9 +52,8 @@ Subsection text here.
 Subsubsection text here.
 
 = Conclusion
-The conclusion goes here. Citations appear here @eason1955, @maxwell1892
-and @kopka1999.
+The conclusion goes here @kopka1999.
 
 #heading(numbering: none)[Acknowledgment]
-The authors would like to thank\u{2026}
+The authors would like to thank\.\.\.
 

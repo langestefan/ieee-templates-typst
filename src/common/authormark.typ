@@ -1,7 +1,7 @@
 // \IEEEauthorrefmark, the superscript symbols tying author names to
 // affiliations. Ported from IEEEtran.cls:4543-4545.
 
-#import "geometry.typ": sizes
+#import "geometry.typ": ladder-state
 
 // The class cycles through this sequence and falls back to a superscript roman
 // numeral past the ninth mark.
@@ -19,8 +19,8 @@
   //
   // \raisebox{0pt}[0pt][0pt] makes the mark contribute no height or depth, so a
   // marked name does not sit differently from an unmarked one on the same line.
-  box(height: 0pt, text(
-    size: sizes.footnote.at(0),
+  context box(height: 0pt, text(
+    size: ladder-state.get().footnote.at(0),
     super(typographic: false, size: 1em, baseline: -0.4em, glyph),
   ))
 }

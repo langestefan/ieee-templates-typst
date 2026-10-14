@@ -1,69 +1,78 @@
 # Known gaps
 
-What this port does not do, and why. Every entry was established by measurement
-against IEEE's own compiled PDFs in `reference/pdf/`, not by inspection.
+Where this port differs from IEEEtran, measured against IEEE's compiled PDFs in
+`reference/pdf/`. Every fixture that carries its reference's text agrees with it
+to about 0.1pt on every line; `scripts/check.sh` asserts that.
 
-## Not reproducible in Typst
+## Typst cannot do it
 
-**Last-page column balancing.** Typst fills page-level columns sequentially and
-offers no balancing; neither `set page(columns:)` nor the `columns()` function
-balances a final page, which was verified rather than assumed. `#colbreak()` is
-the manual remedy.
+- **Last-page column balancing.** Use `#colbreak()`.
+- **Flush column bottoms.** TeX stretches the space around headings; Typst does
+  not, so a column can end up to a line short of its neighbour.
+- **Space limits when justifying.** Typst shrinks a space by up to a third. The
+  class's limits differ (`IEEEtran.cls:1011-1033`): bold text cannot be set as
+  tightly as in TeX, and Palatino is set tighter.
+- **Line breaks.** Typst has no tolerance or `\hbadness`. The hyphenation cost
+  is calibrated on one published paper, so a few lines break at other words.
+- **Words with punctuation inside** are not hyphenated. TeX breaks
+  `IEEEtran.cls` after `IEEE`; here it needs a soft hyphen.
+- **Reference list internals.** The gap after a label is 0.65em where the class
+  has 0.5em, so entries start 0.2pt right. A list of one two-line entry is not
+  justified.
+
+## Differences that remain
+
+- **Running heads are uppercased whole**, including an "et al." that
+  `bare_jrnl.tex` keeps lowercase.
+- **Computer Society `\thanks`.** The class overlaps the plain note with the
+  last item (`IEEEtran.cls:4903`). Here it takes its own line, so the items sit
+  4.5pt higher.
+- **Biographies on a page without footnotes** move to the next column up to
+  2.7pt sooner than in TeX.
+- **The first biography is taken to follow the reference list.** After anything
+  else its skip is 2pt too large.
+- **The second conference author row** is 0.2pt out in one of its two
+  references.
+- **A URL written as text breaks after a slash.** TeX keeps it whole.
+
+## Small caps
+
+The Times layouts set small caps as LaTeX's Times does: capitals at 0.8 of the
+size, letterspaced 0.05em. Text copied from the PDF comes out in capitals, and
+a word in small caps is not hyphenated. The Computer Society journal keeps
+Palatino's own.
+
+## `parstart` and `biography`
+
+Both split their body between words. Markup survives, with three limits:
+
+- The first word of a `parstart` body becomes plain text.
+- Styling other than emphasis, strong, underline, overline, strike, highlight,
+  small caps or `text` moves as one piece.
+- A paragraph break inside becomes a line break and an indent.
 
 ## Unverified
 
-Nothing. Every mode now has a reference render to check against, including A4,
-`technote` and `peerreview`, whose renders were compiled specifically for it.
+No reference render exists for these, so they follow the class unchecked:
 
-## Measured differences that remain
+- **Computer Society on A4** (`IEEEtran.cls:1773-1796`).
+- **Computer Society conference index terms** (`IEEEtran.cls:5292`, 5307).
+- **Point sizes other than 10pt.** The title-block gaps are the 10pt ones.
+- **Pages after the first**, beyond the two-page peer review and one-column
+  references.
 
-None. Every landmark asserted by `scripts/check.sh` matches its reference
-exactly.
+## Calibrated, not derived
 
-The journal drop cap was 1pt out for a long time. It turned out not to be the
-cap at all: the space below a level-one heading was 1pt short in both Times
-modes, so the whole first paragraph sat high and the cap with it. The class says
-0.7ex; 0.8ex matches. The checks had asserted where headings sit but not where
-the text after them starts, which is why it survived so long.
+- **`title-excess`** in `geometry.typ`: seven renders bound it to a window
+  1.25pt wide.
+- **`author-row-gap`**: 26.5pt, from two documents.
+- **Footnote clearance**: 7.89pt, from the technote fixture.
+- **Computer Society** heading skips, journal title gaps and footnote drop: one
+  render each.
 
-Computer Society heading spacing was previously off by 8pt after the first
-section and about 3pt per heading after that. The class's stated skips carried
-over directly do not reproduce the reference, so the values are calibrated to it
-and now match exactly. `\IEEEraisesectionheading` was investigated as the cause
-and ruled out: it raises content, while the reference sat lower than this port.
+## Not ported
 
-## Deliberately not done
-
-**Point sizes other than 10pt** are partly wired. `ieee-conference` and
-`ieee-journal` take `pt`, which selects the ladder and, through it, the page
-geometry and body text: an 11pt document gets a 13.33pt advance and 50 lines per
-column, matching what the class documents. `parstart`, `biography` and
-`headings` are all parameterised.
-
-What is *not* done is the title block. Its internal gaps and the heading skips
-are calibrated for 10pt, so another ladder gives correct page metrics and body
-text under a title block that has never been checked against anything. No
-reference render exists at any other size, and IEEE papers are 10pt in practice,
-so this is deliberately left partial rather than finished blind.
-
-**`comsoc`.** Per the class changelog, V1.8b's Communications Society option
-only swaps in the newtxmath math fonts, leaving it geometrically identical to a
-plain journal. There is nothing to port.
-
-**`IEEEeqnarray`.** Typst's native math aligns on `&` and breaks on `\`, which
-is what that environment exists to work around in LaTeX. Only its sub-numbering
-was missing, and `subequations` supplies that.
-
-## Verification debt
-
-**`author-row-gap` rests on two documents**, IEEE's 062824 wrapper and a
-nine-author probe compiled for the purpose. 26pt satisfies the first and leaves
-the probe 1pt short; 27pt the reverse; 26.5 satisfies both. A third document
-would test it further.
-
-**The title quantisation slack is calibrated, not derived.** The class's
-`\@IEEENORMtitlevspace` sits below every valid range, short by roughly one line
-advance, which matches the `[-\topskip]` offset `\IEEEquantizevspace` applies.
-Adding exactly one advance fixes journal but leaves the bare conference demo
-0.66pt short, so the cause is narrowed rather than settled. Measured bounds for
-all three references are recorded in `geometry.typ`.
+- **`comsoc`** only swaps math fonts in V1.8b; use `ieee-journal`.
+- **`IEEEeqnarray`.** Typst's math already aligns on `&`. `subequations` covers
+  the sub-numbering.
+- **The LaTeX logo.** The fixtures draw their own in `tests/logo.typ`.

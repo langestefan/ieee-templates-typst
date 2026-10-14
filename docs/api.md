@@ -7,7 +7,8 @@ Five layout functions and five helpers, all exported from `src/lib.typ`.
 | Argument | Type | Default | Notes |
 |---|---|---|---|
 | `paper` | `"us-letter"` \| `"a4"` | `"us-letter"` | Both verified against IEEE renders |
-| `pt` | `"9pt"` … `"12pt"` | `"10pt"` | Only 10pt is verified; see [Status](../README.md#status) |
+| `pt` | `"9pt"` … `"12pt"` | `"10pt"` | Only 10pt is verified; see [known gaps](known-gaps.md) |
+| `font` | string or array | the Times list | Body face. Name the one you have to silence Typst's warning about the others |
 | `title` | content | `[]` | Use `\` for a line break |
 | `authors` | array of dicts | `()` | See below |
 | `thanks` | content | `none` | Funding note; renders as an unmarked footnote on page 1 |
@@ -41,8 +42,9 @@ Everything above, plus:
 | `columns` | `2` \| `1` | `1` matches the `onecolumn` class option |
 | `peerreview` | bool | Cover page carrying the authors, then the title repeated overleaf for double-blind review |
 | `technote` | bool | Title in the first column rather than spanning, set `\large` bold |
-| `header-left` | content | Journal line. Shown on page 1 and on even pages |
-| `header-right` | content | Author line, e.g. `Shell et al.: Title`. Shown on odd pages after the first |
+| `header-left` | content | Journal line, shown on every page with the page number on the right |
+| `header-right` | content | Author line, e.g. `Shell et al.: Title`. Only shown with `twoside` |
+| `twoside` | bool | The `twoside` class option: `header-right` on odd pages after the first, page number on the outer edge |
 
 With `columns: 1` the abstract and index terms are no longer run in: each gets a centred bold label with
 its text indented beneath, which is what IEEEtran does in single-column mode.
@@ -52,8 +54,8 @@ lines: `Michael Shell, _Member, IEEE,_ John Doe, _Fellow, OSA_`.
 
 ## `ieee-transmag`
 
-Transactions on Magnetics. Takes `paper`, `title`, `authors`, `header-left`, `header-right`, `thanks`,
-`abstract`, `index-terms` and `bibliography` as `ieee-journal` does, and adds one of its own:
+Transactions on Magnetics. Takes `paper`, `font`, `title`, `authors`, `header-left`, `header-right`, `twoside`,
+`thanks`, `abstract`, `index-terms` and `bibliography` as `ieee-journal` does, and adds one of its own:
 
 | Argument | Type | Notes |
 |---|---|---|
@@ -66,9 +68,17 @@ There is no `pt`, `columns`, `technote` or `peerreview`: the class fixes all fou
 Both take the same arguments as `ieee-transmag` minus `affiliations`, and likewise have no `pt` or
 `columns`.
 
+`ieee-compsoc` adds two:
+
+| Argument | Type | Notes |
+|---|---|---|
+| `thanks-items` | array of content | `\IEEEcompsocitemizethanks`: bulleted affiliation notes set above `thanks`, under a rule |
+| `sans-font` | string or array | The Helvetica face of the front matter, headings and biographies. `font` is the Palatino body here |
+
 `ieee-compsoc` is a different design rather than a variant of the others: Palatino body at 9.5pt on
-11.54pt leading, 61 lines per column, Helvetica bold small-caps headings numbered `1`, `1.1`, and a
-diamond rule closing the title block. It is the only mode needing fonts beyond Times:
+11.54pt leading, 61 lines per column, Helvetica for the title, authors, abstract, running head and
+biographies, Helvetica bold small-caps headings numbered `1`, `1.1`, and a diamond rule closing the
+title block. It is the only mode needing fonts beyond Times:
 [TeX Gyre Pagella](https://ctan.org/pkg/tex-gyre-pagella) and Nimbus Sans are the free choices, and
 `--font-path` works if they are not installed system wide.
 

@@ -1,25 +1,38 @@
-// The journal running head, ported from IEEEtran.cls:4360-4361 and the
+// The journal running head, ported from IEEEtran.cls:4243-4281 and the
 // IEEEtitlepagestyle / headings page styles.
 //
-// Two details that are easy to miss:
+// Three details that are easy to miss:
 //
 //   \markboth wraps both marks in \MakeUppercase (4360-4361), so the head is
 //   uppercased whatever case the author writes.
 //
-//   The page number sits on the outer edge, not always the right: \@oddhead is
-//   "mark \hfil \thepage" while \@evenhead is "\thepage \hfil mark".
+//   The class is oneside by default (374), and the oneside head is the left
+//   mark with the page number on the right, on every page (4261-4264). The
+//   right mark only ever appears under the twoside option.
+//
+//   Under twoside the page number sits on the outer edge (4246-4247):
+//   \@oddhead is "mark \hfil \thepage", \@evenhead "\thepage \hfil mark".
 
 #import "geometry.typ": tpt
 
 #let head-size = 7 * tpt
 
-#let running-head(left-text, right-text, size: head-size) = context {
-  let n = counter(page).at(here()).first()
-  let even = calc.even(n)
+// Distance from the text block up to the head, for `page.header-ascent`.
+// Calibrated to put the head's baseline at 31.2pt, as the references have it.
+#let head-ascent = 24.09pt
 
-  // IEEE puts the journal line on page one and on versos, and the author line
-  // on the remaining rectos.
-  let mark = if n == 1 or even { left-text } else { right-text }
+#let running-head(
+  left-text,
+  right-text,
+  size: head-size,
+  twoside: false,
+) = context {
+  let n = counter(page).get().first()
+  let even = twoside and calc.even(n)
+
+  // Two-sided, the journal line goes on page one and on versos, and the author
+  // line on the remaining rectos.
+  let mark = if not twoside or n == 1 or even { left-text } else { right-text }
 
   set text(size: size)
   block(

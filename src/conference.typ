@@ -1,61 +1,53 @@
 // Conference layout, ported from IEEEtran.cls V1.8b [conference].
 
 #import "common/geometry.typ": (
-  column-gutter, em-box, leading-for, line-advance, page-setup, par-indent,
-  sizes, text-width, tpc, tpt, vertical, with-size,
+  body-font, ex-ratio, leading-for, line-advance, page-setup, quantize,
+  sizes-for, text-width, with-size,
 )
+#import "common/authorblocks.typ": as-lines, author-rows
 #import "common/authormark.typ": author-mark
 #import "common/headings.typ" as headings
-#import "common/headings.typ": appendices, heading-below-extra
+#import "common/headings.typ": appendices
 #import "common/floats.typ" as floats
 #import "common/elements.typ" as elements
+#import "common/elements.typ": runin-depth, runin-height, runin-section
 
 // Space above the title and between the title and the author blocks. The class
 // specifies 0.5\baselineskip (IEEEtran.cls:4748) and \vskip1.0em (4809), but
 // those are measured against TeX's \topskip rule for the first line of a box,
 // which Typst has no equivalent of. These are calibrated to put the title
 // baseline at 71pt and the author names at 131pt, matching the reference.
-#let title-top-space = 2pt
-#let title-author-gap = 15pt
+#let title-top-space = 2.62pt
+#let title-author-gap = 14.54pt
 
-// IEEEtran.cls:5277. The abstract label is bold italic, but \bfseries is not
-// scoped, so the dash and the whole abstract body are bold as well. The
-// reference render confirms it: NimbusRomNo9L-Medi throughout.
 #let abstract-label = "Abstract"
 #let index-terms-label = "Index Terms"
 
-#let runin-section(label, body) = with-size(
-  sizes.small,
-  text(weight: "bold")[#text(style: "italic")[#label]---#body],
-)
-
-// Author fields accept either content or an array of lines. The array form
-// mirrors the \\ separators in \IEEEauthorblockA and avoids escaping trouble,
-// since an unescaped @ in markup would parse as a reference and a bare URL
-// would autolink.
-#let as-lines(x) = {
-  if type(x) == array { x.map(l => [#l]).join(linebreak()) } else { x }
-}
-
 // IEEEtran.cls:4583-4584. Author blocks set their own interline spacing rather
 // than inheriting the body advance: 2.6ex between name lines and 2.75ex between
-// affiliation lines. At 10pt Times, ex is 4.463pt, so affiliations advance
-// 12.27pt where the body advances 11.955pt. Over four affiliation lines that is
+// affiliation lines. At 10pt Times, ex is 4.483pt, so affiliations advance
+// 12.33pt where the body advances 11.955pt. Over four affiliation lines that is
 // most of a point and a half, which shows up as drift in the second author row.
-#let ex = 0.448 * sizes.normal.at(0)
-#let name-advance = 2.6 * ex
-#let aff-advance = 2.75 * ex
+// Each is in ex of its own font: names are set at sublargesize, so two name
+// lines in one block sit 12.82pt apart.
+#let name-advance = 2.6
+#let aff-advance = 2.75
+// Calibrated: the first affiliation line sits this much further below the
+// name than the paragraph spacing alone gives.
+#let name-aff-gap = 0.23pt
 
-#let author-cell(a) = align(
+#let author-cell(sz, a) = align(
   center,
   {
+    let ex = ex-ratio * sz.normal.at(0)
     with-size(
-      (sizes.sublarge.at(0), name-advance),
+      (sz.sublarge.at(0), name-advance * ex-ratio * sz.sublarge.at(0)),
       as-lines(a.at("name", default: [])),
     )
     let aff = a.at("affiliation", default: none)
     if aff != none {
-      with-size((sizes.normal.at(0), aff-advance), as-lines(aff))
+      v(name-aff-gap)
+      with-size((sz.normal.at(0), aff-advance * ex), as-lines(aff))
     }
   },
 )
@@ -66,72 +58,26 @@
 // satisfies the first but leaves the probe 1pt short, and 27pt the reverse.
 #let author-row-gap = 26.5pt - line-advance
 
-// Author blocks sit in naturally sized cells separated by equal glue, not in
-// equal-width columns: an even three-way split would centre the first block at
-// x=134.7 where the reference has it at 154.
-//
-// \and is \hfill between separate halign groups (IEEEtran.cls:4731), so the
-// blocks form one horizontal list that TeX line-breaks when it overruns. Six
-// authors therefore wrap to two rows of three. Typst grids do not wrap, so the
-// packing is done explicitly here.
-#let author-row(authors) = context {
-  let cells = authors.map(author-cell)
-  let widths = cells.map(c => measure(c).width)
-
-  let rows = ()
-  let current = ()
-  let used = 0pt
-  for (i, c) in cells.enumerate() {
-    // \and is \hfill, which has zero natural width, so no gap is reserved: the
-    // blocks only have to fit the text width between them. Verified against the
-    // nine-author probe, where LaTeX also breaks five and four.
-    let needed = widths.at(i)
-    if current.len() > 0 and used + needed > text-width {
-      rows.push(current)
-      current = (c,)
-      used = widths.at(i)
-    } else {
-      current.push(c)
-      used += needed
-    }
-  }
-  if current.len() > 0 { rows.push(current) }
-
-  stack(
-    dir: ttb,
-    spacing: author-row-gap,
-    ..rows.map(r => block(width: 100%, grid(
-      columns: (auto,) * r.len(),
-      column-gutter: 1fr,
-      ..r,
-    ))),
-  )
-}
-
-// IEEEtran.cls:4772 wraps the title in \IEEEquantizevspace, which rounds the
-// whole block to a whole number of body lines so the columns below start on the
-// baseline grid. Without this the abstract sits off-grid and every following
-// line inherits the error.
-#let quantize(body) = context {
-  let natural = measure(block(width: text-width, body)).height
-  let slots = calc.ceil((natural + vertical.conference.slack) / line-advance)
-  // width must be explicit: without it the block shrinks to its content and
-  // `set align(center)` inside then centres against that narrower box rather
-  // than the full text width.
-  block(height: slots * line-advance, width: 100%, body)
-}
-
-#let title-block(title, authors) = quantize({
-  set align(center)
-  v(title-top-space)
-  with-size(sizes.huge, title)
-  v(title-author-gap)
-  author-row(authors)
-})
+#let title-block(sz, title, authors) = quantize(
+  "conference",
+  advance: sz.normal.at(1),
+  {
+    set align(center)
+    v(title-top-space)
+    with-size(sz.huge, title)
+    v(title-author-gap)
+    author-rows(
+      authors.map(author-cell.with(sz)),
+      width: text-width,
+      gap: author-row-gap,
+    )
+  },
+)
 
 #let ieee-conference(
   paper: "us-letter",
   pt: "10pt",
+  font: body-font,
   title: [],
   authors: (),
   thanks: none,
@@ -140,10 +86,16 @@
   bibliography: none,
   body,
 ) = {
-  show: page-setup.with(mode: "conference", paper: paper, pt: pt)
-  show: headings.rules.with(mode: "conference")
-  show: floats.rules
-  show: elements.rules
+  let sz = sizes-for(pt)
+  show: page-setup.with(mode: "conference", paper: paper, pt: pt, font: font)
+  show: headings.rules.with(mode: "conference", body: sz.normal)
+  show: floats.rules.with(size: sz.footnote, advance: sz.normal.at(1))
+  show: elements.rules.with(
+    footnote-size: sz.footnote,
+    footnote-drop: elements.footnote-drop-for(sz),
+  )
+  show: headings.bibliography-rules.with(size: sz.footnote, body: sz.normal)
+  let runin = (size: sz.small, body: sz.normal)
 
   // The title spans both columns; everything after it flows in the columns.
   // clearance must be zero: the quantised block height is what puts the columns
@@ -153,53 +105,35 @@
     scope: "parent",
     float: true,
     clearance: 0pt,
-    block(width: 100%, title-block(title, authors)),
+    block(width: 100%, title-block(sz, title, authors)),
   )
 
-  // The reference list is set at footnotesize under an unnumbered heading, which
-  // the heading rules already render as centred small caps. std.bibliography is
-  // needed because the parameter of the same name shadows the element function.
-  set std.bibliography(title: [References], style: "ieee")
-
-  // A show rule rather than styling a trailing parameter, so the reference list
-  // can sit wherever the document puts it. Journals need it before the author
-  // biographies, which the old "emit it last" arrangement made impossible.
-  show std.bibliography: it => {
-    heading-below-extra.update(0.25 * line-advance)
-    with-size(sizes.footnote, {
-      // \IEEEbibitemsep is 0pt (IEEEtran.cls:4484), so entries sit one line
-      // apart like any other line.
-      set par(spacing: leading-for(sizes.footnote))
-      it
-    })
-    heading-below-extra.update(0pt)
-  }
-
-  // \thanks notes are footnotes without a marker: IEEEtran.cls:4756-4758 kills
-  // \thefootnote and \@makefnmark so the funding note carries no superscript.
-  // It must ride inside the first paragraph rather than stand alone, or it forms
-  // an empty paragraph of its own and pushes the columns a line down.
-  let note = if thanks != none { footnote(numbering: _ => "", thanks) } else {
-    []
-  }
+  // The note must ride inside the first paragraph rather than stand alone, or
+  // it forms an empty paragraph of its own and pushes the columns a line down.
+  let note = elements.thanks-note(thanks)
   let placed = false
 
+  if abstract != none or index-terms != none { v(runin-height(..runin)) }
   if abstract != none {
-    runin-section(abstract-label, [#note#abstract])
+    runin-section(abstract-label, [#note#abstract], size: sz.small)
     placed = true
   }
   if index-terms != none {
     let lead = if placed { [] } else { note }
-    runin-section(index-terms-label, [#lead#index-terms])
+    // \endabstract adds no space in conference mode (IEEEtran.cls:5283), so the
+    // index terms follow at the abstract's own advance, not the body's.
+    if placed { v(leading-for(sz.small) - leading-for(sz.normal)) }
+    runin-section(index-terms-label, [#lead#index-terms], size: sz.small)
     placed = true
   }
-  if not placed { note }
+  // IEEEtran.cls:5292. \endIEEEkeywords adds 0.67ex in the 9pt bold still in
+  // force, whose x-height is 0.461em. \endabstract adds nothing here (5283).
+  if index-terms != none { v(0.67 * 0.461 * sz.small.at(0)) }
+  if placed { v(runin-depth(..runin)) } else { note }
 
   body
 
-  // Emitting it here is a convenience for the common case. Documents that need
-  // it elsewhere, such as a journal placing it before the biographies, can drop
-  // the argument and write #bibliography(..) into the body instead; the show
-  // rule above styles it either way.
+  // A convenience for the common case. Documents that need the list elsewhere
+  // write #bibliography(..) into the body instead; it is styled either way.
   if bibliography != none { bibliography }
 }

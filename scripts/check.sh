@@ -8,9 +8,9 @@
 # measured with scripts/baselines.sh. A change to geometry.typ affects all three
 # templates at once, so this exists to catch drift that is invisible by eye.
 #
-# Tolerance is 0: every landmark currently matches its reference exactly, and
-# Ghostscript's txtwrite reports integer baselines, so anything that moves by a
-# whole point is a real change worth looking at.
+# Tolerance is 0 unless a check says otherwise. Ghostscript's txtwrite reports
+# integer baselines, so a match means within a point, and anything that moves
+# by a whole point is a real change worth looking at.
 
 set -u
 cd "$(dirname "$0")/.." || exit 1
@@ -26,6 +26,32 @@ rm -rf "$out"; mkdir -p "$out"
 # baseline <pdf> <page> <regex> -> first matching baseline, or empty
 baseline() {
   ./scripts/baselines.sh "$1" "$2" 9999 | awk -v re="$3" '$0 ~ re {print $1; exit}'
+}
+
+# gap <pdf> <from-regex> <to-regex> -> distance between the two baselines
+gap() {
+  ./scripts/baselines.sh "$1" 1 9999 \
+  | awk -v a="$2" -v b="$3" '$0 ~ a {y=$1} $0 ~ b && y != "" {print $1 - y; exit}'
+}
+
+# column <label> <pdf> <ref-pdf> [tolerance] [skip] [page] [max-x] [min-x] ->
+# every baseline in a column, to a hundredth of a point. The left column of
+# page one unless told otherwise. Only for fixtures that carry the same text as
+# their reference. Lines whose text matches the skip pattern are not held to
+# the tolerance.
+column() {
+  local label="$1" tol="${4:-0.25}" skip="${5:-^$}" lines bad
+  lines=$(./scripts/diff-columns.sh "$2" "$3" "${6:-1}" "${7:-300}" "$tol" "${8:-0}" 2>/dev/null)
+  bad=$(echo "$lines" | awk -v t="$tol" -v skip="$skip" '$4 !~ skip && (NF < 4 || $3 > t || $3 < -t)')
+  if [ -n "$lines" ] && [ -z "$bad" ]; then
+    printf '  ok    %-34s within %spt\n' "$label" \
+      "$(echo "$lines" | awk -v skip="$skip" '$4 !~ skip {d = $3 < 0 ? -$3 : $3; if (d > m) m = d} END {printf "%.2f", m}')"
+    pass=$((pass + 1))
+  else
+    printf '  FAIL  %-34s lines differ by more than %spt:\n' "$label" "$tol"
+    echo "$bad" | head -5 | sed 's/^/          /'
+    fail=$((fail + 1))
+  fi
 }
 
 # check <label> <got> <want> [tolerance]
@@ -59,16 +85,17 @@ if build tests/conference.typ conf; then
   check "title"        "$(baseline "$out/conf.pdf" 1 'Bare Demo')"    71
   check "author names" "$(baseline "$out/conf.pdf" 1 'Michael')"     131
   check "abstract"     "$(baseline "$out/conf.pdf" 1 'Abstract')"    238
-  check "section 1"    "$(baseline "$out/conf.pdf" 1 'Introduction')" 257
+  check "section 1"    "$(baseline "$out/conf.pdf" 1 'INTRODUCTION')" 257
   # The first body line after a heading, not just the heading: a 1pt error in
   # the space below headings hid here for a long time.
   check "body after s1" "$(./scripts/baselines.sh "$out/conf.pdf" 1 300 \
-                           | sed -n '/Introduction/,+1p' | tail -1 | awk '{print $1}')" 272
+                           | sed -n '/INTRODUCTION/,+1p' | tail -1 | awk '{print $1}')" 272
   # IEEEtran.cls:4492 puts 0.3\baselineskip between the References heading and
   # the list, and \IEEEbibitemsep is effectively zero so entries are one line
   # apart. The reference measures 15 then 9.
-  refh=$(baseline "$out/conf.pdf" 1 'References')
-  ref1=$(./scripts/baselines.sh "$out/conf.pdf" 1 300 | grep -A1 'References' | tail -1 | awk '{print $1}')
+  column "left column, every line" "$out/conf.pdf" reference/pdf/IEEE_Bare_Demo_Template_for_Conferences.pdf
+  refh=$(baseline "$out/conf.pdf" 1 'REFERENCES')
+  ref1=$(./scripts/baselines.sh "$out/conf.pdf" 1 300 | grep -A1 'REFERENCES' | tail -1 | awk '{print $1}')
   check "refs heading to entry 1" "$(awk -v a="$ref1" -v b="$refh" 'BEGIN{print a-b}')" 15
 fi
 
@@ -88,17 +115,21 @@ if build tests/journal.typ jrnl; then
   check "author line"  "$(baseline "$out/jrnl.pdf" 1 'Michael')"    128
   check "abstract"     "$(baseline "$out/jrnl.pdf" 1 'Abstract')"   184
   check "index terms"  "$(baseline "$out/jrnl.pdf" 1 'Index Terms')" 199
-  check "section 1"    "$(baseline "$out/jrnl.pdf" 1 'Introduction')" 238
+  check "section 1"    "$(baseline "$out/jrnl.pdf" 1 'INTRODUCTION')" 238
   check "body after s1" "$(./scripts/baselines.sh "$out/jrnl.pdf" 1 300 \
-                           | sed -n '/Introduction/,+1p' | tail -1 | awk '{print $1}')" 253
-  # The drop cap's baseline sits on the second body line. The reference puts it
-  # at 266 and this port at 265; the 1pt is the only landmark not exact, so the
-  # tolerance is local rather than global. Catches the offset conversion in
-  # parstart.typ silently breaking.
-  check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266 1
+                           | sed -n '/INTRODUCTION/,+1p' | tail -1 | awk '{print $1}')" 253
+  # The drop cap's baseline sits on the second body line. Catches the offset
+  # conversion in parstart.typ silently breaking.
+  check "drop cap"     "$(baseline "$out/jrnl.pdf" 1 '29\\.[0-9]+pt  T')" 266
+  column "left column, every line" "$out/jrnl.pdf" reference/pdf/IEEE_Journal_Paper_Template.pdf
+  column "right column, every line" "$out/jrnl.pdf" reference/pdf/IEEE_Journal_Paper_Template.pdf 0.25 '^$' 1 9999 310
+  # The biographies in the right column share out the space left in it.
+  ref=reference/pdf/IEEE_Journal_Paper_Template.pdf
+  check "biography 2" "$(baseline "$out/jrnl.pdf" 1 'John Doe Biography')" "$(baseline "$ref" 1 'JohnDoeBiography')"
+  check "biography 3" "$(baseline "$out/jrnl.pdf" 1 'Jane Doe Biography')" "$(baseline "$ref" 1 'JaneDoeBiography')"
   # Appendices letter their sections and title them "Appendix A" on a line of
   # their own. Presence is what matters here, not the exact baseline.
-  if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'Appendix.*B'; then
+  if ./scripts/baselines.sh "$out/jrnl.pdf" 1 9999 | grep -q 'APPENDIX.*B'; then
     printf '  ok    %-34s present\n' "appendix lettering"; pass=$((pass + 1))
   else
     printf '  FAIL  %-34s missing\n' "appendix lettering"; fail=$((fail + 1))
@@ -118,8 +149,9 @@ if build tests/journal-onecolumn.typ jrnl1; then
   check "1col authors"    "$(baseline "$out/jrnl1.pdf" 1 'Michael')"     "$(baseline "$ref" 1 'Michael')"
   check "1col abstract"   "$(baseline "$out/jrnl1.pdf" 1 'Abstract')"    "$(baseline "$ref" 1 'Abstract')"
   check "1col index terms" "$(baseline "$out/jrnl1.pdf" 1 'Index Terms')" "$(baseline "$ref" 1 'IndexTerms')"
-  # 1pt: see the one-column calibration note in journal.typ.
-  check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION')" 1
+  check "1col section 1"  "$(baseline "$out/jrnl1.pdf" 1 'INTRODUCTION')" "$(baseline "$ref" 1 'INTRODUCTION')"
+  column "1col page 1, every line" "$out/jrnl1.pdf" "$ref" 0.25 '^$' 1 9999
+  column "1col page 2, every line" "$out/jrnl1.pdf" "$ref" 0.25 '^$' 2 9999
 fi
 
 echo "transactions on magnetics"
@@ -130,7 +162,11 @@ if build tests/transmag.typ tmag; then
   check "tmag affil 1"     "$(baseline "$out/tmag.pdf" 1 'School of')"      "$(baseline "$ref" 1 'Schoolof')"
   check "tmag abstract"    "$(baseline "$out/tmag.pdf" 1 'abstract goes')"  "$(baseline "$ref" 1 'Theabstractgoes')"
   check "tmag index terms" "$(baseline "$out/tmag.pdf" 1 'Index Terms')"    "$(baseline "$ref" 1 'IndexTerms')"
-  check "tmag section 1"   "$(baseline "$out/tmag.pdf" 1 'Introduction')"   "$(baseline "$ref" 1 'INTRODUCTION')"
+  check "tmag section 1"   "$(baseline "$out/tmag.pdf" 1 'INTRODUCTION')"   "$(baseline "$ref" 1 'INTRODUCTION')"
+  # 0.5pt: the superscript marks on the author line are raised from an 11pt
+  # line in the class and from 8pt here.
+  column "tmag left column, every line" "$out/tmag.pdf" "$ref" 0.5
+  column "tmag right column, every line" "$out/tmag.pdf" "$ref" 0.25 '^$' 1 9999 310
 fi
 
 echo "computer society journal"
@@ -148,6 +184,10 @@ if typst fonts 2>/dev/null | grep -qiE "pagella|palladio|^Palatino"; then
     check "cs subsection"  "$(baseline "$out/cs.pdf" 1 '1.1Subsection')" "$(baseline "$ref" 1 '1.1Subsection')"
     check "cs subsub"      "$(baseline "$out/cs.pdf" 1 '1.1.1Subsub')"   "$(baseline "$ref" 1 '1.1.1Subsub')"
     check "cs section 2"   "$(baseline "$out/cs.pdf" 1 '2CONCLUSION')"   "$(baseline "$ref" 1 '2CONCLUSION')"
+    # The itemised thanks are skipped: the reference sets the plain note half
+    # a line below the last item, over it, and here it takes a line of its own.
+    column "cs left column, every line" "$out/cs.pdf" "$ref" 0.25 '^(&#x2022;|Georgia|E-mail)'
+    column "cs right column, every line" "$out/cs.pdf" "$ref" 0.25 '^$' 1 9999 310
   fi
 else
   printf '  skip  %-34s no Palatino clone found\n' "compsoc"
@@ -160,6 +200,8 @@ if build tests/compsoc-conference.typ csc; then
   check "csc authors"   "$(baseline "$out/csc.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
   check "csc abstract"  "$(baseline "$out/csc.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
   check "csc section 1" "$(baseline "$out/csc.pdf" 1 'Introduction')" "$(baseline "$ref" 1 'INTRODUCTION|Introduction')"
+  check "csc refs to entry 1" "$(gap "$out/csc.pdf" 'References' ' 8.00pt  \\[1\\]')" "$(gap "$ref" 'References' ' 8.00pt  \\[1\\]')"
+  column "csc left column, every line" "$out/csc.pdf" "$ref"
 fi
 
 echo "author row spacing probe"
@@ -176,24 +218,26 @@ echo "A4"
 # branch (IEEEtran.cls:1773). So every vertical landmark matches US Letter and
 # only the side margins move, from 48.96pt to 40.60pt.
 for pair in "tests/conference.typ:conf-a4:ieee-conference" \
-            "tests/journal.typ:jrnl-a4:ieee-journal"; do
+            "tests/journal.typ:jrnl-a4:ieee-journal" \
+            "tests/compsoc.typ:cs-a4:ieee-compsoc" \
+            "tests/compsoc-conference.typ:csc-a4:ieee-compsoc-conference"; do
   src=${pair%%:*}; rest=${pair#*:}; tag=${rest%%:*}; fn=${rest##*:}
   sed "s|^#show: $fn.with(|#show: $fn.with(\n  paper: \"a4\",|" "$src" > "$out/$tag.typ"
   cp tests/refs.bib "$out/refs.bib" 2>/dev/null
   build "$out/$tag.typ" "$tag" || continue
 done
 
+# edge <pdf> -> x of the leftmost ink on page one
+edge() {
+  pdftotext -bbox -f 1 -l 1 "$1" - 2>/dev/null \
+  | grep -oE 'xMin="[0-9.]+"' | sed -E 's/[^0-9.]//g' | sort -n | head -1
+}
+
 if [ -f "$out/conf-a4.pdf" ]; then
   ref=reference/pdf/IEEE_Bare_Demo_Template_for_Conferences_A4.pdf
   check "A4 conf title"    "$(baseline "$out/conf-a4.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
   check "A4 conf authors"  "$(baseline "$out/conf-a4.pdf" 1 'Michael')"      "$(baseline "$ref" 1 'Michael')"
   check "A4 conf abstract" "$(baseline "$out/conf-a4.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
-  # Compare the left edge against the reference render rather than a rounded
-  # literal, so the check does not depend on how many digits were written down.
-  edge() {
-    pdftotext -bbox -f 1 -l 1 "$1" - 2>/dev/null \
-    | grep -oE 'xMin="[0-9.]+"' | sed -E 's/[^0-9.]//g' | sort -n | head -1
-  }
   check "A4 left edge"     "$(edge "$out/conf-a4.pdf")" "$(edge "$ref")" 1
 fi
 if [ -f "$out/jrnl-a4.pdf" ]; then
@@ -201,6 +245,20 @@ if [ -f "$out/jrnl-a4.pdf" ]; then
   check "A4 jrnl head"     "$(baseline "$out/jrnl-a4.pdf" 1 'JOURNAL OF')"   "$(baseline "$ref" 1 'JOURNAL')"
   check "A4 jrnl title"    "$(baseline "$out/jrnl-a4.pdf" 1 'Bare Demo')"    "$(baseline "$ref" 1 'BareDemo')"
   check "A4 jrnl abstract" "$(baseline "$out/jrnl-a4.pdf" 1 'Abstract')"     "$(baseline "$ref" 1 'Abstract')"
+fi
+
+# No A4 render of either Computer Society mode exists, so these compare against
+# what the class derives (IEEEtran.cls:1773-1796). The journal margins go from
+# 0.625in to 24.675mm, which lowers the page by 25pt and leaves 61 lines. The
+# conference keeps 1in margins, so the taller sheet holds 62 lines instead of
+# 58 and the quantising error moves the top by 3pt.
+if [ -f "$out/cs-a4.pdf" ] && [ -f "$out/cs.pdf" ]; then
+  check "A4 cs title"      "$(baseline "$out/cs-a4.pdf" 1 'Bare Demo')" "$(baseline "$out/cs.pdf" 1 'Bare Demo' | awk '{print $1 + 25}')"
+  check "A4 cs left edge"  "$(edge "$out/cs-a4.pdf")" 39.64 0.5
+fi
+if [ -f "$out/csc-a4.pdf" ] && [ -f "$out/csc.pdf" ]; then
+  check "A4 csc title"     "$(baseline "$out/csc-a4.pdf" 1 'Bare Demo')" "$(baseline "$out/csc.pdf" 1 'Bare Demo' | awk '{print $1 + 3}')" 1
+  check "A4 csc left edge" "$(edge "$out/csc-a4.pdf")" 54 0.5
 fi
 
 echo "horizontal centring"
@@ -228,19 +286,38 @@ if build tests/technote.typ tn; then
   ref=reference/pdf/IEEE_Journal_Technote.pdf
   check "technote head"     "$(baseline "$out/tn.pdf" 1 'JOURNAL OF')" "$(baseline "$ref" 1 'JOURNALOF')"
   check "technote title"    "$(baseline "$out/tn.pdf" 1 'Bare Demo')"  "$(baseline "$ref" 1 'BareDemo')"
-  check "technote authors"  "$(baseline "$out/tn.pdf" 1 'Michael')"    "$(baseline "$ref" 1 'MichaelShell')" 1
+  check "technote authors"  "$(baseline "$out/tn.pdf" 1 'Michael')"    "$(baseline "$ref" 1 'MichaelShell')"
   check "technote abstract" "$(baseline "$out/tn.pdf" 1 'Abstract')"   "$(baseline "$ref" 1 'Abstract')"
+  column "technote left column" "$out/tn.pdf" "$ref"
+  column "technote right column" "$out/tn.pdf" "$ref" 0.25 '^$' 1 9999 310
 fi
 if build tests/peerreview.typ pr; then
   ref=reference/pdf/IEEE_Journal_Peerreview.pdf
   check "peerreview title"    "$(baseline "$out/pr.pdf" 1 'Bare Demo')" "$(baseline "$ref" 1 'BareDemo')"
   check "peerreview authors"  "$(baseline "$out/pr.pdf" 1 'Michael')"   "$(baseline "$ref" 1 'MichaelShell')"
   check "peerreview abstract" "$(baseline "$out/pr.pdf" 1 'Abstract')"  "$(baseline "$ref" 1 'Abstract')"
+  # Overleaf the title is repeated across both columns, without the authors.
+  check "peerreview p2 title"     "$(baseline "$out/pr.pdf" 2 'Bare Demo of IEEEtran')" "$(baseline "$ref" 2 'BareDemo')"
+  check "peerreview p2 section 1" "$(baseline "$out/pr.pdf" 2 'INTRODUCTION')"          "$(baseline "$ref" 2 'INTRODUCTION')"
+  column "peerreview p2 left column" "$out/pr.pdf" "$ref" 0.25 '^$' 2
+  column "peerreview p2 right column" "$out/pr.pdf" "$ref" 0.25 '^$' 2 9999 310
   # The cover page carries no running head; the body overleaf does.
   if ./scripts/baselines.sh "$out/pr.pdf" 1 9999 | grep -q 'JOURNAL OF'; then
     printf '  FAIL  %-34s cover page should have no running head\n' "peerreview cover"; fail=$((fail + 1))
   else
     printf '  ok    %-34s no running head\n' "peerreview cover"; pass=$((pass + 1))
+  fi
+  # The cover is page 0, so the page overleaf is numbered 1, on the right.
+  if pdftotext -layout -f 2 -l 2 "$out/pr.pdf" - | head -1 | grep -qE '^JOURNAL OF.* 2015 +1$'; then
+    printf '  ok    %-34s journal line, page 1\n' "peerreview body head"; pass=$((pass + 1))
+  else
+    printf '  FAIL  %-34s want the journal line and page 1\n' "peerreview body head"; fail=$((fail + 1))
+  fi
+  # The funding note belongs to the cover only.
+  if ./scripts/baselines.sh "$out/pr.pdf" 2 9999 | grep -q 'Manuscript received'; then
+    printf '  FAIL  %-34s repeated on page 2\n' "peerreview thanks"; fail=$((fail + 1))
+  else
+    printf '  ok    %-34s cover only\n' "peerreview thanks"; pass=$((pass + 1))
   fi
 fi
 
@@ -273,7 +350,8 @@ fi
 echo "starter template"
 # template/ is what `typst init` copies. It imports by package name, which only
 # resolves once published, so it is rewritten to the local source to be checked.
-sed 's|@preview/ieee-templates:0.1.0|/src/lib.typ|' template/main.typ > "$out/starter.typ"
+version=$(awk -F'"' '/^version =/{print $2; exit}' typst.toml)
+sed "s|@preview/ieee-templates:$version|/src/lib.typ|" template/main.typ > "$out/starter.typ"
 cp template/refs.bib "$out/refs.bib"
 build "$out/starter.typ" starter
 
@@ -295,6 +373,30 @@ if [ -f assets/previews.txt ]; then
 else
   printf '  FAIL  %-34s missing, run scripts/update-previews.sh\n' "previews"
   fail=$((fail + 1))
+fi
+
+echo "markup in split bodies"
+# parstart and biography cut their body in two to set it beside the drop cap or
+# the photo. Whatever the body carries has to survive that.
+cat > "$out/markup.typ" <<'TYP'
+#import "/src/lib.typ": *
+#show: ieee-journal.with(title: [T], authors: [A])
+= Intro
+#parstart[Opening _word_ cites @eason1955 and sets $a^2 + b^2 = c^2$ before a note#footnote[Kept apart.] and enough further text to run past the two lines beside the drop cap.]
+
+#biography(name: [A. Author])[First with @eason1955 and $x^2$.
+
+Second paragraph.]
+#bibliography("/tests/refs.bib")
+TYP
+if build "$out/markup.typ" markup; then
+  text=$(pdftotext -layout "$out/markup.pdf" - | tr -s ' \n' ' ')
+  has() { case "$text" in *"$2"*) check "$1" 1 1 ;; *) check "$1" 0 1 ;; esac; }
+  has "parstart keeps a citation" "cites [1] and"
+  has "parstart keeps math"       "2 + "
+  has "parstart keeps a footnote" "1 Kept apart."
+  has "biography keeps a citation" "First with [1] and"
+  has "biography keeps paragraphs" "2 . Second paragraph."
 fi
 
 echo "geometry invariants"

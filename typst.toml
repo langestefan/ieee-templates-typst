@@ -2,6 +2,7 @@
 name = "ieee-templates"
 version = "0.1.0"
 entrypoint = "src/lib.typ"
+compiler = "0.15.0"
 authors = ["Stefan de Lange"]
 description = "IEEE paper templates ported from IEEEtran.cls v1.8b."
 repository = "https://github.com/langestefan/ieee-templates-typst"
@@ -10,4 +11,21 @@ license = "MIT"
 # The MIT licence covers src/, template/ and scripts/ only. reference/ is
 # excluded from the package: IEEEtran itself is LPPL, and IEEE's template
 # wrapper and the compiled reference PDFs are IEEE copyright. See LICENSE.
-exclude = ["reference", "scripts", "tests", "tmp", "docs", "assets"]
+exclude = [
+  "reference",
+  "scripts",
+  "tests",
+  "tmp",
+  "docs",
+  "assets",
+  "archived",
+  "CLAUDE.md",
+]
+
+# Publishing this as a template package rather than a plain library is what
+# makes `typst init @preview/ieee-templates` work and lists it under Templates
+# on Universe. path/ and thumbnail must stay outside `exclude` above.
+[template]
+path = "template"
+entrypoint = "main.typ"
+thumbnail = "thumbnail.png"
