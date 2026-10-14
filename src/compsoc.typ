@@ -265,9 +265,10 @@
 // the baseline, then the same again. There are two widths; the 2.5cm one is the
 // double-column form.
 //
-// D050000L is the URW ZapfDingbats clone the class's pzd family maps to. The
-// same glyph is U+2726, which most fonts carry, so this degrades gracefully if
-// D050000L is absent.
+// The class takes the glyph from ZapfDingbats (pzd). It is U+2726, which
+// DejaVu Sans carries; naming the URW clone D050000L first would make Typst
+// warn "unknown font family" on every compile where it is absent, typst.app
+// included, even for layouts that never draw this rule.
 #let diamond-rule-width = 4cm
 #let diamond-gap = 7.5pt
 
@@ -277,7 +278,7 @@
 #let diamond-line = align(center, box({
   diamond-rule
   h(diamond-gap)
-  text(font: ("D050000L", "DejaVu Sans"), size: 11pt, baseline: 3.5pt)[\u{2726}]
+  text(font: "DejaVu Sans", size: 11pt, baseline: 3.5pt)[\u{2726}]
   h(diamond-gap)
   diamond-rule
 }))

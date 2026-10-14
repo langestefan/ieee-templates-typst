@@ -28,8 +28,7 @@ jobs:
       # ghostscript reads text baselines via its txtwrite device, which is what
       # scripts/baselines.sh uses; poppler supplies pdftotext, pdfinfo and
       # pdftoppm. fonts-urw-base35 provides Nimbus Roman and Nimbus Sans, the
-      # Times and Helvetica clones the layouts fall back to, plus D050000L for
-      # the Computer Society diamond rule.
+      # Times and Helvetica clones the layouts fall back to.
       - name: Install PDF tools and base fonts
         run: |
           sudo apt-get update
